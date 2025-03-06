@@ -1,0 +1,23 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "vs_sails:block/sail_block",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "vs_sails:block/sail_block"
+    },
+    "facing=south": {
+      "model": "vs_sails:block/sail_block",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "vs_sails:block/sail_block",
+      "y": 270
+    },
+    "set=false": {
+      "model": "vs_sails:block/rigging_block_side",
+      "y": 270
+    }
+  }
+}

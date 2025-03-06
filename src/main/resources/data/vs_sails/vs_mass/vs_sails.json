@@ -1,0 +1,14 @@
+[
+  {
+    "block": "vs_sails:helm_block",
+    "mass": 480
+  },
+  {
+    "block": "vs_sails:sail_block",
+    "mass": 0
+  },
+  {
+    "block": "vs_sails:rigging_block",
+    "mass": 10
+  }
+]

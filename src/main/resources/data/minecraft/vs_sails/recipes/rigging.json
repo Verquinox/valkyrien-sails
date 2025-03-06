@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "functional",
+  "key": {
+    "#": {
+      "item": "minecraft:air"
+    },
+    "X": {
+      "item": "vs_sails:rope"
+    }
+  },
+  "pattern": [
+    "X#X",
+    "XXX",
+    "X#X"
+  ],
+  "result": {
+    "item": "vs_sails:rigging_block"
+  },
+  "show_notification": true
+}

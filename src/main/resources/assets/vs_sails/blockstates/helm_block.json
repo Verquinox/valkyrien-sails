@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "vs_sails:block/helm_block",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "vs_sails:block/helm_block"
+    },
+    "facing=south": {
+      "model": "vs_sails:block/helm_block",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "vs_sails:block/helm_block",
+      "y": 270
+    }
+  }
+}
