@@ -36,11 +36,8 @@ public class HelmBlockEntity extends BlockEntity {
 
         Matrix3dc moiTensor = ship.getInertiaData().getMomentOfInertiaTensor();
 
-
-
         GameTickForceApplier shipForceApplier = ship.getAttachment(GameTickForceApplier.class);
-        Vector3d torqueval = new Vector3d(100000, 0, 0);
-        if (shipForceApplier != null) shipForceApplier.applyRotDependentForce(torqueval);
+        if (shipForceApplier != null) shipForceApplier.applyInvariantTorque(moiTensor.transform(new Vector3d(0.0, 10.0, 0.0)));
     }
 
 
