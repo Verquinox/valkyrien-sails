@@ -1,11 +1,17 @@
 package com.quintonc.vs_sails.blocks;
 
+import com.quintonc.vs_sails.ValkyrienSailsJava;
 import com.quintonc.vs_sails.blocks.entity.HelmBlockEntity;
+import com.quintonc.vs_sails.blocks.entity.SailBlockEntity;
+import com.quintonc.vs_sails.ship.SailsShipControl;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.IntProperty;
@@ -21,6 +27,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import org.valkyrienskies.core.api.ships.LoadedServerShip;
+import org.valkyrienskies.mod.common.VSGameUtilsKt;
 import org.valkyrienskies.mod.common.ValkyrienSkiesMod;
 import org.valkyrienskies.mod.common.entity.ShipMountingEntity;
 import org.valkyrienskies.mod.common.util.VSServerLevel;
@@ -48,11 +56,17 @@ public class HelmBlock extends BlockWithEntity {
                 .with(WHEEL_ANGLE, 360);
     }
 
+    public void onBlockAdded(BlockState state, World world, BlockPos pos, BlockState oldState, boolean notify) {
+        if (world.isClient) {
+            return;
+        }
+
+        LoadedServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerWorld) world, pos);
+        assert ship != null;
+        SailsShipControl.getOrCreate(ship);
+    }
+
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-//        if (state.get(WHEEL_ANGLE) > 0) {
-//            state = (BlockState)state.with(WHEEL_ANGLE, state.get(WHEEL_ANGLE)+1);
-//            world.setBlockState(pos, state, 10);
-//        }
 
         if (world.isClient) {
             return ActionResult.SUCCESS;
@@ -60,14 +74,14 @@ public class HelmBlock extends BlockWithEntity {
             BlockEntity be = world.getBlockEntity(pos);
             if (be instanceof HelmBlockEntity) {
                 //seat player
-                player.sendMessage(Text.of("Angle: "+ (state.get(WHEEL_ANGLE) - 360)));
-                if (player.isSneaking()) {
+                if (player.isSneaking() && state.get(WHEEL_ANGLE) > 0) {
                     state = state.with(WHEEL_ANGLE, state.get(WHEEL_ANGLE)-10);
                     world.setBlockState(pos, state, 10);
-                } else {
+                } else if (state.get(WHEEL_ANGLE) < 720) {
                     state = state.with(WHEEL_ANGLE, state.get(WHEEL_ANGLE)+10);
                     world.setBlockState(pos, state, 10);
                 }
+                player.sendMessage(Text.of("Angle: "+ (state.get(WHEEL_ANGLE) - 360)));
 
                 //set position?
                 //world.(be);
@@ -94,6 +108,12 @@ public class HelmBlock extends BlockWithEntity {
     @Override
     public BlockRenderType getRenderType(BlockState state) {
         return BlockRenderType.MODEL;
+    }
+
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
+        return checkType(type, ValkyrienSailsJava.HELM_BLOCK_ENTITY, HelmBlockEntity::tick);
     }
 
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {

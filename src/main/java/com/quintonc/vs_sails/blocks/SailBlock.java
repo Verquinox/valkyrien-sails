@@ -2,12 +2,14 @@ package com.quintonc.vs_sails.blocks;
 
 import com.quintonc.vs_sails.ValkyrienSailsJava;
 import com.quintonc.vs_sails.blocks.entity.SailBlockEntity;
+import com.quintonc.vs_sails.ship.SailsShipControl;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.stat.Stats;
 import net.minecraft.state.StateManager;
@@ -25,10 +27,15 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.valkyrienskies.core.api.ships.LoadedServerShip;
+import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
 public class SailBlock extends BlockWithEntity {
     public static final BooleanProperty SET = BooleanProperty.of("set");
     public static final DirectionProperty FACING;
+    public static final Logger LOGGER = LoggerFactory.getLogger("sail_block");
 
     public SailBlock(Settings settings) {
         super(settings);
@@ -49,7 +56,26 @@ public class SailBlock extends BlockWithEntity {
                 .with(SET, true);
     }
 
+    public void onBlockAdded(BlockState state, World world, BlockPos pos, BlockState oldState, boolean notify) {
+        if (world.isClient) {
+            return;
+        }
+
+        //LOGGER.info("Sail block is added");
+        if (VSGameUtilsKt.isBlockInShipyard(world, pos)) {
+            LoadedServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerWorld) world, pos);
+            assert ship != null;
+            SailsShipControl controller = SailsShipControl.getOrCreate(ship);
+            controller.numSails++;
+        }
+    }
+
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+        if (!world.isClient) {
+            //LoadedServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerWorld) world, pos);
+            //SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
+            //I eventually want to make this method add and remove sails from the sail list
+        }
         if ((Boolean)state.get(SET)) {
             state = (BlockState)state.with(SET, false);
             world.setBlockState(pos, state, 10);
@@ -61,6 +87,30 @@ public class SailBlock extends BlockWithEntity {
         boolean bl = (Boolean)state.get(SET);
         world.playSound(player, pos, bl ? WoodType.ACACIA.fenceGateOpen() : WoodType.ACACIA.fenceGateClose(), SoundCategory.BLOCKS, 1.0F, world.getRandom().nextFloat() * 0.1F + 0.9F);
         return ActionResult.success(world.isClient);
+    }
+
+    public void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {
+        //if sourceBlock is a sail, then
+        //      if state != sourceBlock.state
+        //          state = source.state
+//        if () {
+//
+//        }
+//        if () { //fixme
+//        } else {
+//            state = state.with(SET, true);
+//            world.setBlockState(pos, state, 10);
+//        }
+    }
+
+    public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
+        LoadedServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerWorld) world, pos);
+        SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
+        controller.numSails--;
+        if (state.hasBlockEntity() && !state.isOf(newState.getBlock())) {
+            world.removeBlockEntity(pos);
+        }
+
     }
 
     @Nullable

@@ -4,6 +4,7 @@ import com.quintonc.vs_sails.ValkyrienSailsJava;
 import com.quintonc.vs_sails.blocks.SailBlock;
 //import com.quintonc.vs_sails.util.ConfigUtils;
 //import com.quintonc.vs_sails.util.PatternProcessor;
+import com.quintonc.vs_sails.ship.SailsShipControl;
 import jdk.jfr.Category;
 import net.fabricmc.loader.impl.util.log.Log;
 import net.fabricmc.loader.impl.util.log.LogCategory;
@@ -76,20 +77,19 @@ public class SailBlockEntity extends BlockEntity {
 
 
     /**
-     * This method converts the Euler angles of the ship's rotation
-     * to a vector that drives the ship forward
+     * This method drives the ship forward
      * @param ship the ship the block is on
      * @param state blockstate of the sail block
      */
     private void moveShipForward(LoadedServerShip ship, BlockState state)
     {
         //double mass = ship.getInertiaData().getMass();
-        // Y is Yaw from getEulerAnglesXYZ
-        double shipYaw = ship.getTransform().getShipToWorldRotation().getEulerAnglesXYZ(new Vector3d()).y;
-        System.out.println("Euler: "+ship.getTransform().getShipToWorldRotation().getEulerAnglesXYZ(new Vector3d()));
-        Vector3d directionVectorXZ = new Vector3d(Math.cos(shipYaw)*sailspeed,0,Math.sin(shipYaw)*sailspeed);
+        Vector3d dirfor = new Vector3d(sailspeed, 0, 0);
 
-        GameTickForceApplier shipForceApplier = ship.getAttachment(GameTickForceApplier.class);
-        if (shipForceApplier != null) shipForceApplier.applyInvariantForce(directionVectorXZ);
+        SailsShipControl shipForceApplier = ship.getAttachment(SailsShipControl.class);
+        if (shipForceApplier != null) {
+            shipForceApplier.applyRotDependentForce(dirfor);
+        }
+
     }
 }

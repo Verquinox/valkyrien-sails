@@ -1,5 +1,17 @@
 {
 	"credit": "Made with Blockbench",
+	"display": {
+		"firstperson_righthand": {
+			"rotation": [ 0, 315, 0 ],
+			"translation": [ 0, 0, 0 ],
+			"scale": [ 0.40, 0.40, 0.40 ]
+		},
+		"gui": {
+			"rotation": [ 30, 45, 0 ],
+			"translation": [ 0, 0, 0],
+			"scale":[ 0.625, 0.625, 0.625 ]
+		}
+	},
 	"textures": {
 		"0": "vs_sails:block/rigging_block",
 		"1": "vs_sails:block/img",

@@ -1,6 +1,7 @@
 package com.quintonc.vs_sails;
 
 import com.quintonc.vs_sails.blocks.*;
+import com.quintonc.vs_sails.blocks.entity.BallastBlockEntity;
 import com.quintonc.vs_sails.blocks.entity.HelmBlockEntity;
 import com.quintonc.vs_sails.blocks.entity.SailBlockEntity;
 import net.fabricmc.api.ModInitializer;
@@ -32,7 +33,7 @@ public class ValkyrienSailsJava implements ModInitializer {
 
     public static final RegistryKey<ItemGroup> SAILS_ITEM_GROUP_KEY = RegistryKey.of(Registries.ITEM_GROUP.getKey(), Identifier.of(MOD_ID, "item_group"));
     public static final ItemGroup SAILS_ITEM_GROUP = FabricItemGroup.builder()
-            .icon(() -> new ItemStack(ValkyrienSailsJava.SAIL_BLOCK.asItem()))
+            .icon(() -> new ItemStack(ValkyrienSailsJava.HELM_BLOCK.asItem()))
             .displayName(Text.of("Valkyrien Sails"))
             .build();
 
@@ -57,6 +58,7 @@ public class ValkyrienSailsJava implements ModInitializer {
             itemGroup.add(ValkyrienSailsJava.SAIL_BLOCK.asItem());
             itemGroup.add(ValkyrienSailsJava.HELM_BLOCK.asItem());
             itemGroup.add(ValkyrienSailsJava.RIGGING_BLOCK.asItem());
+            itemGroup.add(ValkyrienSailsJava.BALLAST_BLOCK.asItem());
             itemGroup.add(ValkyrienSailsJava.CANNONBALL);
 
             //new items go here ^
@@ -68,15 +70,17 @@ public class ValkyrienSailsJava implements ModInitializer {
 
 
     //block registry stuff
-    public static final SailBlock SAIL_BLOCK = new SailBlock(AbstractBlock.Settings.copy(Blocks.WHITE_WOOL));
+    public static final SailBlock SAIL_BLOCK = new SailBlock(AbstractBlock.Settings.copy(Blocks.WHITE_WOOL).nonOpaque());
     public static final HelmBlock HELM_BLOCK = new HelmBlock(AbstractBlock.Settings.copy(Blocks.BIRCH_PLANKS).nonOpaque());
     public static final RiggingBlock RIGGING_BLOCK = new RiggingBlock(AbstractBlock.Settings.copy(Blocks.DARK_OAK_FENCE));
+    public static final BallastBlock BALLAST_BLOCK = new BallastBlock(AbstractBlock.Settings.copy(Blocks.IRON_BLOCK));
 
     //add new constants for blocks here ^
     private void registerBlocks() {
         Registry.register(Registries.BLOCK, new Identifier("vs_sails", "sail_block"), SAIL_BLOCK);
         Registry.register(Registries.BLOCK, new Identifier("vs_sails", "helm_block"), HELM_BLOCK);
         Registry.register(Registries.BLOCK,new Identifier("vs_sails","rigging_block"),RIGGING_BLOCK);
+        Registry.register(Registries.BLOCK,new Identifier("vs_sails","ballast_block"),BALLAST_BLOCK);
 
         //register new blocks here ^
     }
@@ -95,6 +99,7 @@ public class ValkyrienSailsJava implements ModInitializer {
         Registry.register(Registries.ITEM, new Identifier("vs_sails", "sail_block"), new BlockItem(SAIL_BLOCK, new Item.Settings()));
         Registry.register(Registries.ITEM, new Identifier("vs_sails", "helm_block"), new BlockItem(HELM_BLOCK, new Item.Settings()));
         Registry.register(Registries.ITEM,new Identifier("vs_sails","rigging_block"),new BlockItem(RIGGING_BLOCK,new Item.Settings()));
+        Registry.register(Registries.ITEM,new Identifier("vs_sails","ballast_block"),new BlockItem(BALLAST_BLOCK,new Item.Settings()));
 
         //register new block items here ^
     }
@@ -109,6 +114,11 @@ public class ValkyrienSailsJava implements ModInitializer {
             Registries.BLOCK_ENTITY_TYPE,
             new Identifier("vs_sails", "helm_block_entity"),
             FabricBlockEntityTypeBuilder.create(HelmBlockEntity::new, HELM_BLOCK).build()
+    );
+    public static final BlockEntityType<BallastBlockEntity> BALLAST_BLOCK_ENTITY = Registry.register(
+            Registries.BLOCK_ENTITY_TYPE,
+            new Identifier("vs_sails", "ballast_block_entity"),
+            FabricBlockEntityTypeBuilder.create(BallastBlockEntity::new, BALLAST_BLOCK).build()
     );
 
     //entities would go here
