@@ -60,6 +60,7 @@ public class HelmBlockEntityRenderer implements BlockEntityRenderer<HelmBlockEnt
             matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(entity.getCachedState().get(WHEEL_ANGLE)%360), 0, 0.3125f, 0);
 
         }
+        matrices.scale(1.6f, 1.6f, 1.6f);
 
         //rotate wheel towards direction it is facing
 

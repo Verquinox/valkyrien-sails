@@ -6,6 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -30,9 +31,10 @@ public class MagicBallastBlock extends Block {
         //LOGGER.info("Magic Ballast block is added");
         if (VSGameUtilsKt.isBlockInShipyard(world, pos)) {
             LoadedServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerWorld) world, pos);
-            assert ship != null;
-            SailsShipControl controller = SailsShipControl.getOrCreate(ship);
-            controller.numMagicBallast++;
+            if (ship != null) {
+                SailsShipControl controller = SailsShipControl.getOrCreate(ship);
+                controller.numMagicBallast++;
+            }
         }
     }
 
@@ -43,11 +45,15 @@ public class MagicBallastBlock extends Block {
             return ActionResult.SUCCESS;
         } else {
             if (VSGameUtilsKt.isBlockInShipyard(world, pos)) {
-                LoadedServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerWorld) world, pos);
-                assert ship != null;
-                SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
-                assert controller != null;
-                player.sendMessage(Text.of("Magic Ballast: "+ (controller.numMagicBallast)));
+                if (player.getStackInHand(Hand.MAIN_HAND) == ItemStack.EMPTY) {
+                    LoadedServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerWorld) world, pos);
+                    assert ship != null;
+                    SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
+                    assert controller != null;
+                    player.sendMessage(Text.of("Magic Ballast: "+ (controller.numMagicBallast)));
+                } else {
+                    return ActionResult.PASS;
+                }
             }
         }
 
@@ -60,10 +66,11 @@ public class MagicBallastBlock extends Block {
             if (!world.isClient) {
                 if (VSGameUtilsKt.isBlockInShipyard(world, pos)) {
                     LoadedServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerWorld) world, pos);
-                    assert ship != null;
-                    SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
-                    assert controller != null;
-                    controller.numMagicBallast--;
+                    if (ship != null) {
+                        SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
+                        assert controller != null;
+                        controller.numMagicBallast--;
+                    }
                 }
             }
         }

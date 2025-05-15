@@ -65,49 +65,50 @@ public class SailBlock extends Block {
         //LOGGER.info("Sail block is added");
         if (VSGameUtilsKt.isBlockInShipyard(world, pos)) {
             LoadedServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerWorld) world, pos);
-            assert ship != null;
-            SailsShipControl controller = SailsShipControl.getOrCreate(ship);
-            if (state.get(SET)) {
-                state = state.with(INVISIBLE, false);
-                world.setBlockState(pos, state, 10);
-                //sails only add to numsails when they have free opposite faces
-                sailType = calculateSailType(world, pos, controller);
-                if (sailType == 's') {
-                    controller.numSquareSails++;
-                    //LOGGER.info("(a) NUMSQ: " + controller.numSquareSails);
-                } else if (sailType == 'f') {
-                    controller.numFnASails++;
-                    //LOGGER.info("(a) NUMFA: " + controller.numFnASails);
-                }
-                controller.numSails++;
-                //LOGGER.info("(a) NUMSAILS: " + controller.numSails);
-            } else {
-                //LOGGER.info("sail is not set!");
-                //up down north south east west
-                int i = 0;
-                if (world.getBlockState(pos.up()).isOf(this)) {
-                    i++;
-                }
-                if (world.getBlockState(pos.down()).isOf(this)) {
-                    i++;
-                }
-                if (world.getBlockState(pos.north()).isOf(this)) {
-                    i++;
-                }
-                if (world.getBlockState(pos.south()).isOf(this)) {
-                    i++;
-                }
-                if (world.getBlockState(pos.east()).isOf(this)) {
-                    i++;
-                }
-                if (world.getBlockState(pos.west()).isOf(this)) {
-                    i++;
-                }
-
-                if (i > 3) {
-                    LOGGER.info("invis set to true!");
-                    state = state.with(INVISIBLE, true);
+            if (ship != null) {
+                SailsShipControl controller = SailsShipControl.getOrCreate(ship);
+                if (state.get(SET)) {
+                    state = state.with(INVISIBLE, false);
                     world.setBlockState(pos, state, 10);
+                    //sails only add to numsails when they have free opposite faces
+                    sailType = calculateSailType(world, pos, controller);
+                    if (sailType == 's') {
+                        controller.numSquareSails++;
+                        //LOGGER.info("(a) NUMSQ: " + controller.numSquareSails);
+                    } else if (sailType == 'f') {
+                        controller.numFnASails++;
+                        //LOGGER.info("(a) NUMFA: " + controller.numFnASails);
+                    }
+                    controller.numSails++;
+                    //LOGGER.info("(a) NUMSAILS: " + controller.numSails);
+                } else {
+                    //LOGGER.info("sail is not set!");
+                    //up down north south east west
+                    int i = 0;
+                    if (world.getBlockState(pos.up()).isOf(this)) {
+                        i++;
+                    }
+                    if (world.getBlockState(pos.down()).isOf(this)) {
+                        i++;
+                    }
+                    if (world.getBlockState(pos.north()).isOf(this)) {
+                        i++;
+                    }
+                    if (world.getBlockState(pos.south()).isOf(this)) {
+                        i++;
+                    }
+                    if (world.getBlockState(pos.east()).isOf(this)) {
+                        i++;
+                    }
+                    if (world.getBlockState(pos.west()).isOf(this)) {
+                        i++;
+                    }
+
+                    if (i > 3) {
+                        LOGGER.info("invis set to true!");
+                        state = state.with(INVISIBLE, true);
+                        world.setBlockState(pos, state, 10);
+                    }
                 }
             }
         }
@@ -243,38 +244,37 @@ public class SailBlock extends Block {
         if (!world.isClient) {
             if (VSGameUtilsKt.isBlockInShipyard(world, pos)) {
                 LoadedServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerWorld) world, pos);
-                assert ship != null;
-                SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
-                if (!newState.isAir() && !newState.get(SET) && controller != null) {
-                    sailType = calculateSailType(world, pos, controller);
-                    if (sailType == 's') {
-                        controller.numSquareSails--;
-                        //LOGGER.info("(r) NUMSQ: " + controller.numSquareSails);
-                    }
-                    if (sailType == 'f') {
-                        controller.numFnASails--;
-                        //LOGGER.info("(r) NUMFA: " + controller.numFnASails);
-                    }
+                if (ship != null) {
+                    SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
+                    if (!newState.isAir() && !newState.get(SET) && controller != null) {
+                        sailType = calculateSailType(world, pos, controller);
+                        if (sailType == 's') {
+                            controller.numSquareSails--;
+                            //LOGGER.info("(r) NUMSQ: " + controller.numSquareSails);
+                        }
+                        if (sailType == 'f') {
+                            controller.numFnASails--;
+                            //LOGGER.info("(r) NUMFA: " + controller.numFnASails);
+                        }
 
-                    controller.numSails--;
-                    //LOGGER.info("(r) NUMSAILS: " + controller.numSails);
+                        controller.numSails--;
+                        //LOGGER.info("(r) NUMSAILS: " + controller.numSails);
+                    }
+                    if (newState.isAir() && state.get(SET) && controller != null) {
+                        sailType = calculateSailType(world, pos, controller);
+                        if (sailType == 's') {
+                            controller.numSquareSails--;
+                            //LOGGER.info("(r) NUMSQ: " + controller.numSquareSails);
+                        }
+                        if (sailType == 'f') {
+                            controller.numFnASails--;
+                            //LOGGER.info("(r) NUMFA: " + controller.numFnASails);
+                        }
+
+                        controller.numSails--;
+                        //LOGGER.info("(r) NUMSAILS: " + controller.numSails);
+                    }
                 }
-                if (newState.isAir() && state.get(SET) && controller != null) {
-                    sailType = calculateSailType(world, pos, controller);
-                    if (sailType == 's') {
-                        controller.numSquareSails--;
-                        //LOGGER.info("(r) NUMSQ: " + controller.numSquareSails);
-                    }
-                    if (sailType == 'f') {
-                        controller.numFnASails--;
-                        //LOGGER.info("(r) NUMFA: " + controller.numFnASails);
-                    }
-
-                    controller.numSails--;
-                    //LOGGER.info("(r) NUMSAILS: " + controller.numSails);
-                }
-
-
             }
         }
 

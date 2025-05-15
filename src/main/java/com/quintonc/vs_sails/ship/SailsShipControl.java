@@ -63,37 +63,41 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
     public LoadedServerShip ship = null;
 
     public static SailsShipControl getOrCreate(LoadedServerShip ship) {
-        if (ship.getAttachment(SailsShipControl.class) == null) {
-            ship.saveAttachment(SailsShipControl.class, new SailsShipControl());
-        }
-        SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
-        //controller.ship = ship;
-        assert controller != null;
-        controller.boundx = Objects.requireNonNull(ship.getShipAABB()).maxX() - ship.getShipAABB().minX();
-        controller.boundz = ship.getShipAABB().maxZ() - ship.getShipAABB().minZ();
-        if (controller.boundx > controller.boundz) {
-            if (controller.shipDirection != Direction.WEST && controller.shipDirection != Direction.EAST) {
-                controller.shipDirection = Direction.EAST;
-                //swap square and fna sails
-                int x = controller.numSquareSails;
-                controller.numSquareSails = controller.numFnASails;
-                controller.numFnASails = x;
-                LOGGER.info("Sail types swapped! New ship dir: " + controller.shipDirection);
+        if (ship != null) {
+            if (ship.getAttachment(SailsShipControl.class) == null) {
+                ship.saveAttachment(SailsShipControl.class, new SailsShipControl());
             }
-        } else {
-            if (controller.shipDirection != Direction.SOUTH && controller.shipDirection != Direction.NORTH) {
-                controller.shipDirection = Direction.NORTH;
-                //swap square and fna sails
-                int x = controller.numSquareSails;
-                controller.numSquareSails = controller.numFnASails;
-                controller.numFnASails = x;
-                LOGGER.info("Sail types swapped! New ship dir: " + controller.shipDirection);
+            SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
+            //controller.ship = ship;
+            assert controller != null;
+            controller.boundx = Objects.requireNonNull(ship.getShipAABB()).maxX() - ship.getShipAABB().minX();
+            controller.boundz = ship.getShipAABB().maxZ() - ship.getShipAABB().minZ();
+            if (controller.boundx > controller.boundz) {
+                if (controller.shipDirection != Direction.WEST && controller.shipDirection != Direction.EAST) {
+                    controller.shipDirection = Direction.EAST;
+                    //swap square and fna sails
+                    int x = controller.numSquareSails;
+                    controller.numSquareSails = controller.numFnASails;
+                    controller.numFnASails = x;
+                    LOGGER.info("Sail types swapped! New ship dir: " + controller.shipDirection);
+                }
+            } else {
+                if (controller.shipDirection != Direction.SOUTH && controller.shipDirection != Direction.NORTH) {
+                    controller.shipDirection = Direction.NORTH;
+                    //swap square and fna sails
+                    int x = controller.numSquareSails;
+                    controller.numSquareSails = controller.numFnASails;
+                    controller.numFnASails = x;
+                    LOGGER.info("Sail types swapped! New ship dir: " + controller.shipDirection);
+                }
             }
-        }
 
-        //LOGGER.info("Xbound=" + boundx + " Zbound=" + boundz);
-        //LOGGER.info("dir=" + controller.shipDirection.toString());
-        return controller;
+            //LOGGER.info("Xbound=" + boundx + " Zbound=" + boundz);
+            //LOGGER.info("dir=" + controller.shipDirection.toString());
+            return controller;
+        } else {
+            return null;
+        }
     }
 
     @Override

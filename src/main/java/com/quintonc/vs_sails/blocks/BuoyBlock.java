@@ -5,6 +5,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -29,9 +30,10 @@ public class BuoyBlock extends Block {
         //LOGGER.info("Buoy block is added");
         if (VSGameUtilsKt.isBlockInShipyard(world, pos)) {
             LoadedServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerWorld) world, pos);
-            assert ship != null;
-            SailsShipControl controller = SailsShipControl.getOrCreate(ship);
-            controller.numBuoys++;
+            if (ship != null) {
+                SailsShipControl controller = SailsShipControl.getOrCreate(ship);
+                controller.numBuoys++;
+            }
         }
     }
 
@@ -42,11 +44,15 @@ public class BuoyBlock extends Block {
             return ActionResult.SUCCESS;
         } else {
             if (VSGameUtilsKt.isBlockInShipyard(world, pos)) {
-                LoadedServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerWorld) world, pos);
-                assert ship != null;
-                SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
-                assert controller != null;
-                player.sendMessage(Text.of("Buoys: "+ (controller.numBuoys)));
+                if (player.getStackInHand(Hand.MAIN_HAND) == ItemStack.EMPTY) {
+                    LoadedServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerWorld) world, pos);
+                    assert ship != null;
+                    SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
+                    assert controller != null;
+                    player.sendMessage(Text.of("Buoys: "+ (controller.numBuoys)));
+                } else {
+                    return ActionResult.PASS;
+                }
             }
         }
 
@@ -59,10 +65,11 @@ public class BuoyBlock extends Block {
             if (!world.isClient) {
                 if (VSGameUtilsKt.isBlockInShipyard(world, pos)) {
                     LoadedServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerWorld) world, pos);
-                    assert ship != null;
-                    SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
-                    assert controller != null;
-                    controller.numBuoys--;
+                    if (ship != null) {
+                        SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
+                        assert controller != null;
+                        controller.numBuoys--;
+                    }
                 }
             }
         }

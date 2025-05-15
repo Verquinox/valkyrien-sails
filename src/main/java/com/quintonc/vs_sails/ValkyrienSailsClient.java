@@ -34,26 +34,26 @@ public class ValkyrienSailsClient implements ClientModInitializer {
 
 
 
-        testKeyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                "key.examplemod.spook", // The translation key of the keybinding's name
-                InputUtil.Type.KEYSYM, // The type of the keybinding, KEYSYM for keyboard, MOUSE for mouse.
-                GLFW.GLFW_KEY_J, // The keycode of the key
-                "category."+ MOD_ID +".test" // The translation key of the keybinding's category.
-        ));
+//        testKeyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+//                "key.examplemod.spook", // The translation key of the keybinding's name
+//                InputUtil.Type.KEYSYM, // The type of the keybinding, KEYSYM for keyboard, MOUSE for mouse.
+//                GLFW.GLFW_KEY_J, // The keycode of the key
+//                "category."+ MOD_ID +".test" // The translation key of the keybinding's category.
+//        ));
 
 
 
         ClientTickEvents.END_CLIENT_TICK.register(ModSounds::windSoundHandler);
 
 
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            while (testKeyBinding.wasPressed()) {
-
-                assert client.player != null;
-                //BlockPos targetedPos = client.player.getBlockPos();
-                //fixme add ScreenshakeHandler.addScreenshake(new PositionedScreenshakeInstance(10, BlockPosHelper.fromBlockPos(targetedPos), 10f, 800f, Easing.EXPO_OUT).setIntensity(2f, 0));
-                client.player.sendMessage(Text.literal("Key 1 was pressed!"), false);
-            }
-        });
+//        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+//            while (testKeyBinding.wasPressed()) {
+//
+//                assert client.player != null;
+//                //BlockPos targetedPos = client.player.getBlockPos();
+//                //fixme add ScreenshakeHandler.addScreenshake(new PositionedScreenshakeInstance(10, BlockPosHelper.fromBlockPos(targetedPos), 10f, 800f, Easing.EXPO_OUT).setIntensity(2f, 0));
+//                client.player.sendMessage(Text.literal("Key 1 was pressed!"), false);
+//            }
+//        });
     }
 }

@@ -71,14 +71,15 @@ public class HelmBlock extends BlockWithEntity {
         }
         if (VSGameUtilsKt.isBlockInShipyard(world, pos)) {
             LoadedServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerWorld) world, pos);
-            assert ship != null;
-            SailsShipControl controller = SailsShipControl.getOrCreate(ship);
+            if (ship != null) {
+                SailsShipControl controller = SailsShipControl.getOrCreate(ship);
 
-            controller.numHelms++;
+                controller.numHelms++;
 
-            //if the ship's direction is opposite the helm (helm faces backwards), set it to its opposite
-            if (Objects.equals(controller.shipDirection, state.get(FACING))) {
-                controller.shipDirection = controller.shipDirection.getOpposite();
+                //if the ship's direction is opposite the helm (helm faces backwards), set it to its opposite
+                if (Objects.equals(controller.shipDirection, state.get(FACING))) {
+                    controller.shipDirection = controller.shipDirection.getOpposite();
+                }
             }
         }
     }
@@ -94,8 +95,8 @@ public class HelmBlock extends BlockWithEntity {
                 //((HelmBlockEntity) be).sit(player);
 
                 if (VSGameUtilsKt.isBlockInShipyard(world, pos)) {
-                    LoadedServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerWorld) world, pos);
-                    assert ship != null;
+                    //LoadedServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerWorld) world, pos);
+                    //assert ship != null;
                     //SailsShipControl controller = SailsShipControl.getOrCreate(ship);
 
                     //old code for adding ShipMountingEntity
@@ -169,10 +170,11 @@ public class HelmBlock extends BlockWithEntity {
         if (!world.isClient) {
             if (VSGameUtilsKt.isBlockInShipyard(world, pos)) {
                 LoadedServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerWorld) world, pos);
-                assert ship != null;
-                SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
-                assert controller != null;
-                controller.numHelms--;
+                if (ship != null) {
+                    SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
+                    assert controller != null;
+                    controller.numHelms--;
+                }
             }
         }
 

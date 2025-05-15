@@ -87,11 +87,12 @@ public class ValkyrienSailsJava implements ModInitializer {
         ItemGroupEvents.modifyEntriesEvent(SAILS_ITEM_GROUP_KEY).register(itemGroup -> {
             itemGroup.add(ValkyrienSailsJava.SAIL_BLOCK.asItem());
             itemGroup.add(ValkyrienSailsJava.HELM_BLOCK.asItem());
+            itemGroup.add(ValkyrienSailsJava.HELM_WHEEL.asItem());
             itemGroup.add(ValkyrienSailsJava.RIGGING_BLOCK.asItem());
             itemGroup.add(ValkyrienSailsJava.BALLAST_BLOCK.asItem());
             itemGroup.add(ValkyrienSailsJava.MAGIC_BALLAST_BLOCK.asItem());
             itemGroup.add(ValkyrienSailsJava.BUOY_BLOCK.asItem());
-            itemGroup.add(ValkyrienSailsJava.CANNONBALL);
+            //itemGroup.add(ValkyrienSailsJava.CANNONBALL);
             itemGroup.add(ValkyrienSailsJava.ROPE);
 
             //new items go here ^
@@ -257,11 +258,12 @@ public class ValkyrienSailsJava implements ModInitializer {
                     if (player.getDraggingInformation().getLastShipStoodOn() != null) {
                         long shipId = player.getDraggingInformation().getLastShipStoodOn();
                         ServerShip ship = (ServerShip)VSGameUtilsKt.getAllShips(world).getById(shipId);
-                        assert ship != null;
-                        if (ship.getAttachment(SailsShipControl.class) != null) {
-                            if (player.getDraggingInformation().getTicksSinceStoodOnShip() < 100) {
-                                world.spawnParticles(serverPlayerEntity, ValkyrienSailsJava.WIND_PARTICLE, false, serverPlayerEntity.getX(), serverPlayerEntity.getY()+20, serverPlayerEntity.getZ(), 10, 20, 10, 20, 0);
+                        if (ship != null) {
+                            if (ship.getAttachment(SailsShipControl.class) != null) {
+                                if (player.getDraggingInformation().getTicksSinceStoodOnShip() < 100) {
+                                    world.spawnParticles(serverPlayerEntity, ValkyrienSailsJava.WIND_PARTICLE, false, serverPlayerEntity.getX(), serverPlayerEntity.getY()+20, serverPlayerEntity.getZ(), 10, 20, 10, 20, 0);
 
+                                }
                             }
                         }
                     }

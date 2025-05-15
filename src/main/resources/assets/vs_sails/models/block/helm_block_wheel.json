@@ -5,6 +5,11 @@
 			"rotation": [ 0, 0, 0 ],
 			"translation": [ 0, 0, 0 ],
 			"scale": [ 1, 1, 1 ]
+		},
+		"gui": {
+			"rotation": [ 0, 0, 0 ],
+			"translation": [ 0, 0, 0],
+			"scale":[ 0.625, 0.625, 0.625 ]
 		}
 	},
 	"texture_size": [16, 24],
