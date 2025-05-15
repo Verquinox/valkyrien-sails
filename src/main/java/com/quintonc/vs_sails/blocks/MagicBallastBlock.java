@@ -42,7 +42,11 @@ public class MagicBallastBlock extends Block {
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 
         if (world.isClient) {
-            return ActionResult.SUCCESS;
+            if (player.getStackInHand(Hand.MAIN_HAND) == ItemStack.EMPTY) {
+                return ActionResult.SUCCESS;
+            } else {
+                return  ActionResult.PASS;
+            }
         } else {
             if (VSGameUtilsKt.isBlockInShipyard(world, pos)) {
                 if (player.getStackInHand(Hand.MAIN_HAND) == ItemStack.EMPTY) {
