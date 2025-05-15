@@ -3,7 +3,7 @@
 	"id": "vs_sails",
 	"version": "${version}",
 	"name": "Valkyrien Sails",
-	"description": "A sailing system for Valkyrien Skies.",
+	"description": "Immersive sailing mechanics for Valkyrien Skies.",
 	"authors": [
 		"Quinton Center"
 	],
@@ -19,6 +19,11 @@
 			{
 				"value": "com.quintonc.vs_sails.ValkyrienSailsJava"
 			}
+		],
+		"client": [
+			{
+				"value": "com.quintonc.vs_sails.ValkyrienSailsClient"
+			}
 		]
 	},
 	"mixins": [
@@ -30,7 +35,8 @@
 		"java": ">=17",
 		"fabric-api": "*",
 
-		"valkyrienskies": ">=2.1.3-beta.1+a52f38bd68"
+		"valkyrienskies": ">=2.1.3-beta.1+a52f38bd68",
+		"vlib": "*"
 	},
 	"suggests": {
 		"another-mod": "*"

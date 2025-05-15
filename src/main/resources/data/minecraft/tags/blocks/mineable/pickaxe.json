@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "vs_sails:ballast_block",
+    "vs_sails:magic_ballast_block"
+  ]
+}

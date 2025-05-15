@@ -1,6 +1,6 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "group": "cannonball",
+  "category": "misc",
   "ingredients": [
 
     {"item": "minecraft:blaze_powder"},

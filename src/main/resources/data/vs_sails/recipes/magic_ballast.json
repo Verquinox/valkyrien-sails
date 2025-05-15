@@ -3,19 +3,22 @@
   "category": "functional",
   "key": {
     "#": {
-      "item": "minecraft:air"
+      "tag": "vs_sails:ballast_block"
     },
     "X": {
-      "item": "vs_sails:rope"
+      "item": "minecraft:diamond"
+    },
+    "Y": {
+      "item": "minecraft:redstone"
     }
   },
   "pattern": [
+    "YXY",
     "X#X",
-    "XXX",
-    "X#X"
+    "YXY"
   ],
   "result": {
-    "item": "vs_sails:rigging_block"
+    "item": "vs_sails:magic_ballast_block"
   },
   "show_notification": true
 }

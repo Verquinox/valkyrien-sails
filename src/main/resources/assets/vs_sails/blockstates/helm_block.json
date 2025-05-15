@@ -1,40 +1,19 @@
 {
-  "multipart": [
-    {"when": {"facing": "east"}, "apply": {"model": "vs_sails:block/helm_block_base", "y": 90}},
-    {"when": {"facing": "north"}, "apply": {"model": "vs_sails:block/helm_block_base"}},
-    {"when": {"facing": "south"}, "apply": {"model": "vs_sails:block/helm_block_base", "y": 180}},
-    {"when": {"facing": "west"}, "apply": {"model": "vs_sails:block/helm_block_base", "y": 270}},
-
-    {"when": {"OR": [
-      {"facing": "east", "wheel_angle": 360},
-      {"facing": "east", "wheel_angle": 0},
-      {"facing": "east", "wheel_angle": 720}
-    ]},
-      "apply": {"model": "vs_sails:block/helm_block_wheel", "y": 90}
+  "variants": {
+    "facing=east": {
+      "model": "vs_sails:block/helm_block_base",
+      "y": 90
     },
-
-    {"when": {"OR": [
-      {"facing": "north", "wheel_angle": 360},
-      {"facing": "north", "wheel_angle": 0},
-      {"facing": "north", "wheel_angle": 720}
-    ]},
-      "apply": {"model": "vs_sails:block/helm_block_wheel"}
+    "facing=north": {
+      "model": "vs_sails:block/helm_block_base"
     },
-
-    {"when": {"OR": [
-      {"facing": "south", "wheel_angle": 360},
-      {"facing": "south", "wheel_angle": 0},
-      {"facing": "south", "wheel_angle": 720}
-    ]},
-      "apply": {"model": "vs_sails:block/helm_block_wheel", "y": 180}
+    "facing=south": {
+      "model": "vs_sails:block/helm_block_base",
+      "y": 180
     },
-
-    {"when": {"OR": [
-      {"facing": "west", "wheel_angle": 360},
-      {"facing": "west", "wheel_angle": 0},
-      {"facing": "west", "wheel_angle": 720}
-    ]},
-      "apply": {"model": "vs_sails:block/helm_block_wheel", "y": 270}
+    "facing=west": {
+      "model": "vs_sails:block/helm_block_base",
+      "y": 270
     }
-  ]
+  }
 }

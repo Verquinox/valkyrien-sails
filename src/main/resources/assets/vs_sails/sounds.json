@@ -1,0 +1,8 @@
+{
+  "wind_ambience": {
+    "subtitle": "com.quintonc.vs_sails.wind_ambience",
+    "sounds": [
+      "vs_sails:wind_ambience"
+    ]
+  }
+}

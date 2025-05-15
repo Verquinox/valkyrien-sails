@@ -1,23 +1,14 @@
 {
   "variants": {
-    "facing=east,set=true": {
-      "model": "vs_sails:block/sail_block",
-      "y": 90
-    },
-    "facing=north,set=true": {
+    "set=true": {
       "model": "vs_sails:block/sail_block"
     },
-    "facing=south,set=true": {
-      "model": "vs_sails:block/sail_block",
-      "y": 180
-    },
-    "facing=west,set=true": {
-      "model": "vs_sails:block/sail_block",
-      "y": 270
-    },
-    "set=false": {
+    "set=false,invisible=false": {
       "model": "vs_sails:block/rigging_block_side",
       "y": 270
+    },
+    "set=false,invisible=true": {
+      "model": "vs_sails:block/sail_invis"
     }
   }
 }
