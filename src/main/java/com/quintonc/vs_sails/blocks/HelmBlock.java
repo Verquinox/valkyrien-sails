@@ -80,7 +80,7 @@ public class HelmBlock extends BlockWithEntity {
                 if (Objects.equals(controller.shipDirection, state.get(FACING))) {
                     controller.shipDirection = controller.shipDirection.getOpposite();
                 }
-            }
+            } //TODO add else for template placing (see corresponding spot in SailBlock)
         }
     }
 

@@ -14,6 +14,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.valkyrienskies.core.api.ships.LoadedServerShip;
+import org.valkyrienskies.core.api.ships.ServerShip;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
 public class BuoyBlock extends Block {
@@ -29,10 +30,16 @@ public class BuoyBlock extends Block {
 
         //LOGGER.info("Buoy block is added");
         if (VSGameUtilsKt.isBlockInShipyard(world, pos)) {
-            LoadedServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerWorld) world, pos);
+            ServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerWorld) world, pos);
             if (ship != null) {
                 SailsShipControl controller = SailsShipControl.getOrCreate(ship);
                 controller.numBuoys++;
+            } else {
+                ship = VSGameUtilsKt.getShipManagingPos((ServerWorld) world, pos);
+                if (ship != null) {
+                    SailsShipControl controller = SailsShipControl.getOrCreate(ship);
+                    controller.numBuoys++;
+                }
             }
         }
     }

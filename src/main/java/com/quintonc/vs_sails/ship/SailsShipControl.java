@@ -60,9 +60,9 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
 
     public Direction shipDirection = Direction.NORTH;
     @JsonIgnore
-    public LoadedServerShip ship = null;
+    public ServerShip ship = null;
 
-    public static SailsShipControl getOrCreate(LoadedServerShip ship) {
+    public static SailsShipControl getOrCreate(ServerShip ship) {
         if (ship != null) {
             if (ship.getAttachment(SailsShipControl.class) == null) {
                 ship.saveAttachment(SailsShipControl.class, new SailsShipControl());

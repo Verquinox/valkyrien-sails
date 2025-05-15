@@ -22,6 +22,7 @@ import net.minecraft.world.World;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.valkyrienskies.core.api.ships.LoadedServerShip;
+import org.valkyrienskies.core.api.ships.ServerShip;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
 public class SailBlock extends Block {
@@ -64,7 +65,7 @@ public class SailBlock extends Block {
 
         //LOGGER.info("Sail block is added");
         if (VSGameUtilsKt.isBlockInShipyard(world, pos)) {
-            LoadedServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerWorld) world, pos);
+            ServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerWorld) world, pos);
             if (ship != null) {
                 SailsShipControl controller = SailsShipControl.getOrCreate(ship);
                 if (state.get(SET)) {
@@ -110,7 +111,7 @@ public class SailBlock extends Block {
                         world.setBlockState(pos, state, 10);
                     }
                 }
-            }
+            } //TODO add else to make sure sails add correctly on template load (need some refactoring to make it good)
         }
     }
 
