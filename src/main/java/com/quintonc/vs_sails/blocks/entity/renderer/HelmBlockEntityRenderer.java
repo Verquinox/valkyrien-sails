@@ -1,5 +1,6 @@
 package com.quintonc.vs_sails.blocks.entity.renderer;
 
+import com.quintonc.vs_sails.blocks.HelmBlock;
 import com.quintonc.vs_sails.blocks.entity.HelmBlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.LightmapTextureManager;
@@ -38,6 +39,7 @@ public class HelmBlockEntityRenderer implements BlockEntityRenderer<HelmBlockEnt
         ItemStack stack = entity.getRenderStack();
 
         matrices.push();
+        //int i =((HelmBlock)entity.getCachedState().getBlock()).wheelAngle;
 
         if (entity.getCachedState().get(FACING) == Direction.NORTH) {
 

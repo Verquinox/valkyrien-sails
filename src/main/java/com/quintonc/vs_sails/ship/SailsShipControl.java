@@ -341,9 +341,9 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
         buoyForces.add(buoyancy);
     }
 
-    public void convertToShipDirection(double force) {
-
-    }
+//    public void convertToShipDirection(double force) {
+//
+//    }
 
 //    //fixme ship is always null
 //    public double getShipWidth() {

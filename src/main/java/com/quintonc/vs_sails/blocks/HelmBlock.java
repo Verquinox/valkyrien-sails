@@ -32,6 +32,7 @@ public class HelmBlock extends BlockWithEntity {
     public static final IntProperty WHEEL_ANGLE = IntProperty.of("wheel_angle", 0, 720);
     public static final Logger LOGGER = LoggerFactory.getLogger("helm_block");
     //private static final VoxelShape SHAPE = Block.createCuboidShape(1,0,5,15,13,11);
+    //public int wheelAngle = 0;
 
     public HelmBlock(Settings settings) {
         super(settings);

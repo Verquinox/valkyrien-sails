@@ -180,78 +180,6 @@ public class ValkyrienSailsJava implements ModInitializer {
         if(tickCount == refreshRate) {
             tickCount = 0;
 
-            //ServerShipWorldCore shipServer = VSGameUtilsKt.getShipObjectWorld(world);
-            //QueryableShipData<LoadedServerShip> loadedShips = shipServer.getLoadedShips();
-
-            maxWindSpeed = world.getGameRules().getInt(MAX_WIND_SPEED) / 10f;
-
-//            double theta = Math.toRadians(ServerWindManager.getWindDirection());
-//            double windStrength = ServerWindManager.getWindStrength();
-//
-//            if (windStrength < 0) {
-//                windStrength *= -1;
-//                theta += PI;
-//            }
-//
-//
-//            double finalWindStrength = windStrength;
-//            double finalTheta = theta;
-
-            //behavior for ships to be pushed by wind (not wanted atm)
-//            loadedShips.forEach(ship -> {
-//                if (Objects.equals(ship.getSlug(), "the-queer-quebecois")){
-//                    if (ship.getAttachment(GameTickForceApplier.class) == null) {
-//                        ship.saveAttachment(GameTickForceApplier.class, new GameTickForceApplier());
-//                    }
-//                    GameTickForceApplier forceApplier = ship.getAttachment(GameTickForceApplier.class);
-//
-//                    double shipMass = ship.getInertiaData().getMass();
-//                    Vec3d shipVelocity = new Vec3d(ship.getVelocity().x(), 0, ship.getVelocity().z());
-//
-//                    if (shipVelocity.length() > 2) {
-//
-//                        Vec3d force = shipVelocity.multiply(shipMass/(shipVelocity.length()*2));
-//
-//                        assert forceApplier != null;
-//                        forceApplier.applyInvariantForce(VectorConversionsMCKt.toJOML(
-//                                force.multiply(refreshRate)));
-//                    }
-//                } else if (ship.getVelocity().length() < 2.5) {
-//
-//                    if (maxWindSpeed < 0.05f || finalWindStrength < 0.05) return;
-//                    if (ship.getAttachment(GameTickForceApplier.class) == null) {
-//                        ship.saveAttachment(GameTickForceApplier.class, new GameTickForceApplier());
-//                    }
-//                    GameTickForceApplier forceApplier = ship.getAttachment(GameTickForceApplier.class);
-//
-//                    double shipMass = ship.getInertiaData().getMass();
-//                    Vec3d shipVelocity = new Vec3d(ship.getVelocity().x(), 0, ship.getVelocity().z());
-//
-//
-//                    Vec3d wind = new Vec3d(Math.cos(finalTheta), 0, Math.sin(finalTheta))
-//                            .multiply(finalWindStrength * maxWindSpeed);
-//
-//                    Vec3d relativeWind = wind.subtract(project(wind, shipVelocity));
-//
-//                    if (relativeWind.lengthSquared() > wind.lengthSquared()) {
-//                        relativeWind = wind.multiply(min(1 / (finalWindStrength * 4), 1));
-//                    }
-//
-//                    if (wind.add(relativeWind).lengthSquared() + 0.01 < wind.lengthSquared() && shipVelocity.length() > 0.25)
-//                        return;
-//
-//                    Vec3d force = relativeWind.multiply(shipMass);
-//
-////                world.getServer().getPlayerManager().getPlayerList().forEach(serverPlayerEntity -> {
-////                    serverPlayerEntity.sendMessage(Text.of("force: " + force.length()));
-////                });
-//
-//                    assert forceApplier != null;
-//                    forceApplier.applyInvariantForce(VectorConversionsMCKt.toJOML(
-//                            force.multiply(refreshRate)));
-//                }
-//            });
-
             //Spawn wind particles for all players being dragged by ships with a SailsShipControl attachment
             world.getServer().getPlayerManager().getPlayerList().forEach(serverPlayerEntity -> {
                 if (serverPlayerEntity instanceof IEntityDraggingInformationProvider player) {
@@ -262,13 +190,12 @@ public class ValkyrienSailsJava implements ModInitializer {
                             if (ship.getAttachment(SailsShipControl.class) != null) {
                                 if (player.getDraggingInformation().getTicksSinceStoodOnShip() < 100) {
                                     world.spawnParticles(serverPlayerEntity, ValkyrienSailsJava.WIND_PARTICLE, false, serverPlayerEntity.getX(), serverPlayerEntity.getY()+20, serverPlayerEntity.getZ(), 10, 20, 10, 20, 0);
-
+                                    //fixme use single particle spawning, or transfer to client?
                                 }
                             }
                         }
                     }
                 }
-                //serverPlayerEntity.sendMessage(Text.of("force: "));
             });
 
 
