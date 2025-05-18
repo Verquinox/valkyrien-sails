@@ -93,6 +93,7 @@ public class ValkyrienSailsJava implements ModInitializer {
             itemGroup.add(ValkyrienSailsJava.MAGIC_BALLAST_BLOCK.asItem());
             itemGroup.add(ValkyrienSailsJava.BUOY_BLOCK.asItem());
             //itemGroup.add(ValkyrienSailsJava.CANNONBALL);
+            itemGroup.add(ValkyrienSailsJava.DEDICATION_BOTTLE);
             itemGroup.add(ValkyrienSailsJava.ROPE);
 
             //new items go here ^

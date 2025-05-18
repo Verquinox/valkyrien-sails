@@ -13,9 +13,13 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.asm.mixin.Unique;
+import org.valkyrienskies.mod.common.VSGameUtilsKt;
+
+import java.util.Objects;
 
 public class WindParticle extends SpriteBillboardParticle {
     public static final Logger LOGGER = LoggerFactory.getLogger("wind_particle");
@@ -243,6 +247,12 @@ public class WindParticle extends SpriteBillboardParticle {
 
     private Vec3d funnelWindAroundStructure(Vec3d windEffect, BlockPos pos) {
         Direction windDirection = getWindDirection(windEffect.x, windEffect.z);
+//        if (VSGameUtilsKt.isBlockInShipyard(world, pos)) { //fixme wip wind deflecting around ship blocks
+//            Vector3d newPos = Objects.requireNonNull(VSGameUtilsKt.getShipObjectManagingPos(world, pos)).getShipToWorld().transformPosition(new Vector3d(pos.getX(),pos.getY(),pos.getZ()));
+//            if (newPos != null) {
+//                pos = new BlockPos(newPos.x,newPos.y,newPos.z);
+//            }
+//        }
         Direction wallDirection = getWallFacingDirection(pos, windDirection);
         double incidenceAngle = calculateIncidenceAngle(windDirection, wallDirection);
 
