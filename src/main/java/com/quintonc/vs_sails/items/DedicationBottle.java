@@ -16,9 +16,12 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
+import org.valkyrienskies.core.api.ships.ServerShip;
+import org.valkyrienskies.core.api.ships.Ship;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
 import java.util.Objects;
+import java.util.concurrent.CompletionStage;
 
 public class DedicationBottle extends Item {
 
@@ -35,7 +38,18 @@ public class DedicationBottle extends Item {
         if (!context.getWorld().isClient()) {
             if (!VSGameUtilsKt.isBlockInShipyard(context.getWorld(), context.getBlockPos())) {
                 Objects.requireNonNull(context.getPlayer()).getStackInHand(context.getHand()).decrement(1);
-                VLibGameUtils.INSTANCE.assembleByConnectivity((ServerWorld)context.getWorld(), context.getBlockPos());
+                CompletionStage<Ship> assembly = VLibGameUtils.INSTANCE.assembleByConnectivity((ServerWorld)context.getWorld(), context.getBlockPos());
+                assembly.whenComplete((ship, throwable) -> {
+                    if (ship != null) {
+                        if (context.getStack().hasCustomName()) {
+
+                            ((ServerShip)ship).setSlug(context.getStack().getName().getString()
+                                    .replace(' ', '-')
+                                    .replaceAll("[^a-zA-Z0-9-]", "")
+                            );
+                        }
+                    }
+                });
                 Random random = Random.create();
                 ((ServerWorld) context.getWorld()).spawnParticles(
                         new ItemStackParticleEffect(ParticleTypes.ITEM, ValkyrienSailsJava.DEDICATION_BOTTLE.getDefaultStack()),
