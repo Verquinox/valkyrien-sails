@@ -2,6 +2,7 @@ package com.quintonc.vs_sails;
 
 import com.quintonc.vs_sails.blocks.*;
 import com.quintonc.vs_sails.blocks.entity.HelmBlockEntity;
+import com.quintonc.vs_sails.config.ConfigUtils;
 import com.quintonc.vs_sails.items.DedicationBottle;
 import com.quintonc.vs_sails.items.SailWand;
 import com.quintonc.vs_sails.mixin.BrewingRecipeRegistryMixin;
@@ -42,7 +43,7 @@ import static java.lang.Math.*;
 public class ValkyrienSailsJava implements ModInitializer {
 
     private static int tickCount = 0;
-    private static float maxWindSpeed;
+    private static float minWindSpeed;
     private static final int refreshRate = 4;
     public static final double EULERS_NUMBER = 2.71828182846;
 
@@ -64,7 +65,7 @@ public class ValkyrienSailsJava implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        //ConfigUtils.checkConfigs();
+        ConfigUtils.checkConfigs();
         //registerEntityThings();
 
         registerBlocks();
@@ -211,8 +212,10 @@ public class ValkyrienSailsJava implements ModInitializer {
     }
 
     private void onServerStarted(MinecraftServer server) {
-        ServerWindManager.InitializeWind(server.getOverworld());
-        ValkyrienSailsJava.InitializeVSWind(server.getOverworld());
-        WindModNetworking.networkingInit();
+        if (Boolean.parseBoolean(ConfigUtils.config.getOrDefault("enable-wind","true"))) {
+            ServerWindManager.InitializeWind(server.getOverworld());
+            ValkyrienSailsJava.InitializeVSWind(server.getOverworld());
+            WindModNetworking.networkingInit();
+        }
     }
 }

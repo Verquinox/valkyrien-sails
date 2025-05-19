@@ -2,6 +2,7 @@ package com.quintonc.vs_sails.blocks;
 
 import com.quintonc.vs_sails.ValkyrienSailsJava;
 import com.quintonc.vs_sails.blocks.entity.HelmBlockEntity;
+import com.quintonc.vs_sails.config.ConfigUtils;
 import com.quintonc.vs_sails.ship.SailsShipControl;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
@@ -32,7 +33,7 @@ public class HelmBlock extends BlockWithEntity {
     public static final IntProperty WHEEL_ANGLE = IntProperty.of("wheel_angle", 0, 720);
     public static final Logger LOGGER = LoggerFactory.getLogger("helm_block");
     //private static final VoxelShape SHAPE = Block.createCuboidShape(1,0,5,15,13,11);
-    //public int wheelAngle = 0;
+    public static final int wheelInterval = Integer.parseInt(ConfigUtils.config.getOrDefault("wheel-interval","6"));
 
     public HelmBlock(Settings settings) {
         super(settings);
@@ -150,10 +151,10 @@ public class HelmBlock extends BlockWithEntity {
                 } else {
                     //seat player
                     if (player.isSneaking() && state.get(WHEEL_ANGLE) > 0) {
-                        state = state.with(WHEEL_ANGLE, state.get(WHEEL_ANGLE)-6);
+                        state = state.with(WHEEL_ANGLE, state.get(WHEEL_ANGLE)-wheelInterval);
                         world.setBlockState(pos, state, 10);
                     } else if (state.get(WHEEL_ANGLE) < 720) {
-                        state = state.with(WHEEL_ANGLE, state.get(WHEEL_ANGLE)+6);
+                        state = state.with(WHEEL_ANGLE, state.get(WHEEL_ANGLE)+wheelInterval);
                         world.setBlockState(pos, state, 10);
                     }
                     player.sendMessage(Text.of("Angle: "+ (state.get(WHEEL_ANGLE) - 360)), true);

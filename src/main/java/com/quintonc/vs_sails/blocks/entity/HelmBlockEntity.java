@@ -2,6 +2,7 @@ package com.quintonc.vs_sails.blocks.entity;
 
 import com.quintonc.vs_sails.ValkyrienSailsJava;
 import com.quintonc.vs_sails.blocks.HelmBlock;
+import com.quintonc.vs_sails.config.ConfigUtils;
 import com.quintonc.vs_sails.ship.SailsShipControl;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -44,15 +45,14 @@ public class HelmBlockEntity extends BlockEntity {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("helm_entity");
 
-    public double turnval;
-    private static final int rudderarea = 50;
+    public static final int wheelInterval = Integer.parseInt(ConfigUtils.config.getOrDefault("wheel-interval","6"));
+    private static final int rudderarea = Integer.parseInt(ConfigUtils.config.getOrDefault("rudder-power","50"));
     private LoadedServerShip shipW = VSGameUtilsKt.getShipObjectManagingPos((ServerWorld)this.world,this.getPos());
     //private SailsShipControl controller = SailsShipControl.getOrCreate(shipW);
     private List<ShipMountingEntity> seats = new ArrayList<ShipMountingEntity>();
 
     public HelmBlockEntity(BlockPos pos, BlockState state) {
         super(ValkyrienSailsJava.HELM_BLOCK_ENTITY, pos, state);
-        turnval = 0.0;
     }
 
     public static void tick(World world, BlockPos pos, BlockState state) {
@@ -70,7 +70,7 @@ public class HelmBlockEntity extends BlockEntity {
                     if (playerControl != null) {
                         if (playerControl.getLeftImpulse() < 0) {
                             if (state.get(WHEEL_ANGLE) > 0) {
-                                state = state.with(WHEEL_ANGLE, state.get(WHEEL_ANGLE)-6);
+                                state = state.with(WHEEL_ANGLE, state.get(WHEEL_ANGLE)-wheelInterval);
                                 world.setBlockState(pos, state, 10);
                                 if (state.get(WHEEL_ANGLE) == 720 || state.get(WHEEL_ANGLE) == 360 || state.get(WHEEL_ANGLE) == 0) {
                                     world.playSound(null, pos.down(), SoundEvents.BLOCK_BAMBOO_WOOD_BUTTON_CLICK_ON,
@@ -79,13 +79,13 @@ public class HelmBlockEntity extends BlockEntity {
                             }
                         } else if (playerControl.getLeftImpulse() > 0) {
                             if (state.get(WHEEL_ANGLE) < 720) {
-                                state = state.with(WHEEL_ANGLE, state.get(WHEEL_ANGLE)+6);
+                                state = state.with(WHEEL_ANGLE, state.get(WHEEL_ANGLE)+wheelInterval);
                                 world.setBlockState(pos, state, 10);
                                 if (state.get(WHEEL_ANGLE) == 720 || state.get(WHEEL_ANGLE) == 360 || state.get(WHEEL_ANGLE) == 0) {
                                     world.playSound(null, pos.down(), SoundEvents.BLOCK_BAMBOO_WOOD_BUTTON_CLICK_ON,
                                             SoundCategory.BLOCKS, 1f, world.getRandom().nextFloat() * 0.1F + 0.9F);
                                 }
-//                                else if (state.get(WHEEL_ANGLE) % 15 == 0) {
+//                                else if (state.get(WHEEL_ANGLE) % 15 == 0) { fixme code for additional wheel sfx
 //                                    world.playSound(null, pos.down(), SoundEvents.BLOCK_BAMBOO_WOOD_BUTTON_CLICK_OFF,
 //                                            SoundCategory.BLOCKS, 0.25f, world.getRandom().nextFloat() * 0.1F + 0.9F);
 //                                }
@@ -118,7 +118,13 @@ public class HelmBlockEntity extends BlockEntity {
                     double vel = Math.sqrt(Math.pow(ship.getVelocity().x(), 2) + Math.pow(ship.getVelocity().z(), 2));
 
                     //rudder force to be applied to rudder hinge point
-                    double rudderForce = (2 * Math.PI * rudderAngle) * 998 / 2 * Math.pow(vel, 2) * rudderSize;
+                    double rudderForce;
+                    if (Boolean.parseBoolean(ConfigUtils.config.getOrDefault("realistic-rudder","true"))) {
+                        rudderForce = (2 * Math.PI * rudderAngle) * 998 / 2 * Math.pow(vel, 2) * rudderSize;
+                    } else {
+                        rudderForce = (2 * Math.PI * rudderAngle) * 998 / 5 * sqrt(mass) * rudderSize;
+                    }
+
                     Vector3d turnvector = new Vector3d(rudderForce+mass, 0, 0);
                     Vector3d turnvector2 = new Vector3d(-rudderForce-mass, 0, 0);
                     Vector3d turnvector3 = new Vector3d(0, 0, rudderForce); //fixme new for lift-based rudder force (remove mass from turnvector)

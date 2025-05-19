@@ -17,6 +17,10 @@ repositories {
 	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
 	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
 	// for more information about repositories.
+	maven {
+		name = "Terraformers"
+		url = "https://maven.terraformersmc.com/"
+	}
 	repositories {
 		exclusiveContent {
 			forRepository {
@@ -38,9 +42,11 @@ dependencies {
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-	modImplementation "maven.modrinth:valkyrien-skies:1.20.1-fabric-2.3.0-beta.5"
+	modImplementation "maven.modrinth:valkyrien-skies:1.20.1-fabric-2.3.0-beta.7"
 	modImplementation "maven.modrinth:architectury-api:9.2.14+fabric"
 	modImplementation "maven.modrinth:vlib:1.20.1-0.0.9-alpha+fabric"
+	modImplementation "maven.modrinth:vlib:1.20.1-0.0.9-alpha+fabric"
+	modImplementation("com.terraformersmc:modmenu:7.2.2")
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"

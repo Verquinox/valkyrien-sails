@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.quintonc.vs_sails.ServerWindManager;
+import com.quintonc.vs_sails.ValkyrienSailsJava;
+import com.quintonc.vs_sails.config.ConfigUtils;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.NotNull;
 import org.joml.*;
@@ -43,7 +45,16 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
 //    boolean toBeStaticUpdated = false;
 
     @JsonIgnore
-    private static final int sailSpeed = 10000;
+    private static final int sailSpeed = Integer.parseInt(ConfigUtils.config.getOrDefault("sail-power","10000"));
+    @JsonIgnore
+    private static final double magicBallastForce = Double.parseDouble(ConfigUtils.config.getOrDefault(
+            "magic-ballast-righting-force","0.5"));
+    @JsonIgnore
+    private static final double ballastStrength = Double.parseDouble(ConfigUtils.config.getOrDefault(
+            "ballast-float-strength","0.0625"));
+    @JsonIgnore
+    private static final double buoyStrength = Double.parseDouble(ConfigUtils.config.getOrDefault(
+            "buoy-float-strength","0.125"));
 
     public double rudderMod = 0;
 
@@ -191,7 +202,7 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
                     )
             );
 
-            stabilizationTorque.mul((double) numMagicBallast / 2);
+            stabilizationTorque.mul(numMagicBallast * magicBallastForce);
             physShip1.applyInvariantTorque(stabilizationTorque);
 
         }
@@ -200,7 +211,7 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
 //
 //        }
 
-        physShip1.setBuoyantFactor(1.0 + numBuoys * 0.125 + numBallast * 0.0625);
+        physShip1.setBuoyantFactor(1.0 + numBuoys * buoyStrength + numBallast * ballastStrength);
 
 
 //        if (ship != null) { //fixme old code
@@ -212,7 +223,6 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
 
         //sail force implementation
         if (numSails > 0) {
-            //Vector3d sailForce = physShip.getTransform().getShipToWorld().transformDirection(forwardForce, new Vector3d());
             Vector3d sailForce = new Vector3d(
                     shipDirection.getVector().getX(), shipDirection.getVector().getY(), shipDirection.getVector().getZ()
             );
@@ -221,51 +231,56 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
 //                sizeMult = (double) boundx / (double) boundz;
 //            }
 
-            double windDirection = ServerWindManager.getWindDirection(); //in degrees
-            double windStrength = ServerWindManager.getWindStrength(); // -1.0 -- 1.0
-            double shipAngle = physShip1.getTransform().getShipToWorldRotation().angle(); //in radians
-            double windAngle;
-            double angleBetween;
-            //LOGGER.info("wind:"+windAngle+" ship:"+shipAngle);
-            if (shipDirection == Direction.SOUTH) { //fixme finish sail/wind direction implementation
-                //LOGGER.info("pee");
-                if (windStrength > 0) {
-                    windAngle = Math.abs(windDirection - 270);
+            if (Boolean.parseBoolean(ConfigUtils.config.getOrDefault("enable-wind","true"))) {
+                double windDirection = ServerWindManager.getWindDirection(); //in degrees
+                double windStrength = ServerWindManager.getWindStrength(); // -1.0 -- 1.0
+                double shipAngle = physShip1.getTransform().getShipToWorldRotation().angle(); //in radians
+                double windAngle;
+                double angleBetween;
+                //LOGGER.info("wind:"+windAngle+" ship:"+shipAngle);
+                if (shipDirection == Direction.SOUTH) { //fixme finish sail/wind direction implementation
+                    //LOGGER.info("pee");
+                    if (windStrength > 0) {
+                        windAngle = Math.abs(windDirection - 270);
+                    } else {
+                        windAngle = Math.abs(windDirection - 90);
+                    }
+                } else if (shipDirection == Direction.WEST) {
+                    if (windStrength > 0) {
+                        windAngle = Math.abs(windDirection);
+                    } else {
+                        windAngle = Math.abs(windDirection - 180);
+                    }
+                } else if (shipDirection == Direction.NORTH) {
+                    if (windStrength > 0) {
+                        windAngle = Math.abs(windDirection - 90);
+                    } else {
+                        windAngle = Math.abs(windDirection - 270);
+                    }
                 } else {
-                    windAngle = Math.abs(windDirection - 90);
+                    if (windStrength > 0) {
+                        windAngle = Math.abs(windDirection - 180);
+                    } else {
+                        windAngle = Math.abs(windDirection);
+                    }
                 }
-            } else if (shipDirection == Direction.WEST) {
-                if (windStrength > 0) {
-                    windAngle = Math.abs(windDirection);
-                } else {
-                    windAngle = Math.abs(windDirection - 180);
-                }
-            } else if (shipDirection == Direction.NORTH) {
-                if (windStrength > 0) {
-                    windAngle = Math.abs(windDirection - 90);
-                } else {
-                    windAngle = Math.abs(windDirection - 270);
-                }
+
+                windAngle = Math.toRadians(windAngle);
+                angleBetween = Math.min(Math.abs(shipAngle-windAngle), 2*Math.PI - Math.abs(shipAngle-windAngle));
+
+                //LOGGER.info(" wa: "+Math.toDegrees(windAngle)+" sa: "+Math.toDegrees(shipAngle)+" s-w: "+(shipAngle-windAngle));
+                //LOGGER.info("ab:"+angleBetween);
+
+                //fixme temp until I add diff between sq & f&a
+                double squareWindModifier = numSquareSails/(angleBetween+1);
+                double fnAWindModifier = numFnASails/(angleBetween+1);
+
+                //LOGGER.info("eh:" + sizeMult);
+                sailForce.mul(-(squareWindModifier+fnAWindModifier)*sailSpeed*(windStrength*windStrength)/* *Math.pow(sizeMult, 2)*/);
             } else {
-                if (windStrength > 0) {
-                    windAngle = Math.abs(windDirection - 180);
-                } else {
-                    windAngle = Math.abs(windDirection);
-                }
+                sailForce.mul(-(numSquareSails+numFnASails)*sailSpeed);
             }
 
-            windAngle = Math.toRadians(windAngle);
-            angleBetween = Math.min(Math.abs(shipAngle-windAngle), 2*Math.PI - Math.abs(shipAngle-windAngle));
-
-            //LOGGER.info(" wa: "+Math.toDegrees(windAngle)+" sa: "+Math.toDegrees(shipAngle)+" s-w: "+(shipAngle-windAngle));
-            //LOGGER.info("ab:"+angleBetween);
-
-            //fixme temp until I add diff between sq & f&a
-            double squareWindModifier = numSquareSails/(angleBetween+1);
-            double fnAWindModifier = numFnASails/(angleBetween+1);
-
-            //LOGGER.info("eh:" + sizeMult);
-            sailForce.mul(-(squareWindModifier+fnAWindModifier)*sailSpeed*(windStrength*windStrength)/* *Math.pow(sizeMult, 2)*/);
             //LOGGER.info("vel:" + physShip1.getPoseVel().getVel());
             if (sailForce.x > 0) {
                 sailForce.x -= rudderMod;

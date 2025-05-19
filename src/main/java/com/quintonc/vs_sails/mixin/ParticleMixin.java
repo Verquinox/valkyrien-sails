@@ -2,6 +2,7 @@ package com.quintonc.vs_sails.mixin;
 
 import com.quintonc.vs_sails.client.ClientWindManager;
 import com.quintonc.vs_sails.client.ParticlesToBlow;
+import com.quintonc.vs_sails.config.ConfigUtils;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.particle.Particle;
@@ -28,10 +29,14 @@ public class ParticleMixin {
 	@Final
 	@Shadow protected ClientWorld world;
 
+	@Unique
 	private int lightLevel = 15;
 
 	@ModifyVariable(method = "move(DDD)V", at = @At("HEAD"), ordinal = 0, argsOnly = true)
 	private double modifyDx(double dx) {
+		if (!Boolean.parseBoolean(ConfigUtils.config.getOrDefault("blow-vanilla-particles","false"))) {
+			return dx;
+		}
 		String simpleName = this.getClass().getSimpleName();
 //		System.out.println(simpleName);
 
@@ -54,6 +59,9 @@ public class ParticleMixin {
 
 	@ModifyVariable(method = "move(DDD)V", at = @At("HEAD"), ordinal = 2, argsOnly = true)
 	private double modifyDz(double dz) {
+		if (!Boolean.parseBoolean(ConfigUtils.config.getOrDefault("blow-vanilla-particles","false"))) {
+			return dz;
+		}
 		String simpleName = this.getClass().getSimpleName();
 
 		if (this.world.getLightLevel(LightType.SKY, new BlockPos((int) this.x, (int) this.y, (int) this.z)) == 0 || this.y < 40) {
