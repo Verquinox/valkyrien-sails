@@ -156,21 +156,26 @@ public class SailBlock extends Block {
 
     @SuppressWarnings("deprecation")
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        if (!world.isClient) {
-            //if the sail is set, stow the sail, else set it
-            if (state.get(SET)) {
-                state = state.with(SET, false);
+        if (!player.getStackInHand(Hand.MAIN_HAND).isOf(this.asItem())) {
+            if (!world.isClient) {
+                //if the sail is set, stow the sail, else set it
+                if (state.get(SET)) {
+                    state = state.with(SET, false);
+                } else {
+                    state = state.with(SET, true);
+                }
+                world.setBlockState(pos, state, 10);
+                world.updateNeighbors(pos, this);
+                updateDiagonals(world, pos, this);
             } else {
-                state = state.with(SET, true);
+                boolean bl = state.get(SET);
+                world.playSound(player, pos, bl ? SoundEvents.ENTITY_LEASH_KNOT_PLACE : SoundEvents.BLOCK_WOOL_PLACE, SoundCategory.BLOCKS, 0.75F, world.getRandom().nextFloat() * 0.1F + 0.9F);
+
             }
-            world.setBlockState(pos, state, 10);
-            world.updateNeighbors(pos, this);
-            updateDiagonals(world, pos, this);
+            return ActionResult.success(world.isClient);
         }
 
-        boolean bl = state.get(SET);
-        world.playSound(player, pos, bl ? SoundEvents.ENTITY_LEASH_KNOT_PLACE : SoundEvents.BLOCK_WOOL_PLACE, SoundCategory.BLOCKS, 0.75F, world.getRandom().nextFloat() * 0.1F + 0.9F);
-        return ActionResult.success(world.isClient);
+        return ActionResult.PASS;
     }
 
     @SuppressWarnings("deprecation")
