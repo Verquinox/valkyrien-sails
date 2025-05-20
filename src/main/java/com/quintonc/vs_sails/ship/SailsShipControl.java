@@ -275,7 +275,7 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
                 LOGGER.info("sab:"+squareAngleBetween+" fab:"+fnaAngleBetween);
 
                 double squareWindModifier = numSquareSails/(squareAngleBetween+1);
-                double fnAWindModifier = 0.9375*numFnASails/(fnaAngleBetween+1);
+                double fnAWindModifier = numFnASails/(fnaAngleBetween+1);
 
                 //LOGGER.info("eh:" + sizeMult);
                 sailForce.mul(-(squareWindModifier+fnAWindModifier)*sailSpeed*(windStrength*windStrength)/* *Math.pow(sizeMult, 2)*/);

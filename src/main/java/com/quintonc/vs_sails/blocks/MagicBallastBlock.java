@@ -1,6 +1,5 @@
 package com.quintonc.vs_sails.blocks;
 
-//import com.quintonc.vs_sails.blocks.entity.BallastBlockEntity;
 import com.quintonc.vs_sails.ship.SailsShipControl;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
@@ -19,87 +18,24 @@ import org.valkyrienskies.core.api.ships.LoadedServerShip;
 import org.valkyrienskies.core.api.ships.ServerShip;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
-public class MagicBallastBlock extends Block {
+public class MagicBallastBlock extends CountableBlock {
     public MagicBallastBlock(Settings settings) {
         super(settings);
     }
 
-    @SuppressWarnings("deprecation")
-    public void onBlockAdded(BlockState state, World world, BlockPos pos, BlockState oldState, boolean notify) {
-        if (world.isClient) {
-            return;
-        }
-
-        //LOGGER.info("Magic Ballast block is added");
-        if (VSGameUtilsKt.isBlockInShipyard(world, pos)) {
-            ServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerWorld) world, pos);
-            if (ship != null) {
-                SailsShipControl controller = SailsShipControl.getOrCreate(ship);
-                controller.numMagicBallast++;
-            } else {
-                ship = VSGameUtilsKt.getShipManagingPos((ServerWorld) world, pos);
-                if (ship != null) {
-                    SailsShipControl controller = SailsShipControl.getOrCreate(ship);
-                    controller.numMagicBallast++;
-                }
-            }
-        }
-    }
-
-    @SuppressWarnings({"deprecation","UnstableApiUsage"})
-    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-
-        if (world.isClient) {
-            if (player.getStackInHand(Hand.MAIN_HAND) == ItemStack.EMPTY) {
-                return ActionResult.SUCCESS;
-            } else {
-                return  ActionResult.PASS;
-            }
-        } else {
-            if (VSGameUtilsKt.isBlockInShipyard(world, pos)) {
-                if (player.getStackInHand(Hand.MAIN_HAND) == ItemStack.EMPTY) {
-                    LoadedServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerWorld) world, pos);
-                    assert ship != null;
-                    SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
-                    assert controller != null;
-                    player.sendMessage(Text.of("Magic Ballast: "+ (controller.numMagicBallast)));
-                } else {
-                    return ActionResult.PASS;
-                }
-            }
-        }
-
-        return ActionResult.success(false);
-    }
-
-    @SuppressWarnings({"deprecation","UnstableApiUsage"})
-    public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
-        if (newState.isAir()) {
-            if (!world.isClient) {
-                if (VSGameUtilsKt.isBlockInShipyard(world, pos)) {
-                    LoadedServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerWorld) world, pos);
-                    if (ship != null) {
-                        SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
-                        assert controller != null;
-                        controller.numMagicBallast--;
-                    }
-                }
-            }
-        }
-
-        if (state.hasBlockEntity() && !state.isOf(newState.getBlock())) {
-            world.removeBlockEntity(pos);
-        }
-    }
-
-//    @Override
-//    public @Nullable BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-//        return new BallastBlockEntity(pos, state);
-//    }
-
-    @SuppressWarnings("deprecation")
     @Override
-    public BlockRenderType getRenderType(BlockState state) {
-        return BlockRenderType.MODEL;
+    void addToShip(SailsShipControl controller) {
+        controller.numMagicBallast++;
     }
+
+    @Override
+    void removeFromShip(SailsShipControl controller) {
+        controller.numMagicBallast--;
+    }
+
+    @Override
+    void sendMessage(PlayerEntity player, SailsShipControl controller) {
+        player.sendMessage(Text.of("Magic Ballast: "+ (controller.numMagicBallast)));
+    }
+
 }
