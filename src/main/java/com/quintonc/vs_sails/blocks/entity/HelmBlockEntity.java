@@ -46,7 +46,7 @@ public class HelmBlockEntity extends BlockEntity {
     public static final Logger LOGGER = LoggerFactory.getLogger("helm_entity");
 
     public static final int wheelInterval = Integer.parseInt(ConfigUtils.config.getOrDefault("wheel-interval","6"));
-    private static final int rudderarea = Integer.parseInt(ConfigUtils.config.getOrDefault("rudder-power","50"));
+    private static final double rudderarea = Double.parseDouble(ConfigUtils.config.getOrDefault("rudder-power","1.0"));
     private LoadedServerShip shipW = VSGameUtilsKt.getShipObjectManagingPos((ServerWorld)this.world,this.getPos());
     //private SailsShipControl controller = SailsShipControl.getOrCreate(shipW);
     private List<ShipMountingEntity> seats = new ArrayList<ShipMountingEntity>();
@@ -74,7 +74,7 @@ public class HelmBlockEntity extends BlockEntity {
                                 world.setBlockState(pos, state, 10);
                                 if (state.get(WHEEL_ANGLE) == 720 || state.get(WHEEL_ANGLE) == 360 || state.get(WHEEL_ANGLE) == 0) {
                                     world.playSound(null, pos.down(), SoundEvents.BLOCK_BAMBOO_WOOD_BUTTON_CLICK_ON,
-                                            SoundCategory.BLOCKS, 1f, world.getRandom().nextFloat() * 0.1F + 0.9F);
+                                            SoundCategory.BLOCKS, 1.5f, world.getRandom().nextFloat() * 0.1F + 0.9F);
                                 }
                             }
                         } else if (playerControl.getLeftImpulse() > 0) {
@@ -83,7 +83,7 @@ public class HelmBlockEntity extends BlockEntity {
                                 world.setBlockState(pos, state, 10);
                                 if (state.get(WHEEL_ANGLE) == 720 || state.get(WHEEL_ANGLE) == 360 || state.get(WHEEL_ANGLE) == 0) {
                                     world.playSound(null, pos.down(), SoundEvents.BLOCK_BAMBOO_WOOD_BUTTON_CLICK_ON,
-                                            SoundCategory.BLOCKS, 1f, world.getRandom().nextFloat() * 0.1F + 0.9F);
+                                            SoundCategory.BLOCKS, 1.5f, world.getRandom().nextFloat() * 0.1F + 0.9F);
                                 }
 //                                else if (state.get(WHEEL_ANGLE) % 15 == 0) { fixme code for additional wheel sfx
 //                                    world.playSound(null, pos.down(), SoundEvents.BLOCK_BAMBOO_WOOD_BUTTON_CLICK_OFF,
@@ -120,9 +120,9 @@ public class HelmBlockEntity extends BlockEntity {
                     //rudder force to be applied to rudder hinge point
                     double rudderForce;
                     if (Boolean.parseBoolean(ConfigUtils.config.getOrDefault("realistic-rudder","true"))) {
-                        rudderForce = (2 * Math.PI * rudderAngle) * 998 / 2 * Math.pow(vel, 2) * rudderSize;
+                        rudderForce = (2 * Math.PI * rudderAngle) * 998 / 5 * sqrt(mass) * Math.pow(vel, 2) * rudderSize;
                     } else {
-                        rudderForce = (2 * Math.PI * rudderAngle) * 998 / 5 * sqrt(mass) * rudderSize;
+                        rudderForce = (2 * Math.PI * rudderAngle) * 998 * sqrt(mass) * rudderSize;
                     }
 
                     Vector3d turnvector = new Vector3d(rudderForce+mass, 0, 0);
