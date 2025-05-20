@@ -47,8 +47,11 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
     @JsonIgnore
     private static final int sailSpeed = Integer.parseInt(ConfigUtils.config.getOrDefault("sail-power","10000"));
     @JsonIgnore
+    private static final double keelStrength = Double.parseDouble(ConfigUtils.config.getOrDefault(
+            "keel-power","4.0"));
+    @JsonIgnore
     private static final double magicBallastForce = Double.parseDouble(ConfigUtils.config.getOrDefault(
-            "magic-ballast-righting-force","0.5"));
+            "magic-ballast-righting-force","0.25"));
     @JsonIgnore
     private static final double ballastStrength = Double.parseDouble(ConfigUtils.config.getOrDefault(
             "ballast-float-strength","0.0625"));
@@ -153,18 +156,11 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
             Vector3d acceleration = linearVelocity.negate(new Vector3d());
             Vector3d force = acceleration.mul(physShip1.getInertia().getShipMass());
 
-            double limit = 10000000;
-            double clampedX = Math.max(-limit, Math.min(limit, force.x));
-            double clampedY = Math.max(-limit, Math.min(limit, force.y));
-            double clampedZ = Math.max(-limit, Math.min(limit, force.z));
-
-            force = new Vector3d(clampedX, clampedY, clampedZ);
-
             force = physShip1.getTransform().getWorldToShip().transformDirection(force);
 
             Vector3d keelForce; //todo perhaps make this based on length/width ratio?
             if (shipDirection == Direction.NORTH || shipDirection == Direction.SOUTH) {
-                keelForce = new Vector3d(force.x()*4,0,0);
+                keelForce = new Vector3d(force.x()*keelStrength,0,0);
             } else {
                 keelForce = new Vector3d(0,0,force.z()*4);
             }

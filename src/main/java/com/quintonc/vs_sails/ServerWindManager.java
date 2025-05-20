@@ -1,5 +1,6 @@
 package com.quintonc.vs_sails;
 
+import com.quintonc.vs_sails.config.ConfigUtils;
 import com.quintonc.vs_sails.networking.WindModNetworking;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -12,9 +13,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import static java.lang.Math.*;
+
 
 public class ServerWindManager extends WindManager {
     private static int tickCount = 0;
+    private static double timeInfluence = 0.5;
+    private static double randomFactor = 0.25;
+    private static Random random;
+
+    //private static final float minWindSpeed = Float.parseFloat(ConfigUtils.config.getOrDefault("min-wind-speed","0.2"));
 
     //private static int gustiness = 10; //fixme finish
     //private static int shear = 10; //fixme finish
@@ -34,6 +42,7 @@ public class ServerWindManager extends WindManager {
         windStrength = 0;
         windDirection = 0;
         windGustiness = 0.125f; //between 0 and 1: 1 is
+        random = new Random();
 
         System.out.println("ServerWindManager Init");
         ServerTickEvents.START_WORLD_TICK.register(ServerWindManager::onWorldTick);
@@ -42,6 +51,11 @@ public class ServerWindManager extends WindManager {
     private static void onWorldTick(ServerWorld world) {
         if(tickCount == 299) {
             tickCount = 0;
+            if (random.nextBoolean()) {
+                timeInfluence = min(timeInfluence+((timeInfluence*0.125))+0.001, 1);
+            } else {
+                timeInfluence = max(timeInfluence-((timeInfluence*0.125))-0.001, -1);
+            }
             updateWind(world);
         } else {
             tickCount++;
@@ -49,9 +63,16 @@ public class ServerWindManager extends WindManager {
     }
 
     private static void updateWind(ServerWorld world) {
-        //Random random = new Random();
         //float gust = random.nextFloat(windGustiness) - (float)(windGustiness*0.5);
-        windStrength = (float) Math.sin(((double)world.getTimeOfDay() / 12000) * Math.PI);
+        double timeFactor = sin(((double)world.getTimeOfDay() / 12000) * Math.PI);
+        randomFactor = min(max(randomFactor + (random.nextDouble() - 0.5) * (1 - randomFactor), 0), 1);
+
+        if (world.getServer().getOverworld().isRaining() || world.getServer().getOverworld().isThundering()) {
+            timeInfluence = 0;
+        }
+
+        windStrength = (float) copySign((pow(abs(timeFactor),0.44) * timeInfluence + abs(randomFactor) * (1 - timeInfluence)),timeFactor);
+        //windStrength = (float) sin(sin(((double)world.getTimeOfDay() / 12000) * Math.PI))
 
         windDirection = DIRECTIONS.get(world.getServer().getOverworld().getMoonPhase());
         windDirection += 12 * windStrength;
@@ -63,8 +84,10 @@ public class ServerWindManager extends WindManager {
             windStrength *= 1.5f;
         }
         windStrength /= 2;
-//        windStrength = windStrength * Math.abs(windStrength);
 
+//        if (abs(windStrength) < minWindSpeed) {
+//            windStrength = minWindSpeed;
+//        }
 
         PacketByteBuf buf1 = PacketByteBufs.create();
         buf1.writeFloat(windStrength);
@@ -83,6 +106,8 @@ public class ServerWindManager extends WindManager {
                 assert WindModNetworking.WINDDIRECTIONS2CPACKET != null;
                 ServerPlayNetworking.send(serverPlayerEntity, WindModNetworking.WINDDIRECTIONS2CPACKET, buf2);
                 System.out.println("Sending packet to " + serverPlayerEntity.getEntityName()); //fixme comment this out
+                System.out.println("windStrength: " + windStrength + " timeInfluence: " + timeInfluence);
+                System.out.println("timeFactor: " + timeFactor + " randomFactor: " + randomFactor);
             }
         });
     }

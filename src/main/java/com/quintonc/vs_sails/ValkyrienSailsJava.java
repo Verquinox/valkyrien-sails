@@ -43,7 +43,6 @@ import static java.lang.Math.*;
 public class ValkyrienSailsJava implements ModInitializer {
 
     private static int tickCount = 0;
-    private static float minWindSpeed;
     private static final int refreshRate = 4;
     public static final double EULERS_NUMBER = 2.71828182846;
 
@@ -191,7 +190,7 @@ public class ValkyrienSailsJava implements ModInitializer {
                         if (ship != null) {
                             if (ship.getAttachment(SailsShipControl.class) != null) {
                                 if (player.getDraggingInformation().getTicksSinceStoodOnShip() < 100) {
-                                    world.spawnParticles(serverPlayerEntity, ValkyrienSailsJava.WIND_PARTICLE, false, serverPlayerEntity.getX(), serverPlayerEntity.getY()+20, serverPlayerEntity.getZ(), 10, 20, 10, 20, 0);
+                                    world.spawnParticles(serverPlayerEntity, ValkyrienSailsJava.WIND_PARTICLE, false, serverPlayerEntity.getX(), serverPlayerEntity.getY()+25, serverPlayerEntity.getZ(), 10, 20, 10, 20, 0);
                                     //fixme use single particle spawning, or transfer to client?
                                 }
                             }
