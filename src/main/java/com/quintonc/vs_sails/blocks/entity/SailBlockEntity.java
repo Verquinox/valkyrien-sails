@@ -1,23 +1,8 @@
 package com.quintonc.vs_sails.blocks.entity;
 
-import com.quintonc.vs_sails.ValkyrienSailsJava;
 //import com.quintonc.vs_sails.util.ConfigUtils;
 //import com.quintonc.vs_sails.util.PatternProcessor;
-import com.quintonc.vs_sails.ship.SailsShipControl;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.World;
-import org.joml.Vector3d;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.valkyrienskies.core.api.ships.LoadedServerShip;
-import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
-import static com.quintonc.vs_sails.blocks.SailBlock.SET;
-import static net.minecraft.state.property.Properties.HORIZONTAL_FACING;
 
 //public class SailBlockEntity extends BlockEntity {
 //
@@ -25,7 +10,7 @@ import static net.minecraft.state.property.Properties.HORIZONTAL_FACING;
 //    public static final Logger LOGGER = LoggerFactory.getLogger("sail_entity");
 //
 //    public SailBlockEntity(BlockPos pos, BlockState state) {
-//        super(ValkyrienSailsJava.SAIL_BLOCK_ENTITY, pos, state);
+//        super(ValkyrienSails.SAIL_BLOCK_ENTITY, pos, state);
 //    }
 //
 //    public static void tick(World world, BlockPos pos, BlockState state, SailBlockEntity be) {

@@ -1,6 +1,6 @@
 package com.quintonc.vs_sails.items;
 
-import com.quintonc.vs_sails.ValkyrienSailsJava;
+import com.quintonc.vs_sails.ValkyrienSails;
 import g_mungus.vlib.api.VLibGameUtils;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -52,7 +52,7 @@ public class DedicationBottle extends Item {
                 });
                 Random random = Random.create();
                 ((ServerWorld) context.getWorld()).spawnParticles(
-                        new ItemStackParticleEffect(ParticleTypes.ITEM, ValkyrienSailsJava.DEDICATION_BOTTLE.getDefaultStack()),
+                        new ItemStackParticleEffect(ParticleTypes.ITEM, ValkyrienSails.DEDICATION_BOTTLE.getDefaultStack()),
                         context.getBlockPos().getX(),
                         context.getBlockPos().getY(),
                         context.getBlockPos().getZ(),

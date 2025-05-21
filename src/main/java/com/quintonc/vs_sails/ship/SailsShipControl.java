@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.quintonc.vs_sails.ServerWindManager;
-import com.quintonc.vs_sails.ValkyrienSailsJava;
 import com.quintonc.vs_sails.config.ConfigUtils;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.NotNull;
@@ -272,7 +271,7 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
 
 
                 //LOGGER.info(" wa: "+Math.toDegrees(windAngle)+" sa: "+Math.toDegrees(shipAngle)+" s-w: "+(shipAngle-windAngle));
-                LOGGER.info("sab:"+squareAngleBetween+" fab:"+fnaAngleBetween);
+                //LOGGER.info("sab:"+squareAngleBetween+" fab:"+fnaAngleBetween);
 
                 double squareWindModifier = numSquareSails/(squareAngleBetween+1);
                 double fnAWindModifier = numFnASails/(fnaAngleBetween+1);
@@ -283,7 +282,7 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
                 sailForce.mul(-(numSquareSails+numFnASails)*sailSpeed);
             }
 
-            LOGGER.info("vel:" + physShip1.getPoseVel().getVel());
+            //LOGGER.info("vel:" + physShip1.getPoseVel().getVel());
             if (sailForce.x > 0) {
                 sailForce.x -= rudderMod;
             } else if (sailForce.x < 0) {

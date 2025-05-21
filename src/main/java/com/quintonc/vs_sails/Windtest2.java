@@ -33,7 +33,7 @@
 //
 //	private void onServerStarted(MinecraftServer server) {
 //		ServerWindManager.InitializeWind(server.getOverworld());
-//		ValkyrienSailsJava.InitializeVSWind(server.getOverworld());
+//		ValkyrienSails.InitializeVSWind(server.getOverworld());
 //		WindModNetworking.networkingInit();
 //	}
 //

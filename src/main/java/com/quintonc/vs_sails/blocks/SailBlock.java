@@ -1,7 +1,7 @@
 package com.quintonc.vs_sails.blocks;
 
 //import com.quintonc.vs_sails.blocks.entity.SailBlockEntity;
-import com.quintonc.vs_sails.ValkyrienSailsJava;
+import com.quintonc.vs_sails.ValkyrienSails;
 import com.quintonc.vs_sails.ship.SailsShipControl;
 import net.minecraft.block.*;
 import net.minecraft.entity.player.PlayerEntity;
@@ -13,7 +13,6 @@ import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.Util;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -21,14 +20,11 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import org.apache.logging.log4j.core.jmx.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.valkyrienskies.core.api.ships.LoadedServerShip;
 import org.valkyrienskies.core.api.ships.ServerShip;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
-
-import java.util.Map;
 
 public class SailBlock extends Block {
     public static final BooleanProperty SET = BooleanProperty.of("set");
@@ -356,7 +352,7 @@ public class SailBlock extends Block {
 
         public void updateStateForDir(BlockState neighborState, BooleanProperty direction) {
             if (!neighborState.isAir()) {
-                if (neighborState.isOf(ValkyrienSailsJava.SAIL_BLOCK)) {
+                if (neighborState.isOf(ValkyrienSails.SAIL_BLOCK)) {
                     invisCounter++;
                     if (neighborState.get(INVISIBLE)) {
                         state = state.with(direction, false);

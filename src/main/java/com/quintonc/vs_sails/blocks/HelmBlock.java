@@ -1,6 +1,6 @@
 package com.quintonc.vs_sails.blocks;
 
-import com.quintonc.vs_sails.ValkyrienSailsJava;
+import com.quintonc.vs_sails.ValkyrienSails;
 import com.quintonc.vs_sails.blocks.entity.HelmBlockEntity;
 import com.quintonc.vs_sails.config.ConfigUtils;
 import com.quintonc.vs_sails.ship.SailsShipControl;
@@ -194,7 +194,7 @@ public class HelmBlock extends BlockWithEntity {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        return checkType(type, ValkyrienSailsJava.HELM_BLOCK_ENTITY, (world1, pos, state1, blockEntity) -> HelmBlockEntity.tick(world1, pos, state1));
+        return checkType(type, ValkyrienSails.HELM_BLOCK_ENTITY, (world1, pos, state1, blockEntity) -> HelmBlockEntity.tick(world1, pos, state1));
     }
 
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {

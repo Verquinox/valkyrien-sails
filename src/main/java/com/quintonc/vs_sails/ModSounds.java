@@ -3,7 +3,6 @@ package com.quintonc.vs_sails;
 import com.quintonc.vs_sails.client.ClientWindManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.registry.Registries;
@@ -12,8 +11,6 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.LightType;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.BiomeKeys;
 import net.minecraft.world.dimension.DimensionTypes;
 
 public class ModSounds {
@@ -21,12 +18,12 @@ public class ModSounds {
     public static SoundEvent WIND_AMBIENCE = registerSoundEvent("wind_ambience");
 
     private static SoundEvent registerSoundEvent(String name) {
-        Identifier id = new Identifier(ValkyrienSailsJava.MOD_ID, name);
+        Identifier id = new Identifier(ValkyrienSails.MOD_ID, name);
         return Registry.register(Registries.SOUND_EVENT, id, SoundEvent.of(id));
     }
 
     public static void registerSounds() {
-        ValkyrienSailsJava.LOGGER.info("Registering sounds for" + ValkyrienSailsJava.MOD_ID);
+        ValkyrienSails.LOGGER.info("Registering sounds for" + ValkyrienSails.MOD_ID);
     }
 
     @Environment(EnvType.CLIENT)

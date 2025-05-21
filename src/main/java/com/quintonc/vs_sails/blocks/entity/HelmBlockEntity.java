@@ -1,10 +1,8 @@
 package com.quintonc.vs_sails.blocks.entity;
 
-import com.quintonc.vs_sails.ValkyrienSailsJava;
-import com.quintonc.vs_sails.blocks.HelmBlock;
+import com.quintonc.vs_sails.ValkyrienSails;
 import com.quintonc.vs_sails.config.ConfigUtils;
 import com.quintonc.vs_sails.ship.SailsShipControl;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.command.argument.EntityAnchorArgumentType;
@@ -19,7 +17,6 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.*;
-import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
@@ -52,7 +49,7 @@ public class HelmBlockEntity extends BlockEntity {
     private List<ShipMountingEntity> seats = new ArrayList<ShipMountingEntity>();
 
     public HelmBlockEntity(BlockPos pos, BlockState state) {
-        super(ValkyrienSailsJava.HELM_BLOCK_ENTITY, pos, state);
+        super(ValkyrienSails.HELM_BLOCK_ENTITY, pos, state);
     }
 
     public static void tick(World world, BlockPos pos, BlockState state) {
@@ -219,7 +216,7 @@ public class HelmBlockEntity extends BlockEntity {
     }
 
     public ItemStack getRenderStack() {
-        return new ItemStack(ValkyrienSailsJava.HELM_WHEEL.asItem());
+        return new ItemStack(ValkyrienSails.HELM_WHEEL.asItem());
     }
 
     @Override

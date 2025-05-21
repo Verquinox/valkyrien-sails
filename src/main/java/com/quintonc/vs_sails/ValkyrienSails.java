@@ -5,7 +5,6 @@ import com.quintonc.vs_sails.blocks.entity.HelmBlockEntity;
 import com.quintonc.vs_sails.config.ConfigUtils;
 import com.quintonc.vs_sails.items.DedicationBottle;
 import com.quintonc.vs_sails.items.SailWand;
-import com.quintonc.vs_sails.mixin.BrewingRecipeRegistryMixin;
 import com.quintonc.vs_sails.networking.WindModNetworking;
 import com.quintonc.vs_sails.ship.SailsShipControl;
 import net.fabricmc.api.ModInitializer;
@@ -22,7 +21,6 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.item.*;
 import net.minecraft.particle.DefaultParticleType;
-import net.minecraft.potion.Potions;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
@@ -40,7 +38,7 @@ import org.valkyrienskies.mod.common.util.IEntityDraggingInformationProvider;
 
 import static java.lang.Math.*;
 
-public class ValkyrienSailsJava implements ModInitializer {
+public class ValkyrienSails implements ModInitializer {
 
     private static int tickCount = 0;
     private static final int refreshRate = 4;
@@ -57,7 +55,7 @@ public class ValkyrienSailsJava implements ModInitializer {
 
     public static final RegistryKey<ItemGroup> SAILS_ITEM_GROUP_KEY = RegistryKey.of(Registries.ITEM_GROUP.getKey(), Identifier.of(MOD_ID, "item_group"));
     public static final ItemGroup SAILS_ITEM_GROUP = FabricItemGroup.builder()
-            .icon(() -> new ItemStack(ValkyrienSailsJava.HELM_BLOCK.asItem()))
+            .icon(() -> new ItemStack(ValkyrienSails.HELM_BLOCK.asItem()))
             .displayName(Text.of("Valkyrien Sails"))
             .build();
 
@@ -75,7 +73,7 @@ public class ValkyrienSailsJava implements ModInitializer {
         //PatternProcessor.setupBasicPatterns();
         ModSounds.registerSounds();
         ServerLifecycleEvents.SERVER_STARTED.register(this::onServerStarted);
-        ServerTickEvents.START_WORLD_TICK.register(ValkyrienSailsJava::onWorldTick);
+        ServerTickEvents.START_WORLD_TICK.register(ValkyrienSails::onWorldTick);
         LOGGER.info("The wind is blowing.");
 
         LOGGER.info("Sailing time.");
@@ -85,16 +83,16 @@ public class ValkyrienSailsJava implements ModInitializer {
 
         //add items to item group
         ItemGroupEvents.modifyEntriesEvent(SAILS_ITEM_GROUP_KEY).register(itemGroup -> {
-            itemGroup.add(ValkyrienSailsJava.SAIL_BLOCK.asItem());
-            itemGroup.add(ValkyrienSailsJava.HELM_BLOCK.asItem());
-            itemGroup.add(ValkyrienSailsJava.HELM_WHEEL.asItem());
-            itemGroup.add(ValkyrienSailsJava.RIGGING_BLOCK.asItem());
-            itemGroup.add(ValkyrienSailsJava.BALLAST_BLOCK.asItem());
-            itemGroup.add(ValkyrienSailsJava.MAGIC_BALLAST_BLOCK.asItem());
-            itemGroup.add(ValkyrienSailsJava.BUOY_BLOCK.asItem());
-            //itemGroup.add(ValkyrienSailsJava.CANNONBALL);
-            itemGroup.add(ValkyrienSailsJava.DEDICATION_BOTTLE);
-            itemGroup.add(ValkyrienSailsJava.ROPE);
+            itemGroup.add(ValkyrienSails.SAIL_BLOCK.asItem());
+            itemGroup.add(ValkyrienSails.HELM_BLOCK.asItem());
+            itemGroup.add(ValkyrienSails.HELM_WHEEL.asItem());
+            itemGroup.add(ValkyrienSails.RIGGING_BLOCK.asItem());
+            itemGroup.add(ValkyrienSails.BALLAST_BLOCK.asItem());
+            itemGroup.add(ValkyrienSails.MAGIC_BALLAST_BLOCK.asItem());
+            itemGroup.add(ValkyrienSails.BUOY_BLOCK.asItem());
+            //itemGroup.add(ValkyrienSails.CANNONBALL);
+            itemGroup.add(ValkyrienSails.DEDICATION_BOTTLE);
+            itemGroup.add(ValkyrienSails.ROPE);
 
             //new items go here ^
         });
@@ -155,7 +153,7 @@ public class ValkyrienSailsJava implements ModInitializer {
     }
 
     private void registerParticles() {
-        Registry.register(Registries.PARTICLE_TYPE, new Identifier(ValkyrienSailsJava.MOD_ID, "wind_particle"), WIND_PARTICLE);
+        Registry.register(Registries.PARTICLE_TYPE, new Identifier(ValkyrienSails.MOD_ID, "wind_particle"), WIND_PARTICLE);
     }
 
     private void registerBrewingRecipes() {
@@ -173,7 +171,7 @@ public class ValkyrienSailsJava implements ModInitializer {
 
     public static void InitializeVSWind(ServerWorld world) {
         System.out.println("VSWind Init");
-        ServerTickEvents.START_WORLD_TICK.register(ValkyrienSailsJava::onWorldTick);
+        ServerTickEvents.START_WORLD_TICK.register(ValkyrienSails::onWorldTick);
     }
 
     @SuppressWarnings("UnstableApiUsage")
@@ -190,7 +188,7 @@ public class ValkyrienSailsJava implements ModInitializer {
                         if (ship != null) {
                             if (ship.getAttachment(SailsShipControl.class) != null) {
                                 if (player.getDraggingInformation().getTicksSinceStoodOnShip() < 100) {
-                                    world.spawnParticles(serverPlayerEntity, ValkyrienSailsJava.WIND_PARTICLE, false, serverPlayerEntity.getX(), serverPlayerEntity.getY()+25, serverPlayerEntity.getZ(), 10, 20, 10, 20, 0);
+                                    world.spawnParticles(serverPlayerEntity, ValkyrienSails.WIND_PARTICLE, false, serverPlayerEntity.getX(), serverPlayerEntity.getY()+25, serverPlayerEntity.getZ(), 10, 20, 10, 20, 0);
                                     //fixme use single particle spawning, or transfer to client?
                                 }
                             }
@@ -213,7 +211,7 @@ public class ValkyrienSailsJava implements ModInitializer {
     private void onServerStarted(MinecraftServer server) {
         if (Boolean.parseBoolean(ConfigUtils.config.getOrDefault("enable-wind","true"))) {
             ServerWindManager.InitializeWind(server.getOverworld());
-            ValkyrienSailsJava.InitializeVSWind(server.getOverworld());
+            ValkyrienSails.InitializeVSWind(server.getOverworld());
             WindModNetworking.networkingInit();
         }
     }
