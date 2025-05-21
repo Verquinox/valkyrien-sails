@@ -19,6 +19,8 @@ import net.minecraft.text.Text;
 import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -30,14 +32,14 @@ import java.util.Objects;
 
 public class HelmBlock extends BlockWithEntity {
     public static final DirectionProperty FACING;
-    public static final IntProperty WHEEL_ANGLE = IntProperty.of("wheel_angle", 0, 720);
+    //public static final IntProperty WHEEL_ANGLE = IntProperty.of("wheel_angle", 0, 720);
     public static final Logger LOGGER = LoggerFactory.getLogger("helm_block");
-    //private static final VoxelShape SHAPE = Block.createCuboidShape(1,0,5,15,13,11);
+    //private static final VoxelShape SHAPE = Block.createCuboidShape(1,0,4,15,16,13);
     public static final int wheelInterval = Integer.parseInt(ConfigUtils.config.getOrDefault("wheel-interval","6"));
 
     public HelmBlock(Settings settings) {
         super(settings);
-        this.setDefaultState(this.getDefaultState().with(WHEEL_ANGLE, 360));
+        //this.setDefaultState(this.getDefaultState().with(WHEEL_ANGLE, 360));
     }
 
 //    @Override
@@ -63,7 +65,8 @@ public class HelmBlock extends BlockWithEntity {
     public BlockState getPlacementState(ItemPlacementContext ctx) {
         return this.getDefaultState()
                 .with(FACING, ctx.getHorizontalPlayerFacing())
-                .with(WHEEL_ANGLE, 360);
+//                .with(WHEEL_ANGLE, 360)
+                ;
     }
 
     @SuppressWarnings("deprecation")
@@ -94,70 +97,18 @@ public class HelmBlock extends BlockWithEntity {
         } else {
             BlockEntity be = world.getBlockEntity(pos);
             if (be instanceof HelmBlockEntity) {
-                //((HelmBlockEntity) be).sit(player);
+                HelmBlockEntity blockEntity = (HelmBlockEntity) be;
 
                 if (VSGameUtilsKt.isBlockInShipyard(world, pos)) {
-                    //LoadedServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerWorld) world, pos);
-                    //assert ship != null;
-                    //SailsShipControl controller = SailsShipControl.getOrCreate(ship);
-
-                    //old code for adding ShipMountingEntity
-//                    ShipMountingEntity mounter = ValkyrienSkiesMod.SHIP_MOUNTING_ENTITY_TYPE.create(world);
-//                    //BlockPos newPos = pos.offset(state.get(Properties.FACING));
-//
-//                    Vector3dc mounterPos;
-//                    if (state.get(FACING) == Direction.NORTH) {
-//                        mounterPos = new Vector3d(pos.getX() + 0.5, pos.getY() + 0.125, pos.getZ() + 1.3125);
-//                    } else if (state.get(FACING) == Direction.SOUTH) {
-//                        mounterPos = new Vector3d(pos.getX() + 0.5, pos.getY() + 0.125, pos.getZ() - 0.3125);
-//                    } else if (state.get(FACING) == Direction.EAST) {
-//                        mounterPos = new Vector3d(pos.getX() - 0.3125, pos.getY() + 0.125, pos.getZ() + .5);
-//                    } else {
-//                        mounterPos = new Vector3d(pos.getX() + 1.3125, pos.getY() + 0.125, pos.getZ() + .5);
-//                    }
-//
-//                    //LOGGER.info("posx="+mounterPos.x()+"posy="+mounterPos.y()+"posz="+mounterPos.z());
-//
-//                    assert mounter != null;
-//                    mounter.setPos(mounterPos.x(), mounterPos.y(), mounterPos.z());
-//                    Vec3d blah2 = new Vec3d(0, 0, 0);
-//                    mounter.move(MovementType.SELF, blah2);
-//                    Vec3i facingVec1 = state.get(FACING).getOpposite().getVector();
-//                    Vector3d beep = ship.getShipToWorld().transformPosition(new Vector3d((facingVec1.getX()+pos.getX()), pos.getY(), facingVec1.getZ()+pos.getZ()));
-//                    Vec3d beep2 = new Vec3d(beep.x,beep.y,beep.z);
-//                    mounter.lookAt(EntityAnchorArgumentType.EntityAnchor.EYES, beep2);
-////                    Vec3d blah = new Vec3d(state.get(FACING).getVector().getX(), state.get(FACING).getVector().getY(), state.get(FACING).getVector().getZ());
-////                    mounter.lookAt(EntityAnchorArgumentType.EntityAnchor.EYES, blah);
-//                    mounter.setController(true);
-//                    world.spawnEntity(mounter);
-//
-//                    player.startRiding(mounter, false);
-//                    //player.setMainArm(Arm.LEFT);
-
-                    HelmBlockEntity blockEntity = (HelmBlockEntity) world.getBlockEntity(pos);
-                    assert blockEntity != null;
                     blockEntity.sit(player);
 
-
-//                    SeatedControllingPlayer playerControl;
-//                    if (ship.getAttachment(SeatedControllingPlayer.class) == null) {
-//                        playerControl = new SeatedControllingPlayer(world.getBlockState(pos).get(FACING));
-//                    } else {
-//                        playerControl = ship.getAttachment(SeatedControllingPlayer.class);
-//                    }
-
-                    //LOGGER.info("player="+mounter.getControllingPassenger());
-
                 } else {
-                    //seat player
-                    if (player.isSneaking() && state.get(WHEEL_ANGLE) > 0) {
-                        state = state.with(WHEEL_ANGLE, state.get(WHEEL_ANGLE)-wheelInterval);
-                        world.setBlockState(pos, state, 10);
-                    } else if (state.get(WHEEL_ANGLE) < 720) {
-                        state = state.with(WHEEL_ANGLE, state.get(WHEEL_ANGLE)+wheelInterval);
-                        world.setBlockState(pos, state, 10);
+                    if (player.isSneaking() && blockEntity.wheelAngle > 0) {
+                        blockEntity.wheelAngle -= wheelInterval;
+                    } else if (blockEntity.wheelAngle < 720) {
+                        blockEntity.wheelAngle+= wheelInterval;
                     }
-                    player.sendMessage(Text.of("Angle: "+ (state.get(WHEEL_ANGLE) - 360)), true);
+                    player.sendMessage(Text.of("Angle: "+ (blockEntity.wheelAngle - 360)), true);
                 }
 
                 return ActionResult.success(world.isClient);
@@ -194,12 +145,12 @@ public class HelmBlock extends BlockWithEntity {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        return checkType(type, ValkyrienSailsJava.HELM_BLOCK_ENTITY, (world1, pos, state1, blockEntity) -> HelmBlockEntity.tick(world1, pos, state1));
+        return checkType(type, ValkyrienSailsJava.HELM_BLOCK_ENTITY, HelmBlockEntity::tick);
     }
 
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         builder.add(FACING);
-        builder.add(WHEEL_ANGLE);
+        //builder.add(WHEEL_ANGLE);
     }
 
     static {

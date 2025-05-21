@@ -6,7 +6,9 @@ import com.quintonc.vs_sails.config.ConfigUtils;
 import com.quintonc.vs_sails.ship.SailsShipControl;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.command.argument.EntityAnchorArgumentType;
 import net.minecraft.entity.MovementType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -15,6 +17,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -37,7 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.quintonc.vs_sails.blocks.HelmBlock.FACING;
-import static com.quintonc.vs_sails.blocks.HelmBlock.WHEEL_ANGLE;
+//import static com.quintonc.vs_sails.blocks.HelmBlock.WHEEL_ANGLE;
 import static java.lang.Math.abs;
 import static java.lang.Math.sqrt;
 
@@ -45,6 +48,8 @@ public class HelmBlockEntity extends BlockEntity {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("helm_entity");
 
+    public int wheelAngle;
+    protected final PropertyDelegate propertyDelegate;
     public static final int wheelInterval = Integer.parseInt(ConfigUtils.config.getOrDefault("wheel-interval","6"));
     private static final double rudderarea = Double.parseDouble(ConfigUtils.config.getOrDefault("rudder-power","1.0"));
     private LoadedServerShip shipW = VSGameUtilsKt.getShipObjectManagingPos((ServerWorld)this.world,this.getPos());
@@ -53,9 +58,31 @@ public class HelmBlockEntity extends BlockEntity {
 
     public HelmBlockEntity(BlockPos pos, BlockState state) {
         super(ValkyrienSailsJava.HELM_BLOCK_ENTITY, pos, state);
+        wheelAngle = 360;
+        this.propertyDelegate = new PropertyDelegate() {
+            public int get(int index) {
+                switch (index) {
+                    case 0 -> {
+                        return HelmBlockEntity.this.wheelAngle;
+                    }
+                    default -> {
+                        return 2;
+                    }
+                }
+            }
+
+            public void set(int index, int value) {
+                switch (index) {
+                    case 0 -> HelmBlockEntity.this.wheelAngle = value;
+                }
+            }
+            public int size() {
+                return 1;
+            }
+        };
     }
 
-    public static void tick(World world, BlockPos pos, BlockState state) {
+    public static void tick(World world, BlockPos pos, BlockState state, HelmBlockEntity entity) {
         //do seated controlling player stuff and have their impulses affect the turnval
         // changes by some amount each tick, possibly configurable in the future, possibly based on ship mass
 
@@ -69,19 +96,17 @@ public class HelmBlockEntity extends BlockEntity {
                     SeatedControllingPlayer playerControl = ship.getAttachment(SeatedControllingPlayer.class);
                     if (playerControl != null) {
                         if (playerControl.getLeftImpulse() < 0) {
-                            if (state.get(WHEEL_ANGLE) > 0) {
-                                state = state.with(WHEEL_ANGLE, state.get(WHEEL_ANGLE)-wheelInterval);
-                                world.setBlockState(pos, state, 10);
-                                if (state.get(WHEEL_ANGLE) == 720 || state.get(WHEEL_ANGLE) == 360 || state.get(WHEEL_ANGLE) == 0) {
+                            if (entity.wheelAngle > 0) {
+                                entity.wheelAngle -= wheelInterval;
+                                if (entity.wheelAngle == 720 || entity.wheelAngle == 360 || entity.wheelAngle == 0) {
                                     world.playSound(null, pos.down(), SoundEvents.BLOCK_BAMBOO_WOOD_BUTTON_CLICK_ON,
                                             SoundCategory.BLOCKS, 1.5f, world.getRandom().nextFloat() * 0.1F + 0.9F);
                                 }
                             }
                         } else if (playerControl.getLeftImpulse() > 0) {
-                            if (state.get(WHEEL_ANGLE) < 720) {
-                                state = state.with(WHEEL_ANGLE, state.get(WHEEL_ANGLE)+wheelInterval);
-                                world.setBlockState(pos, state, 10);
-                                if (state.get(WHEEL_ANGLE) == 720 || state.get(WHEEL_ANGLE) == 360 || state.get(WHEEL_ANGLE) == 0) {
+                            if (entity.wheelAngle < 720) {
+                                entity.wheelAngle += wheelInterval;
+                                if (entity.wheelAngle == 720 || entity.wheelAngle == 360 || entity.wheelAngle == 0) {
                                     world.playSound(null, pos.down(), SoundEvents.BLOCK_BAMBOO_WOOD_BUTTON_CLICK_ON,
                                             SoundCategory.BLOCKS, 1.5f, world.getRandom().nextFloat() * 0.1F + 0.9F);
                                 }
@@ -109,7 +134,7 @@ public class HelmBlockEntity extends BlockEntity {
                     //todo make method in SailsShipController for getting dimensions (length+width)
 
                     //angle of ship's 'rudder' (in radians) based on wheel position
-                    double rudderAngle = (((double)state.get(WHEEL_ANGLE)-360) / 10) * Math.PI/180;
+                    double rudderAngle = (((double)entity.wheelAngle-360) / 10) * Math.PI/180;
 
                     //mass of ship
                     double mass = ship.getInertiaData().getMass() / 100;
@@ -220,6 +245,11 @@ public class HelmBlockEntity extends BlockEntity {
 
     public ItemStack getRenderStack() {
         return new ItemStack(ValkyrienSailsJava.HELM_WHEEL.asItem());
+    }
+
+    @Override
+    public Integer getRenderData() {
+        return wheelAngle;
     }
 
     @Override

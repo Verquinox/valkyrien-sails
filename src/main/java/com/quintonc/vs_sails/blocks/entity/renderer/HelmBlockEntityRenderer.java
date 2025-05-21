@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.quintonc.vs_sails.blocks.HelmBlock.FACING;
-import static com.quintonc.vs_sails.blocks.HelmBlock.WHEEL_ANGLE;
+//import static com.quintonc.vs_sails.blocks.HelmBlock.WHEEL_ANGLE;
 
 public class HelmBlockEntityRenderer implements BlockEntityRenderer<HelmBlockEntity> {
 
@@ -37,6 +37,8 @@ public class HelmBlockEntityRenderer implements BlockEntityRenderer<HelmBlockEnt
 
         ItemRenderer itemRenderer = MinecraftClient.getInstance().getItemRenderer();
         ItemStack stack = entity.getRenderStack();
+        int wheelAngle = entity.getRenderData();
+        LOGGER.info("wA:"+wheelAngle);
 
         matrices.push();
         //int i =((HelmBlock)entity.getCachedState().getBlock()).wheelAngle;
@@ -44,22 +46,22 @@ public class HelmBlockEntityRenderer implements BlockEntityRenderer<HelmBlockEnt
         if (entity.getCachedState().get(FACING) == Direction.NORTH) {
 
             matrices.translate(0.5f,0.5f,0.5f);
-            matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(entity.getCachedState().get(WHEEL_ANGLE)%360), 0, 0.3125f, 0);
+            matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(wheelAngle%360), 0, 0.3125f, 0);
 
         } else if (entity.getCachedState().get(FACING) == Direction.SOUTH) {
             matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
             matrices.translate(-0.5f,0.5f,-0.5f);
-            matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(entity.getCachedState().get(WHEEL_ANGLE)%360), 0, 0.3125f, 0);
+            matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(wheelAngle%360), 0, 0.3125f, 0);
 
         } else if (entity.getCachedState().get(FACING) == Direction.EAST) {
             matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(270));
             matrices.translate(0.5f,0.5f,-0.5f);
-            matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(entity.getCachedState().get(WHEEL_ANGLE)%360), 0, 0.3125f, 0);
+            matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(wheelAngle%360), 0, 0.3125f, 0);
 
         } else if (entity.getCachedState().get(FACING) == Direction.WEST) {
             matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(90));
             matrices.translate(-0.5f,0.5f,0.5f);
-            matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(entity.getCachedState().get(WHEEL_ANGLE)%360), 0, 0.3125f, 0);
+            matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(wheelAngle%360), 0, 0.3125f, 0);
 
         }
         matrices.scale(1.6f, 1.6f, 1.6f);
