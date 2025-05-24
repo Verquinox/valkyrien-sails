@@ -1,6 +1,7 @@
 {
-  "parent": "minecraft:block/cube_all",
+  "parent": "minecraft:block/cube_column",
   "textures": {
-    "all": "vs_sails:block/sail_side"
+    "end": "vs_sails:block/buoy_top",
+    "side": "vs_sails:block/buoy_side"
   }
 }

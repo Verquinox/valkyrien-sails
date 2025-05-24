@@ -52,9 +52,9 @@ public class ServerWindManager extends WindManager {
         if(tickCount == 299) {
             tickCount = 0;
             if (random.nextBoolean()) {
-                timeInfluence = min(timeInfluence+((timeInfluence*0.125))+0.001, 1);
+                timeInfluence = min(timeInfluence+((abs(timeInfluence)*0.125))+0.01, 1);
             } else {
-                timeInfluence = max(timeInfluence-((timeInfluence*0.125))-0.001, -1);
+                timeInfluence = max(timeInfluence-((abs(timeInfluence)*0.125))-0.01, -1);
             }
             updateWind(world);
         } else {
@@ -65,7 +65,7 @@ public class ServerWindManager extends WindManager {
     private static void updateWind(ServerWorld world) {
         //float gust = random.nextFloat(windGustiness) - (float)(windGustiness*0.5);
         double timeFactor = sin(((double)world.getTimeOfDay() / 12000) * Math.PI);
-        randomFactor = min(max(randomFactor + (random.nextDouble() - 0.5) * (1 - randomFactor), 0), 1);
+        randomFactor = min(max(randomFactor + (random.nextDouble() - 0.5) * (1 - randomFactor), 0), 0.99);
 
         if (world.getServer().getOverworld().isRaining() || world.getServer().getOverworld().isThundering()) {
             timeInfluence = 0;

@@ -117,7 +117,7 @@ public class HelmBlockEntity extends BlockEntity {
                     //rudder force to be applied to rudder hinge point
                     double rudderForce;
                     if (Boolean.parseBoolean(ConfigUtils.config.getOrDefault("realistic-rudder","true"))) {
-                        rudderForce = (2 * Math.PI * rudderAngle) * 998 / 5 * sqrt(mass) * Math.pow(vel, 2) * rudderSize;
+                        rudderForce = (2 * Math.PI * rudderAngle) * 998 / 6 * sqrt(mass) * Math.pow(vel, 2) * rudderSize;
                     } else {
                         rudderForce = (2 * Math.PI * rudderAngle) * 998 * sqrt(mass) * rudderSize;
                     }

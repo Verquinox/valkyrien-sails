@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.quintonc.vs_sails.ServerWindManager;
 import com.quintonc.vs_sails.config.ConfigUtils;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.NotNull;
 import org.joml.*;
@@ -14,6 +15,8 @@ import org.valkyrienskies.core.api.ships.*;
 import org.valkyrienskies.core.impl.game.ships.PhysShipImpl;
 
 import static java.lang.Math.*;
+
+import java.text.DecimalFormat;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -44,7 +47,11 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
 //    boolean toBeStaticUpdated = false;
 
     @JsonIgnore
-    private static final int sailSpeed = Integer.parseInt(ConfigUtils.config.getOrDefault("sail-power","10000"));
+    private static final int sailSpeed = Integer.parseInt(ConfigUtils.config.getOrDefault("sail-power","25000"));
+    @JsonIgnore
+    private static final boolean forgivingSails = Boolean.parseBoolean(ConfigUtils.config.getOrDefault("forgiving-sails","false"));
+    @JsonIgnore
+    private static final double noSailZone = toRadians((double)Integer.parseInt(ConfigUtils.config.getOrDefault("no-sail-zone", "90"))/2);
     @JsonIgnore
     private static final double keelStrength = Double.parseDouble(ConfigUtils.config.getOrDefault(
             "keel-power","4.0"));
@@ -70,6 +77,9 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
 
     public int boundx = 1;
     public int boundz = 1;
+
+    @JsonIgnore
+    public Text message;
 
     public Direction shipDirection = Direction.NORTH;
     @JsonIgnore
@@ -221,63 +231,55 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
             Vector3d sailForce = new Vector3d(
                     shipDirection.getVector().getX(), shipDirection.getVector().getY(), shipDirection.getVector().getZ()
             );
-//            double sizeMult = (double) boundz / (double) boundx;
-//            if (boundx > boundz) {
-//                sizeMult = (double) boundx / (double) boundz;
-//            }
 
             if (Boolean.parseBoolean(ConfigUtils.config.getOrDefault("enable-wind","true"))) {
                 double windDirection = ServerWindManager.getWindDirection(); //in degrees
                 double windStrength = ServerWindManager.getWindStrength(); // -1.0 -- 1.0
-                double shipAngle = physShip1.getTransform().getShipToWorldRotation().angle(); //in radians
+                double shipAngle = getShipYaw(physShip1.getTransform().getShipToWorldRotation()); //in radians
                 double windAngle;
                 double squareAngleBetween;
                 double fnaAngleBetween;
                 //LOGGER.info("wind:"+windAngle+" ship:"+shipAngle);
-                if (shipDirection == Direction.SOUTH) { //fixme finish sail/wind direction implementation
-                    //LOGGER.info("pee");
-                    if (windStrength > 0) {
-                        windAngle = abs(windDirection - 270);
-                    } else {
-                        windAngle = abs(windDirection - 90);
-                    }
-                } else if (shipDirection == Direction.WEST) {
-                    if (windStrength > 0) {
-                        windAngle = abs(windDirection);
-                    } else {
-                        windAngle = abs(windDirection - 180);
-                    }
-                } else if (shipDirection == Direction.NORTH) {
-                    if (windStrength > 0) {
-                        windAngle = abs(windDirection - 90);
-                    } else {
-                        windAngle = abs(windDirection - 270);
-                    }
+                if (windStrength > 0) {
+                    windAngle = windDirection + 90 % 360;
                 } else {
-                    if (windStrength > 0) {
-                        windAngle = abs(windDirection - 180);
-                    } else {
-                        windAngle = abs(windDirection);
-                    }
+                    windAngle = windDirection + 270 % 360;
+                }
+                if (shipDirection == Direction.WEST) {
+                    windAngle = (windAngle-90) % 360;
+                } else if (shipDirection == Direction.NORTH) {
+                    windAngle = (windAngle+180) % 360;
+                } else if (shipDirection == Direction.EAST) {
+                    windAngle = (windAngle+90) % 360;
                 }
 
                 windAngle = toRadians(windAngle);
-                squareAngleBetween = min(abs(shipAngle-windAngle), 2*PI - abs(shipAngle-windAngle));
-                double fnaAngle = min(abs(shipAngle+PI/2-windAngle), abs(shipAngle-PI/2-windAngle));
-                fnaAngleBetween = min(fnaAngle, 2*PI - fnaAngle);
-                if (squareAngleBetween < PI) {
-                    fnaAngleBetween /= 2;
+                squareAngleBetween = abs(min(abs(shipAngle-windAngle), 2*PI - abs(shipAngle-windAngle)));
+                double fnaAngle1 = abs(shipAngle+PI/2-windAngle);
+                double fnaAngle2 = abs(shipAngle-PI/2-windAngle);
+                fnaAngleBetween = abs(min(min(fnaAngle1, 2*PI - fnaAngle1), min(fnaAngle2, 2*PI - fnaAngle2)));
+                if (squareAngleBetween > PI/2) {
+                    fnaAngleBetween *= 2;
                 }
 
-
                 //LOGGER.info(" wa: "+Math.toDegrees(windAngle)+" sa: "+Math.toDegrees(shipAngle)+" s-w: "+(shipAngle-windAngle));
-                //LOGGER.info("sab:"+squareAngleBetween+" fab:"+fnaAngleBetween);
+                //LOGGER.info("sab:"+toDegrees(squareAngleBetween)+" fab:"+toDegrees(fnaAngleBetween));
+                //DecimalFormat f = new DecimalFormat("000.000");
+                //message = Text.of("ship: "+f.format(toDegrees(shipAngle))+" wind: "+f.format(toDegrees(windAngle))+" sAngle: "+f.format(toDegrees(squareAngleBetween))+" fAngle: "+f.format(toDegrees(fnaAngleBetween)));
+                //double shipw = physShip1.getTransform().getShipToWorldRotation().w();
+                //double shipx = physShip1.getTransform().getShipToWorldRotation().x();
+                //double shipy = physShip1.getTransform().getShipToWorldRotation().y();
+                //double shipz = physShip1.getTransform().getShipToWorldRotation().z();
+                //message = Text.of("w: "+f.format(shipw)+" x: "+f.format(shipx)+" y: "+f.format(shipy)+" z: "+f.format(shipz));
 
-                double squareWindModifier = numSquareSails/(squareAngleBetween+1);
-                double fnAWindModifier = numFnASails/(fnaAngleBetween+1);
+                //message = Text.of("angle: "+toDegrees(getShipYaw(physShip1.getTransform().getShipToWorldRotation())));
 
-                //LOGGER.info("eh:" + sizeMult);
-                sailForce.mul(-(squareWindModifier+fnAWindModifier)*sailSpeed*(windStrength*windStrength)/* *Math.pow(sizeMult, 2)*/);
+                double squareWindModifier = numSquareSails/calculateWindAngleModifier(squareAngleBetween, PI-noSailZone);
+                double fnAWindModifier = numFnASails/calculateWindAngleModifier(fnaAngleBetween, PI-noSailZone);
+
+                //LOGGER.info("sqm:"+squareWindModifier+" fwm:"+fnAWindModifier);
+
+                sailForce.mul(-(squareWindModifier+fnAWindModifier)*sailSpeed*(windStrength*windStrength));
             } else {
                 sailForce.mul(-(numSquareSails+numFnASails)*sailSpeed);
             }
@@ -351,6 +353,37 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
         data.pos = pos;
         rotPosForces.add(data);
         //LOGGER.info("applyrotforceTOPOS called");
+    }
+
+    private double calculateWindAngleModifier(double windAngle, double noSail) {
+        if (forgivingSails) {
+            return pow(2, windAngle/noSail) + pow(2, -windAngle/noSail);
+        }
+        return pow(2, pow(windAngle, 2)/noSail) + pow(2, -pow(windAngle, 2)/noSail);
+    }
+
+    public static double getShipYaw(Quaterniondc shipRotation) {
+        Vector3d worldForwardDirection = new Vector3d();
+        Vector3d LOCAL_SHIP_FORWARD_NEGATIVE_Z = new Vector3d(0.0, 0.0, -1.0);
+        shipRotation.transform(LOCAL_SHIP_FORWARD_NEGATIVE_Z, worldForwardDirection);
+
+        if (worldForwardDirection.lengthSquared() < 1.0e-12) {
+            return 0.0;
+        }
+
+        double horizontalDistance = sqrt(worldForwardDirection.x * worldForwardDirection.x + worldForwardDirection.z * worldForwardDirection.z);
+
+        double yaw;
+        if (horizontalDistance < 1.0e-9) {
+            yaw = 0.0;
+        } else {
+            yaw = atan2(worldForwardDirection.x, -worldForwardDirection.z);
+        }
+        if (yaw < 0) {
+            yaw = 2*PI + yaw;
+        }
+
+        return yaw;
     }
 
     public void addBuoyancy(double buoyancy) {

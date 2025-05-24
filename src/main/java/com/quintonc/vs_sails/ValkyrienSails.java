@@ -187,6 +187,7 @@ public class ValkyrienSails implements ModInitializer {
                         ServerShip ship = (ServerShip)VSGameUtilsKt.getAllShips(world).getById(shipId);
                         if (ship != null) {
                             if (ship.getAttachment(SailsShipControl.class) != null) {
+                                //serverPlayerEntity.sendMessage(ship.getAttachment(SailsShipControl.class).message, true);
                                 if (player.getDraggingInformation().getTicksSinceStoodOnShip() < 100) {
                                     world.spawnParticles(serverPlayerEntity, ValkyrienSails.WIND_PARTICLE, false, serverPlayerEntity.getX(), serverPlayerEntity.getY()+25, serverPlayerEntity.getZ(), 10, 20, 10, 20, 0);
                                     //fixme use single particle spawning, or transfer to client?
