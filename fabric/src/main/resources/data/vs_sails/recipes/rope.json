@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "functional",
+  "key": {
+    "X": {
+      "item": "minecraft:string"
+    }
+  },
+  "pattern": [
+    " XX",
+    "XXX",
+    "XX "
+  ],
+  "result": {
+    "item": "vs_sails:rope"
+  },
+  "show_notification": true
+}

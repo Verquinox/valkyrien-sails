@@ -16,7 +16,6 @@ import org.valkyrienskies.core.impl.game.ships.PhysShipImpl;
 
 import static java.lang.Math.*;
 
-import java.text.DecimalFormat;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
 

@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "functional",
+  "key": {
+    "#": {
+      "item": "minecraft:string"
+    },
+    "X": {
+      "item": "vs_sails:rope"
+    }
+  },
+  "pattern": [
+    "###",
+    "#X#",
+    "###"
+  ],
+  "result": {
+    "item": "vs_sails:sail_block",
+    "count": 4
+  },
+  "show_notification": true
+}

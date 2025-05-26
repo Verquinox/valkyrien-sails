@@ -19,8 +19,6 @@ import org.slf4j.LoggerFactory;
 import org.spongepowered.asm.mixin.Unique;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
-import java.util.Objects;
-
 public class WindParticle extends SpriteBillboardParticle {
     public static final Logger LOGGER = LoggerFactory.getLogger("wind_particle");
 

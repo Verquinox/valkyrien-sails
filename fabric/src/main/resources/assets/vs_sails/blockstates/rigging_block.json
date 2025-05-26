@@ -1,0 +1,48 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "vs_sails:block/rigging_block_post"
+      }
+    },
+    {
+      "apply": {
+        "model": "vs_sails:block/rigging_block_side",
+        "uvlock": true
+      },
+      "when": {
+        "north": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "vs_sails:block/rigging_block_side",
+        "uvlock": true,
+        "y": 90
+      },
+      "when": {
+        "east": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "vs_sails:block/rigging_block_side",
+        "uvlock": true,
+        "y": 180
+      },
+      "when": {
+        "south": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "vs_sails:block/rigging_block_side",
+        "uvlock": true,
+        "y": 270
+      },
+      "when": {
+        "west": "true"
+      }
+    }
+  ]
+}

@@ -1,6 +1,5 @@
 package com.quintonc.vs_sails.items;
 
-import com.quintonc.vs_sails.ship.SailsShipControl;
 import g_mungus.vlib.api.VLibGameUtils;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.world.ClientWorld;
@@ -24,8 +23,6 @@ import org.apache.logging.log4j.core.jmx.Server;
 import org.valkyrienskies.core.api.ships.*;
 import org.valkyrienskies.mod.common.VSGameUtilsKt.*;
 import static org.valkyrienskies.mod.common.VSGameUtilsKt.*;
-
-import javax.swing.*;
 
 public class SailWand extends Item {
 

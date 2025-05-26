@@ -1,0 +1,12 @@
+{
+  "block.vs_sails.sail_block": "Sail Block",
+  "block.vs_sails.helm_block": "Ship's Helm",
+  "item.vs_sails.helm_wheel": "Ship's Wheel",
+  "block.vs_sails.rigging_block": "Rigging",
+  "block.vs_sails.ballast_block": "Ballast Block",
+  "block.vs_sails.magic_ballast_block": "Magic Ballast Block",
+  "block.vs_sails.buoy_block": "Buoy Block",
+  "item.vs_sails.rope": "Rope",
+  "item.vs_sails.dedication_bottle": "Dedication Bottle",
+  "sounds.vs_sails.wind_ambience": "Wind blows"
+}

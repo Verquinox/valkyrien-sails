@@ -1,10 +1,42 @@
 pluginManagement {
 	repositories {
+
+		mavenCentral()
+		gradlePluginPortal()
 		maven {
 			name = 'Fabric'
 			url = 'https://maven.fabricmc.net/'
 		}
-		mavenCentral()
-		gradlePluginPortal()
+		maven {
+			name = 'Sponge Snapshots'
+			url = 'https://repo.spongepowered.org/repository/maven-public/'
+		}
+		maven {
+			name = 'Forge'
+			url = 'https://maven.minecraftforge.net'
+		}
+		maven {
+			name = 'Architectury'
+			url = 'https://maven.architectury.dev/'
+		}
 	}
+//	resolutionStrategy { //fixme figure out how to do this in groovy
+//		eachPlugin {
+//			// If we request Forge, actually give it the correct artifact.
+//			if (requested.id.id == "net.minecraftforge.gradle") {
+//				useModule("${requested.id}:ForgeGradle:${requested.version}")
+//			}
+//
+//			if (requested.id.namespace?.startsWith("org.jetbrains.kotlin") == true) {
+//				val kotlin_version: String by settings
+//				useVersion(kotlin_version)
+//			}
+//		}
+//	}
 }
+
+include("common")
+include("fabric")
+include("forge")
+
+rootProject.name = "vs_sails"

@@ -1,6 +1,5 @@
 package com.quintonc.vs_sails;
 
-import com.quintonc.vs_sails.config.ConfigUtils;
 import com.quintonc.vs_sails.networking.WindModNetworking;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;

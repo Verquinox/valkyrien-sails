@@ -1,6 +1,5 @@
 package com.quintonc.vs_sails.blocks.entity.renderer;
 
-import com.quintonc.vs_sails.blocks.HelmBlock;
 import com.quintonc.vs_sails.blocks.entity.HelmBlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.LightmapTextureManager;
