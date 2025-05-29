@@ -14,7 +14,7 @@ public class ValkyrienSailsClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        BlockEntityRenderers.register(ValkyrienSails.HELM_BLOCK_ENTITY, HelmBlockEntityRenderer::new);
+        BlockEntityRenderers.register(ValkyrienSailsFabric.HELM_BLOCK_ENTITY, HelmBlockEntityRenderer::new);
 
         System.out.println("Client init");
         com.quintonc.vs_sails.client.ClientWindManager.InitializeWind();
@@ -23,7 +23,7 @@ public class ValkyrienSailsClient implements ClientModInitializer {
 //            registry.register(new Identifier(MOD_ID, PARTICLE));
 //        }));
 
-        ParticleFactoryRegistry.getInstance().register(ValkyrienSails.WIND_PARTICLE, WindParticle.Factory::new);
+        ParticleFactoryRegistry.getInstance().register(ValkyrienSailsFabric.WIND_PARTICLE, WindParticle.Factory::new);
 
 
 

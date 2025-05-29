@@ -215,7 +215,9 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
 //
 //        }
 
-        physShip1.setBuoyantFactor(1.0 + numBuoys * buoyStrength + numBallast * ballastStrength);
+        if (numBallast > 0 || numBuoys > 0) {
+            physShip1.setBuoyantFactor(1.0 + numBuoys * buoyStrength + numBallast * ballastStrength);
+        }
 
 
 //        if (ship != null) { //fixme old code

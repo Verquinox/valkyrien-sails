@@ -17,7 +17,7 @@
 	"entrypoints": {
 		"main": [
 			{
-				"value": "com.quintonc.vs_sails.ValkyrienSails"
+				"value": "com.quintonc.vs_sails.ValkyrienSailsFabric"
 			}
 		],
 		"client": [

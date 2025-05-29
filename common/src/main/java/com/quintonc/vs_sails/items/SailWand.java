@@ -1,6 +1,6 @@
 package com.quintonc.vs_sails.items;
 
-import g_mungus.vlib.api.VLibGameUtils;
+//import g_mungus.vlib.api.VLibGameUtils;
 //import net.minecraft.block.BlockState;
 //import net.minecraft.client.world.ClientWorld;
 //import net.minecraft.entity.player.PlayerEntity;
@@ -58,7 +58,7 @@ public class SailWand extends Item {
 //            }
 //        }
         if (!context.getLevel().isClientSide) {
-            VLibGameUtils.INSTANCE.assembleByConnectivity((ServerLevel)context.getLevel(), context.getClickedPos());
+            //VLibGameUtils.INSTANCE.assembleByConnectivity((ServerLevel)context.getLevel(), context.getClickedPos());
             return InteractionResult.SUCCESS;
         }
 

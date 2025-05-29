@@ -36,14 +36,6 @@ public class SailBlock extends Block {
     public static final BooleanProperty WEST = BooleanProperty.create("west");
     public static final BooleanProperty UP = BooleanProperty.create("up");
     public static final BooleanProperty DOWN = BooleanProperty.create("down");
-//    public static final BooleanProperty NORTHUP = BooleanProperty.of("northup");
-//    public static final BooleanProperty EASTUP = BooleanProperty.of("eastup");
-//    public static final BooleanProperty SOUTHUP = BooleanProperty.of("southup");
-//    public static final BooleanProperty WESTUP = BooleanProperty.of("westup");
-//    public static final BooleanProperty NORTHDOWN = BooleanProperty.of("northdown");
-//    public static final BooleanProperty EASTDOWN = BooleanProperty.of("eastdown");
-//    public static final BooleanProperty SOUTHDOWN = BooleanProperty.of("southdown");
-//    public static final BooleanProperty WESTDOWN = BooleanProperty.of("westdown");
 //    protected static final Map<Direction, BooleanProperty> FACING_PROPERTIES;
     //public static final DirectionProperty FACING;
     public static final Logger LOGGER = LoggerFactory.getLogger("sail_block");
@@ -77,14 +69,6 @@ public class SailBlock extends Block {
                 .setValue(WEST, ctx.getLevel().getBlockState(ctx.getClickedPos().west()).is(this))
                 .setValue(UP, ctx.getLevel().getBlockState(ctx.getClickedPos().above()).is(this))
                 .setValue(DOWN, ctx.getLevel().getBlockState(ctx.getClickedPos().below()).is(this))
-//                .with(NORTHUP, ctx.getWorld().getBlockState(ctx.getBlockPos().north().up()).isOf(this))
-//                .with(EASTUP, ctx.getWorld().getBlockState(ctx.getBlockPos().east().up()).isOf(this))
-//                .with(SOUTHUP, ctx.getWorld().getBlockState(ctx.getBlockPos().south().up()).isOf(this))
-//                .with(WESTUP, ctx.getWorld().getBlockState(ctx.getBlockPos().west().up()).isOf(this))
-//                .with(NORTHDOWN, ctx.getWorld().getBlockState(ctx.getBlockPos().north().down()).isOf(this))
-//                .with(EASTDOWN, ctx.getWorld().getBlockState(ctx.getBlockPos().east().down()).isOf(this))
-//                .with(SOUTHDOWN, ctx.getWorld().getBlockState(ctx.getBlockPos().south().down()).isOf(this))
-//                .with(WESTDOWN, ctx.getWorld().getBlockState(ctx.getBlockPos().west().down()).isOf(this))
                 ;
 
     }
@@ -128,19 +112,11 @@ public class SailBlock extends Block {
             updater.updateStateForDir(world.getBlockState(pos.south()), SOUTH);
             updater.updateStateForDir(world.getBlockState(pos.east()), EAST);
             updater.updateStateForDir(world.getBlockState(pos.west()), WEST);
-//            updater.updateStateForDir(world.getBlockState(pos.up().north()), NORTHUP);
-//            updater.updateStateForDir(world.getBlockState(pos.up().east()), EASTUP);
-//            updater.updateStateForDir(world.getBlockState(pos.up().south()), SOUTHUP);
-//            updater.updateStateForDir(world.getBlockState(pos.up().west()), WESTUP);
-//            updater.updateStateForDir(world.getBlockState(pos.down().north()), NORTHDOWN);
-//            updater.updateStateForDir(world.getBlockState(pos.down().south()), SOUTHDOWN);
-//            updater.updateStateForDir(world.getBlockState(pos.down().east()), EASTDOWN);
-//            updater.updateStateForDir(world.getBlockState(pos.down().west()), WESTDOWN);
 
             state = updater.state;
 
             if (updater.invisCounter > 3) {
-                //LOGGER.info("invis set to true!");
+                LOGGER.info("invis set to true!");
                 state = state.setValue(INVISIBLE, true);
             } else {
                 state = state.setValue(INVISIBLE, false);
@@ -332,14 +308,6 @@ public class SailBlock extends Block {
         builder.add(WEST);
         builder.add(UP);
         builder.add(DOWN);
-//        builder.add(NORTHUP);
-//        builder.add(EASTUP);
-//        builder.add(SOUTHUP);
-//        builder.add(WESTUP);
-//        builder.add(NORTHDOWN);
-//        builder.add(EASTDOWN);
-//        builder.add(SOUTHDOWN);
-//        builder.add(WESTDOWN);
         //FACING_PROPERTIES = (Map)ConnectingBlock.FACING_PROPERTIES.entrySet().stream().filter((entry) -> ((Direction)entry.getKey()).getAxis().isHorizontal()).collect(Util.toMap());
     }
 
@@ -352,9 +320,11 @@ public class SailBlock extends Block {
         }
 
         public void updateStateForDir(BlockState neighborState, BooleanProperty direction) {
+            LOGGER.info("state update called");
             if (!neighborState.isAir()) {
                 if (neighborState.is(ValkyrienSails.SAIL_BLOCK)) {
                     invisCounter++;
+                    LOGGER.info("invis="+invisCounter);
                     if (neighborState.getValue(INVISIBLE)) {
                         state = state.setValue(direction, false);
                     } else {

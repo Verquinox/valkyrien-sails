@@ -1,12 +1,10 @@
 package com.quintonc.vs_sails;
 
+
 import com.quintonc.vs_sails.blocks.*;
 import com.quintonc.vs_sails.blocks.entity.HelmBlockEntity;
-import com.quintonc.vs_sails.config.ConfigUtils;
 import com.quintonc.vs_sails.items.DedicationBottle;
 import com.quintonc.vs_sails.items.SailWand;
-import com.quintonc.vs_sails.networking.WindModNetworking;
-import com.quintonc.vs_sails.ship.SailsShipControl;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -24,28 +22,17 @@ import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.GameRules;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.valkyrienskies.core.api.ships.ServerShip;
-import org.valkyrienskies.mod.common.VSGameUtilsKt;
-import org.valkyrienskies.mod.common.util.IEntityDraggingInformationProvider;
 
-import static java.lang.Math.*;
 
-public class ValkyrienSails implements ModInitializer {
 
-    private static int tickCount = 0;
-    private static final int refreshRate = 4;
-    public static final double EULERS_NUMBER = 2.71828182846;
+public class ValkyrienSailsFabric implements ModInitializer {
 
-    public static final String MOD_ID = "vs_sails";
-    public static final Logger LOGGER = LoggerFactory.getLogger("vs_sails");
+    public static final Logger LOGGER = LoggerFactory.getLogger("vs_sails_fabric");
 
     public static final GameRules.Key<GameRules.IntegerValue> MAX_WIND_SPEED =
             GameRuleRegistry.register("maxWindSpeed", GameRules.Category.MISC, GameRuleFactory.createIntRule(32));
@@ -53,46 +40,46 @@ public class ValkyrienSails implements ModInitializer {
     public static final GameRules.Key<GameRules.BooleanValue> SAILS_USE_WIND =
             GameRuleRegistry.register("sailsUseWind", GameRules.Category.MISC, GameRuleFactory.createBooleanRule(true));
 
-    public static final ResourceKey<CreativeModeTab> SAILS_ITEM_GROUP_KEY = ResourceKey.create(BuiltInRegistries.CREATIVE_MODE_TAB.key(), ResourceLocation.tryBuild(MOD_ID, "item_group"));
+    public static final ResourceKey<CreativeModeTab> SAILS_ITEM_GROUP_KEY = ResourceKey.create(BuiltInRegistries.CREATIVE_MODE_TAB.key(), ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "item_group"));
     public static final CreativeModeTab SAILS_ITEM_GROUP = FabricItemGroup.builder()
-            .icon(() -> new ItemStack(ValkyrienSails.HELM_BLOCK.asItem()))
+            .icon(() -> new ItemStack(ValkyrienSailsFabric.HELM_BLOCK.asItem()))
             .title(Component.literal("Valkyrien Sails"))
             .build();
 
 
     @Override
     public void onInitialize() {
-        ConfigUtils.checkConfigs();
+
         //registerEntityThings();
+        ValkyrienSails.init();
+
+        ServerLifecycleEvents.SERVER_STARTED.register(ValkyrienSails::onServerStarted);
+        ServerTickEvents.START_WORLD_TICK.register(ValkyrienSails::onWorldTick);
 
         registerBlocks();
+        ValkyrienSails.HELM_BLOCK_ENTITY = HELM_BLOCK_ENTITY;
         registerItems();
         registerParticles();
         registerBrewingRecipes();
 
         //PatternProcessor.setupBasicPatterns();
         ModSounds.registerSounds();
-        ServerLifecycleEvents.SERVER_STARTED.register(this::onServerStarted);
-        ServerTickEvents.START_WORLD_TICK.register(ValkyrienSails::onWorldTick);
-        LOGGER.info("The wind is blowing.");
-
-        LOGGER.info("Sailing time.");
 
         //register item group
         Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, SAILS_ITEM_GROUP_KEY, SAILS_ITEM_GROUP);
 
         //add items to item group
         ItemGroupEvents.modifyEntriesEvent(SAILS_ITEM_GROUP_KEY).register(itemGroup -> {
-            itemGroup.accept(ValkyrienSails.SAIL_BLOCK.asItem());
-            itemGroup.accept(ValkyrienSails.HELM_BLOCK.asItem());
-            itemGroup.accept(ValkyrienSails.HELM_WHEEL.asItem());
-            itemGroup.accept(ValkyrienSails.RIGGING_BLOCK.asItem());
-            itemGroup.accept(ValkyrienSails.BALLAST_BLOCK.asItem());
-            itemGroup.accept(ValkyrienSails.MAGIC_BALLAST_BLOCK.asItem());
-            itemGroup.accept(ValkyrienSails.BUOY_BLOCK.asItem());
-            //itemGroup.accept(ValkyrienSails.CANNONBALL);
-            itemGroup.accept(ValkyrienSails.DEDICATION_BOTTLE);
-            itemGroup.accept(ValkyrienSails.ROPE);
+            itemGroup.accept(ValkyrienSailsFabric.SAIL_BLOCK.asItem());
+            itemGroup.accept(ValkyrienSailsFabric.HELM_BLOCK.asItem());
+            itemGroup.accept(ValkyrienSailsFabric.HELM_WHEEL.asItem());
+            itemGroup.accept(ValkyrienSailsFabric.RIGGING_BLOCK.asItem());
+            itemGroup.accept(ValkyrienSailsFabric.BALLAST_BLOCK.asItem());
+            itemGroup.accept(ValkyrienSailsFabric.MAGIC_BALLAST_BLOCK.asItem());
+            itemGroup.accept(ValkyrienSailsFabric.BUOY_BLOCK.asItem());
+            //itemGroup.accept(ValkyrienSailsFabric.CANNONBALL);
+            itemGroup.accept(ValkyrienSailsFabric.DEDICATION_BOTTLE);
+            itemGroup.accept(ValkyrienSailsFabric.ROPE);
 
             //new items go here ^
         });
@@ -115,12 +102,12 @@ public class ValkyrienSails implements ModInitializer {
 
     //add new constants for blocks here ^
     private void registerBlocks() {
-        Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation("vs_sails", "sail_block"), SAIL_BLOCK);
-        Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation("vs_sails", "helm_block"), HELM_BLOCK);
-        Registry.register(BuiltInRegistries.BLOCK,new ResourceLocation("vs_sails","rigging_block"),RIGGING_BLOCK);
-        Registry.register(BuiltInRegistries.BLOCK,new ResourceLocation("vs_sails","ballast_block"),BALLAST_BLOCK);
-        Registry.register(BuiltInRegistries.BLOCK,new ResourceLocation("vs_sails","magic_ballast_block"),MAGIC_BALLAST_BLOCK);
-        Registry.register(BuiltInRegistries.BLOCK,new ResourceLocation("vs_sails","buoy_block"),BUOY_BLOCK);
+        ValkyrienSails.SAIL_BLOCK = Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation("vs_sails", "sail_block"), SAIL_BLOCK);
+        ValkyrienSails.HELM_BLOCK = Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation("vs_sails", "helm_block"), HELM_BLOCK);
+        ValkyrienSails.RIGGING_BLOCK = Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation("vs_sails","rigging_block"),RIGGING_BLOCK);
+        ValkyrienSails.BALLAST_BLOCK = Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation("vs_sails","ballast_block"),BALLAST_BLOCK);
+        ValkyrienSails.MAGIC_BALLAST_BLOCK = Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation("vs_sails","magic_ballast_block"),MAGIC_BALLAST_BLOCK);
+        ValkyrienSails.BUOY_BLOCK = Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation("vs_sails","buoy_block"),BUOY_BLOCK);
 
         //register new blocks here ^
     }
@@ -134,11 +121,11 @@ public class ValkyrienSails implements ModInitializer {
 
     //add new constants for items here ^
     private void registerItems() {
-        Registry.register(BuiltInRegistries.ITEM, new ResourceLocation("vs_sails","rope"), ROPE);
+        ValkyrienSails.ROPE = Registry.register(BuiltInRegistries.ITEM, new ResourceLocation("vs_sails","rope"), ROPE);
         Registry.register(BuiltInRegistries.ITEM, new ResourceLocation("vs_sails","cannonball"),CANNONBALL);
-        Registry.register(BuiltInRegistries.ITEM, new ResourceLocation("vs_sails","helm_wheel"),HELM_WHEEL);
+        ValkyrienSails.HELM_WHEEL = Registry.register(BuiltInRegistries.ITEM, new ResourceLocation("vs_sails","helm_wheel"),HELM_WHEEL);
         Registry.register(BuiltInRegistries.ITEM, new ResourceLocation("vs_sails","sail_wand"),SAIL_WAND);
-        Registry.register(BuiltInRegistries.ITEM, new ResourceLocation("vs_sails","dedication_bottle"),DEDICATION_BOTTLE);
+        ValkyrienSails.DEDICATION_BOTTLE = Registry.register(BuiltInRegistries.ITEM, new ResourceLocation("vs_sails","dedication_bottle"),DEDICATION_BOTTLE);
 
         //register new items here ^
 
@@ -153,7 +140,7 @@ public class ValkyrienSails implements ModInitializer {
     }
 
     private void registerParticles() {
-        Registry.register(BuiltInRegistries.PARTICLE_TYPE, new ResourceLocation(ValkyrienSails.MOD_ID, "wind_particle"), WIND_PARTICLE);
+        ValkyrienSails.WIND_PARTICLE = Registry.register(BuiltInRegistries.PARTICLE_TYPE, new ResourceLocation(ValkyrienSails.MOD_ID, "wind_particle"), WIND_PARTICLE);
     }
 
     private void registerBrewingRecipes() {
@@ -169,51 +156,5 @@ public class ValkyrienSails implements ModInitializer {
 
     //entities would go here
 
-    public static void InitializeVSWind(ServerLevel world) {
-        System.out.println("VSWind Init");
-        ServerTickEvents.START_WORLD_TICK.register(ValkyrienSails::onWorldTick);
-    }
 
-    @SuppressWarnings("UnstableApiUsage")
-    private static void onWorldTick(ServerLevel world) {
-        if(tickCount == refreshRate) {
-            tickCount = 0;
-
-            //Spawn wind particles for all players being dragged by ships with a SailsShipControl attachment
-            world.getServer().getPlayerList().getPlayers().forEach(serverPlayerEntity -> {
-                if (serverPlayerEntity instanceof IEntityDraggingInformationProvider player) {
-                    if (player.getDraggingInformation().getLastShipStoodOn() != null) {
-                        long shipId = player.getDraggingInformation().getLastShipStoodOn();
-                        ServerShip ship = (ServerShip)VSGameUtilsKt.getAllShips(world).getById(shipId);
-                        if (ship != null) {
-                            if (ship.getAttachment(SailsShipControl.class) != null) {
-                                //serverPlayerEntity.sendMessage(ship.getAttachment(SailsShipControl.class).message, true);
-                                if (player.getDraggingInformation().getTicksSinceStoodOnShip() < 100) {
-                                    world.sendParticles(serverPlayerEntity, ValkyrienSails.WIND_PARTICLE, false, serverPlayerEntity.getX(), serverPlayerEntity.getY()+25, serverPlayerEntity.getZ(), 10, 20, 10, 20, 0);
-                                    //fixme use single particle spawning, or transfer to client?
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
-
-
-        } else {
-            tickCount++;
-        }
-    }
-
-    private static Vec3 project(Vec3 vec1, Vec3 vec2) {
-        return vec1.scale(vec1.dot(vec2) / pow(vec1.length(), 2));
-    }
-
-    private void onServerStarted(MinecraftServer server) {
-        if (Boolean.parseBoolean(ConfigUtils.config.getOrDefault("enable-wind","true"))) {
-            ServerWindManager.InitializeWind(server.overworld());
-            ValkyrienSails.InitializeVSWind(server.overworld());
-            WindModNetworking.networkingInit();
-        }
-    }
 }
