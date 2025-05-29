@@ -79,7 +79,12 @@ public class RiggingBlock extends CrossCollisionBlock {
         BlockState blockState2 = blockView.getBlockState(blockPos3);
         BlockState blockState3 = blockView.getBlockState(blockPos4);
         BlockState blockState4 = blockView.getBlockState(blockPos5);
-        return (BlockState)((BlockState)((BlockState)((BlockState)((BlockState) Objects.requireNonNull(super.getStateForPlacement(ctx)).setValue(NORTH, this.canConnect(blockState, blockState.isFaceSturdy(blockView, blockPos2, Direction.SOUTH), Direction.SOUTH))).setValue(EAST, this.canConnect(blockState2, blockState2.isFaceSturdy(blockView, blockPos3, Direction.WEST), Direction.WEST))).setValue(SOUTH, this.canConnect(blockState3, blockState3.isFaceSturdy(blockView, blockPos4, Direction.NORTH), Direction.NORTH))).setValue(WEST, this.canConnect(blockState4, blockState4.isFaceSturdy(blockView, blockPos5, Direction.EAST), Direction.EAST))).setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER);
+        return ((((Objects.requireNonNull(super.getStateForPlacement(ctx))
+                .setValue(NORTH, this.canConnect(blockState, blockState.isFaceSturdy(blockView, blockPos2, Direction.SOUTH), Direction.SOUTH)))
+                .setValue(EAST, this.canConnect(blockState2, blockState2.isFaceSturdy(blockView, blockPos3, Direction.WEST), Direction.WEST)))
+                .setValue(SOUTH, this.canConnect(blockState3, blockState3.isFaceSturdy(blockView, blockPos4, Direction.NORTH), Direction.NORTH)))
+                .setValue(WEST, this.canConnect(blockState4, blockState4.isFaceSturdy(blockView, blockPos5, Direction.EAST), Direction.EAST)))
+                .setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER);
     }
 
     @SuppressWarnings("deprecation")

@@ -1,7 +1,7 @@
 {
   "block.vs_sails.sail_block": "Sail Block",
   "block.vs_sails.helm_block": "Ship's Helm",
-  "item.vs_sails.helm_wheel": "Ship's Wheel",
+  "block.vs_sails.helm_wheel": "Ship's Wheel",
   "block.vs_sails.rigging_block": "Rigging",
   "block.vs_sails.ballast_block": "Ballast Block",
   "block.vs_sails.magic_ballast_block": "Magic Ballast Block",

@@ -14,6 +14,7 @@ import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -71,6 +72,8 @@ public class ValkyrienSailsFabric implements ModInitializer {
         //add items to item group
         ItemGroupEvents.modifyEntriesEvent(SAILS_ITEM_GROUP_KEY).register(itemGroup -> {
             itemGroup.accept(ValkyrienSailsFabric.SAIL_BLOCK.asItem());
+            itemGroup.accept(ValkyrienSailsFabric.WHITE_SAIL.asItem());
+            itemGroup.accept(ValkyrienSailsFabric.RED_SAIL.asItem());
             itemGroup.accept(ValkyrienSailsFabric.HELM_BLOCK.asItem());
             itemGroup.accept(ValkyrienSailsFabric.HELM_WHEEL.asItem());
             itemGroup.accept(ValkyrienSailsFabric.RIGGING_BLOCK.asItem());
@@ -91,8 +94,10 @@ public class ValkyrienSailsFabric implements ModInitializer {
 
     //block registry stuff
     public static final SailBlock SAIL_BLOCK = new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion());
-    //public static final SailBlock SAIL_BLOCK = new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).nonOpaque());
+    public static final SailBlock WHITE_SAIL = new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion());
+    public static final SailBlock RED_SAIL = new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion());
     public static final HelmBlock HELM_BLOCK = new HelmBlock(BlockBehaviour.Properties.copy(Blocks.SPRUCE_PLANKS).noOcclusion());
+    public static final HelmWheel HELM_WHEEL = new HelmWheel(BlockBehaviour.Properties.copy(Blocks.SPRUCE_PLANKS).noOcclusion());
     public static final RiggingBlock RIGGING_BLOCK = new RiggingBlock(BlockBehaviour.Properties.copy(Blocks.DARK_OAK_FENCE));
     public static final BallastBlock BALLAST_BLOCK = new BallastBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).explosionResistance(0.0f));
     public static final MagicBallastBlock MAGIC_BALLAST_BLOCK = new MagicBallastBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).explosionResistance(0.0f));
@@ -103,7 +108,11 @@ public class ValkyrienSailsFabric implements ModInitializer {
     //add new constants for blocks here ^
     private void registerBlocks() {
         ValkyrienSails.SAIL_BLOCK = Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation("vs_sails", "sail_block"), SAIL_BLOCK);
+        ValkyrienSails.WHITE_SAIL = Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation("vs_sails", "white_sail"), WHITE_SAIL);
+        ValkyrienSails.RED_SAIL = Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation("vs_sails", "red_sail"), RED_SAIL);
+
         ValkyrienSails.HELM_BLOCK = Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation("vs_sails", "helm_block"), HELM_BLOCK);
+        ValkyrienSails.HELM_WHEEL = Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation("vs_sails","helm_wheel"),HELM_WHEEL);
         ValkyrienSails.RIGGING_BLOCK = Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation("vs_sails","rigging_block"),RIGGING_BLOCK);
         ValkyrienSails.BALLAST_BLOCK = Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation("vs_sails","ballast_block"),BALLAST_BLOCK);
         ValkyrienSails.MAGIC_BALLAST_BLOCK = Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation("vs_sails","magic_ballast_block"),MAGIC_BALLAST_BLOCK);
@@ -115,7 +124,6 @@ public class ValkyrienSailsFabric implements ModInitializer {
     //item registry stuff
     public static final Item ROPE = new Item(new Item.Properties());
     public static final Item CANNONBALL = new Item(new Item.Properties());
-    public static final Item HELM_WHEEL = new Item(new Item.Properties());
     public static final DedicationBottle DEDICATION_BOTTLE = new DedicationBottle(new Item.Properties());
     public static final SailWand SAIL_WAND = new SailWand(new Item.Properties());
 
@@ -123,14 +131,17 @@ public class ValkyrienSailsFabric implements ModInitializer {
     private void registerItems() {
         ValkyrienSails.ROPE = Registry.register(BuiltInRegistries.ITEM, new ResourceLocation("vs_sails","rope"), ROPE);
         Registry.register(BuiltInRegistries.ITEM, new ResourceLocation("vs_sails","cannonball"),CANNONBALL);
-        ValkyrienSails.HELM_WHEEL = Registry.register(BuiltInRegistries.ITEM, new ResourceLocation("vs_sails","helm_wheel"),HELM_WHEEL);
         Registry.register(BuiltInRegistries.ITEM, new ResourceLocation("vs_sails","sail_wand"),SAIL_WAND);
         ValkyrienSails.DEDICATION_BOTTLE = Registry.register(BuiltInRegistries.ITEM, new ResourceLocation("vs_sails","dedication_bottle"),DEDICATION_BOTTLE);
 
         //register new items here ^
 
         Registry.register(BuiltInRegistries.ITEM, new ResourceLocation("vs_sails","sail_block"), new BlockItem(SAIL_BLOCK, new Item.Properties()));
+        Registry.register(BuiltInRegistries.ITEM, new ResourceLocation("vs_sails","white_sail"), new BlockItem(WHITE_SAIL, new Item.Properties()));
+        Registry.register(BuiltInRegistries.ITEM, new ResourceLocation("vs_sails","red_sail"), new BlockItem(RED_SAIL, new Item.Properties()));
+
         Registry.register(BuiltInRegistries.ITEM, new ResourceLocation("vs_sails","helm_block"), new BlockItem(HELM_BLOCK, new Item.Properties()));
+        Registry.register(BuiltInRegistries.ITEM, new ResourceLocation("vs_sails","helm_wheel"), new BlockItem(HELM_WHEEL, new Item.Properties()));
         Registry.register(BuiltInRegistries.ITEM, new ResourceLocation("vs_sails","rigging_block"),new BlockItem(RIGGING_BLOCK,new Item.Properties()));
         Registry.register(BuiltInRegistries.ITEM, new ResourceLocation("vs_sails","ballast_block"),new BlockItem(BALLAST_BLOCK,new Item.Properties()));
         Registry.register(BuiltInRegistries.ITEM, new ResourceLocation("vs_sails","magic_ballast_block"),new BlockItem(MAGIC_BALLAST_BLOCK,new Item.Properties()));

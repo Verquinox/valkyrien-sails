@@ -80,7 +80,7 @@ public class ConfigUtils {
         defaults.add("rudder-power = 1.0 #[Default: 1.0]");
         defaults.add("realistic-rudder = true #[Default: true] Is the rudder turning force dependent on the ship's speed");
         defaults.add("keel-power = 4.0 #[Default: 4.0] How strongly ships resist drifting");
-        defaults.add("wheel-interval = 6 #How many degrees the wheel will turn per tick. MUST BE A FACTOR OF 360!!!");
+        defaults.add("wheel-interval = 6 #[Default: 6] How many degrees the wheel will turn per tick. MUST BE A FACTOR OF 360!!!");
         defaults.add("");
         defaults.add("magic-ballast-righting-force = 0.25 #[Default: 0.25]");
         defaults.add("");

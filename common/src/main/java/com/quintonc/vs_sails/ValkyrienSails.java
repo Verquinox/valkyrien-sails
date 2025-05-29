@@ -15,6 +15,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.phys.Vec3;
@@ -44,7 +45,11 @@ public class ValkyrienSails {
 
     //Blocks
     public static SailBlock SAIL_BLOCK;
+    public static SailBlock WHITE_SAIL;
+    public static SailBlock RED_SAIL;
+
     public static HelmBlock HELM_BLOCK;
+    public static HelmWheel HELM_WHEEL;
     public static RiggingBlock RIGGING_BLOCK;
     public static BallastBlock BALLAST_BLOCK;
     public static MagicBallastBlock MAGIC_BALLAST_BLOCK;
@@ -54,7 +59,6 @@ public class ValkyrienSails {
     public static BlockEntityType<HelmBlockEntity> HELM_BLOCK_ENTITY;
 
     //Items
-    public static Item HELM_WHEEL;
     public static Item DEDICATION_BOTTLE;
     public static Item ROPE;
 
