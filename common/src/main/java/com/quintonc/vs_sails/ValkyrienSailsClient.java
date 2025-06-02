@@ -2,18 +2,18 @@ package com.quintonc.vs_sails;
 
 import com.quintonc.vs_sails.blocks.entity.renderer.HelmBlockEntityRenderer;
 import com.quintonc.vs_sails.client.particles.WindParticle;
-import net.fabricmc.api.ClientModInitializer;
+import com.quintonc.vs_sails.networking.WindModNetworking;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
-//import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 
-public class ValkyrienSailsClient implements ClientModInitializer {
+public class ValkyrienSailsClient {
 
     //private static KeyBinding testKeyBinding;
 
-    @Override
-    public void onInitializeClient() {
+    public static void clientInit() {
         BlockEntityRenderers.register(ValkyrienSails.HELM_BLOCK_ENTITY, HelmBlockEntityRenderer::new);
 
         System.out.println("Client init");
@@ -23,29 +23,19 @@ public class ValkyrienSailsClient implements ClientModInitializer {
 //            registry.register(new Identifier(MOD_ID, PARTICLE));
 //        }));
 
-        ParticleFactoryRegistry.getInstance().register(ValkyrienSails.WIND_PARTICLE, WindParticle.Factory::new);
-
-
-
-//        testKeyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-//                "key.examplemod.spook", // The translation key of the keybinding's name
-//                InputUtil.Type.KEYSYM, // The type of the keybinding, KEYSYM for keyboard, MOUSE for mouse.
-//                GLFW.GLFW_KEY_J, // The keycode of the key
-//                "category."+ MOD_ID +".test" // The translation key of the keybinding's category.
-//        ));
-
-
-
         ClientTickEvents.END_CLIENT_TICK.register(ModSounds::windSoundHandler);
 
-
-//        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-//            while (testKeyBinding.wasPressed()) {
+//        assert ValkyrienSails.WIND_PARTICLE_PACKET != null;
+//        ClientPlayNetworking.registerGlobalReceiver(ValkyrienSails.WIND_PARTICLE_PACKET, (client, handler, buf, responseSender) -> {
 //
-//                assert client.player != null;
-//                //BlockPos targetedPos = client.player.getBlockPos();
-//                //fixme add ScreenshakeHandler.addScreenshake(new PositionedScreenshakeInstance(10, BlockPosHelper.fromBlockPos(targetedPos), 10f, 800f, Easing.EXPO_OUT).setIntensity(2f, 0));
-//                client.player.sendMessage(Text.literal("Key 1 was pressed!"), false);
+//            if (buf.readableBytes() >= 1) { // Ensure there are enough bytes to read a boolean
+//                boolean shouldSpawn = buf.readBoolean();
+//
+//                client.execute(() -> {
+//
+//                });
+//            } else {
+//                System.out.println("Client: Buffer does not have enough bytes to read a boolean");
 //            }
 //        });
     }

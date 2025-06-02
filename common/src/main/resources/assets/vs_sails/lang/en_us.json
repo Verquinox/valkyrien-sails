@@ -8,5 +8,7 @@
   "block.vs_sails.buoy_block": "Buoy Block",
   "item.vs_sails.rope": "Rope",
   "item.vs_sails.dedication_bottle": "Dedication Bottle",
-  "sounds.vs_sails.wind_ambience": "Wind blows"
+  "sounds.vs_sails.wind_ambience": "Wind blows",
+
+  "category.sails_tab": "Valkyrien Sails"
 }

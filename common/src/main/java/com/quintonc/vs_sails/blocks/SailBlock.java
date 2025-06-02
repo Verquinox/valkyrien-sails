@@ -1,6 +1,7 @@
 package com.quintonc.vs_sails.blocks;
 
 import com.quintonc.vs_sails.ValkyrienSails;
+import com.quintonc.vs_sails.registration.SailsBlocks;
 import com.quintonc.vs_sails.ship.SailsShipControl;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.entity.player.Player;
@@ -320,9 +321,9 @@ public class SailBlock extends Block {
         }
 
         public void updateStateForDir(BlockState neighborState, BooleanProperty direction) {
-            LOGGER.info("state update called");
+            //LOGGER.info("state update called");
             if (!neighborState.isAir()) {
-                if (neighborState.is(ValkyrienSails.SAIL_BLOCK)) {
+                if (neighborState.is(SailsBlocks.SAIL_BLOCK.get())) {
                     invisCounter++;
                     LOGGER.info("invis="+invisCounter);
                     if (neighborState.getValue(INVISIBLE)) {

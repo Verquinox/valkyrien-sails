@@ -92,8 +92,13 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
             SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
             //controller.ship = ship;
             assert controller != null;
-            controller.boundx = Objects.requireNonNull(ship.getShipAABB()).maxX() - ship.getShipAABB().minX();
-            controller.boundz = ship.getShipAABB().maxZ() - ship.getShipAABB().minZ();
+            if (ship.getShipAABB() != null) {
+                controller.boundx = ship.getShipAABB().maxX() - ship.getShipAABB().minX();
+                controller.boundz = ship.getShipAABB().maxZ() - ship.getShipAABB().minZ();
+            } else {
+                controller.boundx = 0;
+                controller.boundz = 0;
+            }
             if (controller.boundx > controller.boundz) {
                 if (controller.shipDirection != Direction.WEST && controller.shipDirection != Direction.EAST) {
                     controller.shipDirection = Direction.EAST;

@@ -54,7 +54,7 @@ dependencies {
 
     // Mod menu
     modImplementation("com.terraformersmc:modmenu:7.2.2")
-    modImplementation("me.shedaniel.cloth:cloth-config:${cloth_config_version}")
+    //modImplementation("me.shedaniel.cloth:cloth-config:${cloth_config_version}")
 
     // Valkyrien Skies 2
     //modApi("org.valkyrienskies:valkyrienskies-120-fabric:${rootProject.vs2_version}")

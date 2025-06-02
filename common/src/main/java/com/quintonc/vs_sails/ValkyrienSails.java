@@ -4,16 +4,27 @@ import com.quintonc.vs_sails.blocks.*;
 import com.quintonc.vs_sails.blocks.entity.HelmBlockEntity;
 import com.quintonc.vs_sails.config.ConfigUtils;
 import com.quintonc.vs_sails.networking.WindModNetworking;
+import com.quintonc.vs_sails.registration.SailsBlocks;
+import com.quintonc.vs_sails.registration.SailsItems;
 import com.quintonc.vs_sails.ship.SailsShipControl;
+import dev.architectury.registry.CreativeTabRegistry;
 import dev.architectury.registry.registries.DeferredRegister;
+import dev.architectury.registry.registries.RegistrySupplier;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -35,32 +46,17 @@ public class ValkyrienSails {
     private static final int refreshRate = 4;
     public static final double EULERS_NUMBER = 2.71828182846;
 
-//    public static DeferredRegister<Block> BLOCKS = DeferredRegister.create(MOD_ID, Registries.BLOCK);
-//    public static DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(MOD_ID, Registries.BLOCK_ENTITY_TYPE);
-//    private static DeferredRegister<Item> ITEMS = DeferredRegister.create(MOD_ID, Registries.ITEM);
-//
-//    private static DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(MOD_ID, Registries.CREATIVE_MODE_TAB);
-//
-//    public static DeferredRegister<ParticleType> PARTICLES = DeferredRegister.create(MOD_ID, Registries.PARTICLE_TYPE);
+    public static final ResourceLocation WIND_PARTICLE_PACKET = ResourceLocation.tryBuild(MOD_ID, "wind_particle_packet");
+    //public static DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(MOD_ID, Registries.BLOCK_ENTITY_TYPE);
 
-    //Blocks
-    public static SailBlock SAIL_BLOCK;
-    public static SailBlock WHITE_SAIL;
-    public static SailBlock RED_SAIL;
+    private static DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(MOD_ID, Registries.CREATIVE_MODE_TAB);
 
-    public static HelmBlock HELM_BLOCK;
-    public static HelmWheel HELM_WHEEL;
-    public static RiggingBlock RIGGING_BLOCK;
-    public static BallastBlock BALLAST_BLOCK;
-    public static MagicBallastBlock MAGIC_BALLAST_BLOCK;
-    public static BuoyBlock BUOY_BLOCK;
+    public static DeferredRegister<ParticleType<?>> PARTICLES = DeferredRegister.create(MOD_ID, Registries.PARTICLE_TYPE);
 
     //Block Entities
     public static BlockEntityType<HelmBlockEntity> HELM_BLOCK_ENTITY;
 
-    //Items
-    public static Item DEDICATION_BOTTLE;
-    public static Item ROPE;
+    public static RegistrySupplier<CreativeModeTab> SAILS_TAB;
 
     //Particles
     public static SimpleParticleType WIND_PARTICLE;
@@ -68,6 +64,15 @@ public class ValkyrienSails {
     public static void init() {
         LOGGER.info("Common Init");
         ConfigUtils.checkConfigs();
+
+        SAILS_TAB = TABS.register("sails_tab", () -> CreativeTabRegistry.create(Component.translatable("category.sails_tab"), () -> new ItemStack(SailsBlocks.HELM_BLOCK.get().asItem())));
+        TABS.register();
+
+        SailsBlocks.register();
+        SailsItems.register();
+
+        ServerLifecycleEvents.SERVER_STARTED.register(ValkyrienSails::onServerStarted);
+        ServerTickEvents.START_WORLD_TICK.register(ValkyrienSails::onWorldTick);
 
         LOGGER.info("Sailing time.");
     }
@@ -96,6 +101,10 @@ public class ValkyrienSails {
                                     double windDir = Math.toRadians(ServerWindManager.getWindDirection()+180);
                                     world.sendParticles(serverPlayerEntity, ValkyrienSails.WIND_PARTICLE, false, serverPlayerEntity.getX()+15*Math.sin(windDir), serverPlayerEntity.getY()+25, serverPlayerEntity.getZ()+15*Math.sin(windDir), 10, 20, 10, 20, 0);
                                     //fixme use single particle spawning, or transfer to client?
+//                                    world.addParticle();
+//                                    FriendlyByteBuf wp = PacketByteBufs.create();
+//                                    wp.writeBoolean(true);
+//                                    ServerPlayNetworking.send(serverPlayerEntity, WIND_PARTICLE_PACKET, wp);
                                 }
                             }
                         }

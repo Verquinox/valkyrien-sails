@@ -22,12 +22,12 @@
 		],
 		"client": [
 			{
-				"value": "com.quintonc.vs_sails.ValkyrienSailsClient"
+				"value": "com.quintonc.vs_sails.ValkyrienSailsFabricClient"
 			}
 		]
 	},
 	"mixins": [
-		"vs_sails.mixins.json"
+		"vs_sails-common.mixins.json"
 	],
 	"depends": {
 		"fabricloader": ">=0.15.6",
@@ -36,7 +36,7 @@
 		"fabric-api": "*",
 
 		"valkyrienskies": ">=2.1.3-beta.1+a52f38bd68",
-		"vlib": "*"
+		"vlib": ">=0.0.9"
 	},
 	"suggests": {
 		"another-mod": "*"

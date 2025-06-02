@@ -1,7 +1,8 @@
 package com.quintonc.vs_sails.items;
 
 import com.quintonc.vs_sails.ValkyrienSails;
-//import g_mungus.vlib.api.VLibGameUtils;
+import g_mungus.vlib.api.VLibGameUtils;
+import com.quintonc.vs_sails.registration.SailsItems;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -38,21 +39,21 @@ public class DedicationBottle extends Item {
         if (!context.getLevel().isClientSide()) {
             if (!VSGameUtilsKt.isBlockInShipyard(context.getLevel(), context.getClickedPos())) {
                 Objects.requireNonNull(context.getPlayer()).getItemInHand(context.getHand()).shrink(1);
-//                CompletionStage<Ship> assembly = VLibGameUtils.INSTANCE.assembleByConnectivity((ServerLevel)context.getLevel(), context.getClickedPos());
-//                assembly.whenComplete((ship, throwable) -> {
-//                    if (ship != null) {
-//                        if (context.getItemInHand().hasCustomHoverName()) {
-//
-//                            ((ServerShip)ship).setSlug(context.getItemInHand().getHoverName().getString()
-//                                    .replace(' ', '-')
-//                                    .replaceAll("[^a-zA-Z0-9-]", "")
-//                            );
-//                        }
-//                    }
-//                });
+                CompletionStage<Ship> assembly = VLibGameUtils.INSTANCE.assembleByConnectivity((ServerLevel)context.getLevel(), context.getClickedPos());
+                assembly.whenComplete((ship, throwable) -> {
+                    if (ship != null) {
+                        if (context.getItemInHand().hasCustomHoverName()) {
+
+                            ((ServerShip)ship).setSlug(context.getItemInHand().getHoverName().getString()
+                                    .replace(' ', '-')
+                                    .replaceAll("[^a-zA-Z0-9-]", "")
+                            );
+                        }
+                    }
+                });
                 RandomSource random = RandomSource.create();
                 ((ServerLevel) context.getLevel()).sendParticles(
-                        new ItemParticleOption(ParticleTypes.ITEM, ValkyrienSails.DEDICATION_BOTTLE.getDefaultInstance()),
+                        new ItemParticleOption(ParticleTypes.ITEM, SailsItems.DEDICATION_BOTTLE.get().getDefaultInstance()),
                         context.getClickedPos().getX(),
                         context.getClickedPos().getY(),
                         context.getClickedPos().getZ(),

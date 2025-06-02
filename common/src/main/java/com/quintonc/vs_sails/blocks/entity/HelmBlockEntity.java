@@ -2,6 +2,7 @@ package com.quintonc.vs_sails.blocks.entity;
 
 import com.quintonc.vs_sails.ValkyrienSails;
 import com.quintonc.vs_sails.config.ConfigUtils;
+import com.quintonc.vs_sails.registration.SailsBlocks;
 import com.quintonc.vs_sails.ship.SailsShipControl;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -220,7 +221,7 @@ public class HelmBlockEntity extends BlockEntity {
     }
 
     public ItemStack getRenderStack() {
-        return new ItemStack(ValkyrienSails.HELM_WHEEL.asItem());
+        return new ItemStack(SailsBlocks.HELM_WHEEL.get().asItem());
     }
 
     @Override
