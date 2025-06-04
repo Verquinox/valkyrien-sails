@@ -17,10 +17,12 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import org.valkyrienskies.core.api.ships.ServerShip;
 import org.valkyrienskies.core.api.ships.Ship;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletionStage;
 
@@ -39,7 +41,8 @@ public class DedicationBottle extends Item {
         if (!context.getLevel().isClientSide()) {
             if (!VSGameUtilsKt.isBlockInShipyard(context.getLevel(), context.getClickedPos())) {
                 Objects.requireNonNull(context.getPlayer()).getItemInHand(context.getHand()).shrink(1);
-                CompletionStage<Ship> assembly = VLibGameUtils.INSTANCE.assembleByConnectivity((ServerLevel)context.getLevel(), context.getClickedPos());
+                CompletionStage<Ship> assembly = VLibGameUtils.INSTANCE.assembleByConnectivity((ServerLevel)context.getLevel(), context.getClickedPos(), List.of(
+                        Blocks.WATER, Blocks.KELP, Blocks.KELP_PLANT, Blocks.SEAGRASS, Blocks.TALL_SEAGRASS, Blocks.GRASS, Blocks.TALL_GRASS, Blocks.DEAD_BUSH));
                 assembly.whenComplete((ship, throwable) -> {
                     if (ship != null) {
                         if (context.getItemInHand().hasCustomHoverName()) {
