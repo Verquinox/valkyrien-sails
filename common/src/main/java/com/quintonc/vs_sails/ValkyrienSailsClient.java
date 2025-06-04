@@ -16,7 +16,7 @@ public class ValkyrienSailsClient {
     public static void clientInit() {
         BlockEntityRenderers.register(ValkyrienSails.HELM_BLOCK_ENTITY, HelmBlockEntityRenderer::new);
 
-        System.out.println("Client init");
+        //System.out.println("Client init");
         com.quintonc.vs_sails.client.ClientWindManager.InitializeWind();
 
 //        ClientSpriteRegistryCallback.event(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE).register(((altasTexture, registry) -> {
@@ -24,19 +24,5 @@ public class ValkyrienSailsClient {
 //        }));
 
         ClientTickEvents.END_CLIENT_TICK.register(ModSounds::windSoundHandler);
-
-//        assert ValkyrienSails.WIND_PARTICLE_PACKET != null;
-//        ClientPlayNetworking.registerGlobalReceiver(ValkyrienSails.WIND_PARTICLE_PACKET, (client, handler, buf, responseSender) -> {
-//
-//            if (buf.readableBytes() >= 1) { // Ensure there are enough bytes to read a boolean
-//                boolean shouldSpawn = buf.readBoolean();
-//
-//                client.execute(() -> {
-//
-//                });
-//            } else {
-//                System.out.println("Client: Buffer does not have enough bytes to read a boolean");
-//            }
-//        });
     }
 }

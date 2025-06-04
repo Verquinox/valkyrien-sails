@@ -2,7 +2,7 @@
   "multipart": [
     {
       "apply": {
-        "model": "vs_sails:block/white_sail"
+        "model": "vs_sails:block/sails/white_sail"
       },
       "when": {
         "set": "true"

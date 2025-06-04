@@ -2,7 +2,7 @@
   "multipart": [
     {
       "apply": {
-        "model": "vs_sails:block/sail_block"
+        "model": "vs_sails:block/sails/sail_block"
       },
       "when": {
         "set": "true"

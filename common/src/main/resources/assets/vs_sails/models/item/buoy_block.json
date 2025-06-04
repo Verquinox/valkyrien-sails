@@ -1,3 +1,3 @@
 {
-  "parent": "vs_sails:block/buoy_block"
+  "parent": "vs_sails:block/buoys/buoy_block"
 }

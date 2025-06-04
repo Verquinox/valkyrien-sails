@@ -10,9 +10,9 @@
     }
   },
   "pattern": [
-    "###",
+    " # ",
     "#X#",
-    "###"
+    " # "
   ],
   "result": {
     "item": "vs_sails:sail_block",

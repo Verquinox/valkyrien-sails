@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "functional",
+  "key": {
+    "#": {
+      "item": "minecraft:lime_wool"
+    },
+    "X": {
+      "item": "vs_sails:rope"
+    }
+  },
+  "pattern": [
+    "#X#",
+    "X X",
+    "#X#"
+  ],
+  "result": {
+    "item": "vs_sails:lime_buoy",
+    "count": 4
+  },
+  "show_notification": true
+}

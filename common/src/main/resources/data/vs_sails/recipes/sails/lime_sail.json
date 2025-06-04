@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+
+    {"item": "minecraft:lime_wool"},
+    {"item": "vs_sails:rope"},
+    {"item": "minecraft:lime_wool"}
+
+  ],
+  "result": {
+    "item": "vs_sails:lime_sail",
+    "count": 4
+  }
+}

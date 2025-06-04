@@ -8,6 +8,70 @@
     "mass": 0.01
   },
   {
+    "block": "vs_sails:white_sail",
+    "mass": 0.01
+  },
+  {
+    "block": "vs_sails:light_gray_sail",
+    "mass": 0.01
+  },
+  {
+    "block": "vs_sails:gray_sail",
+    "mass": 0.01
+  },
+  {
+    "block": "vs_sails:black_sail",
+    "mass": 0.01
+  },
+  {
+    "block": "vs_sails:brown_sail",
+    "mass": 0.01
+  },
+  {
+    "block": "vs_sails:red_sail",
+    "mass": 0.01
+  },
+  {
+    "block": "vs_sails:orange_sail",
+    "mass": 0.01
+  },
+  {
+    "block": "vs_sails:yellow_sail",
+    "mass": 0.01
+  },
+  {
+    "block": "vs_sails:lime_sail",
+    "mass": 0.01
+  },
+  {
+    "block": "vs_sails:green_sail",
+    "mass": 0.01
+  },
+  {
+    "block": "vs_sails:cyan_sail",
+    "mass": 0.01
+  },
+  {
+    "block": "vs_sails:light_blue_sail",
+    "mass": 0.01
+  },
+  {
+    "block": "vs_sails:blue_sail",
+    "mass": 0.01
+  },
+  {
+    "block": "vs_sails:purple_sail",
+    "mass": 0.01
+  },
+  {
+    "block": "vs_sails:magenta_sail",
+    "mass": 0.01
+  },
+  {
+    "block": "vs_sails:pink_sail",
+    "mass": 0.01
+  },
+  {
     "block": "vs_sails:rigging_block",
     "mass": 10
   },
@@ -17,6 +81,70 @@
   },
   {
     "block": "vs_sails:buoy_block",
+    "mass": 0.1
+  },
+  {
+    "block": "vs_sails:white_buoy",
+    "mass": 0.1
+  },
+  {
+    "block": "vs_sails:light_gray_buoy",
+    "mass": 0.1
+  },
+  {
+    "block": "vs_sails:gray_buoy",
+    "mass": 0.1
+  },
+  {
+    "block": "vs_sails:black_buoy",
+    "mass": 0.1
+  },
+  {
+    "block": "vs_sails:brown_buoy",
+    "mass": 0.1
+  },
+  {
+    "block": "vs_sails:red_buoy",
+    "mass": 0.1
+  },
+  {
+    "block": "vs_sails:orange_buoy",
+    "mass": 0.1
+  },
+  {
+    "block": "vs_sails:yellow_buoy",
+    "mass": 0.1
+  },
+  {
+    "block": "vs_sails:lime_buoy",
+    "mass": 0.1
+  },
+  {
+    "block": "vs_sails:green_buoy",
+    "mass": 0.1
+  },
+  {
+    "block": "vs_sails:cyan_buoy",
+    "mass": 0.1
+  },
+  {
+    "block": "vs_sails:light_blue_buoy",
+    "mass": 0.1
+  },
+  {
+    "block": "vs_sails:blue_buoy",
+    "mass": 0.1
+  },
+  {
+    "block": "vs_sails:purple_buoy",
+    "mass": 0.1
+  },
+  {
+    "block": "vs_sails:magenta_buoy",
+    "mass": 0.1
+  },
+  {
+    "block": "vs_sails:pink_buoy",
     "mass": 0.1
   }
 ]

@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "vs_sails:block/buoy_block"
+      "model": "vs_sails:block/buoys/buoy_block"
     }
   }
 }

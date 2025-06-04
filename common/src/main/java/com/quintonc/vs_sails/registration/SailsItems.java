@@ -16,8 +16,8 @@ public class SailsItems {
 
     public static void register() {
         SailsBlocks.registerItems(ITEMS);
-        ROPE = ITEMS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "rope"), () -> new Item(new Item.Properties().arch$tab(ValkyrienSails.SAILS_TAB)));
-        DEDICATION_BOTTLE = ITEMS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "dedication_bottle"), () -> new DedicationBottle(new Item.Properties().arch$tab(ValkyrienSails.SAILS_TAB)));
+        ROPE = ITEMS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "rope"), () -> new Item(new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
+        DEDICATION_BOTTLE = ITEMS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "dedication_bottle"), () -> new DedicationBottle(new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
         ITEMS.register();
     }
 

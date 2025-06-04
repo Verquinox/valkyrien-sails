@@ -56,7 +56,8 @@ public class ValkyrienSails {
     //Block Entities
     public static BlockEntityType<HelmBlockEntity> HELM_BLOCK_ENTITY;
 
-    public static RegistrySupplier<CreativeModeTab> SAILS_TAB;
+    public static RegistrySupplier<CreativeModeTab> SAILS_MAIN;
+    public static RegistrySupplier<CreativeModeTab> SAILS_COLORS;
 
     //Particles
     public static SimpleParticleType WIND_PARTICLE;
@@ -65,7 +66,9 @@ public class ValkyrienSails {
         LOGGER.info("Common Init");
         ConfigUtils.checkConfigs();
 
-        SAILS_TAB = TABS.register("sails_tab", () -> CreativeTabRegistry.create(Component.translatable("category.sails_tab"), () -> new ItemStack(SailsBlocks.HELM_BLOCK.get().asItem())));
+        SAILS_MAIN = TABS.register("sails_main", () -> CreativeTabRegistry.create(Component.translatable("category.sails_main"), () -> new ItemStack(SailsBlocks.HELM_BLOCK.get().asItem())));
+        SAILS_COLORS = TABS.register("sails_colors", () -> CreativeTabRegistry.create(Component.translatable("category.sails_colors"), () -> new ItemStack(SailsBlocks.CYAN_BUOY.get().asItem())));
+
         TABS.register();
 
         SailsBlocks.register();
@@ -100,11 +103,6 @@ public class ValkyrienSails {
                                 if (player.getDraggingInformation().getTicksSinceStoodOnShip() < 100) {
                                     double windDir = Math.toRadians(ServerWindManager.getWindDirection()+180);
                                     world.sendParticles(serverPlayerEntity, ValkyrienSails.WIND_PARTICLE, false, serverPlayerEntity.getX()+15*Math.sin(windDir), serverPlayerEntity.getY()+25, serverPlayerEntity.getZ()+15*Math.sin(windDir), 10, 20, 10, 20, 0);
-                                    //fixme use single particle spawning, or transfer to client?
-//                                    world.addParticle();
-//                                    FriendlyByteBuf wp = PacketByteBufs.create();
-//                                    wp.writeBoolean(true);
-//                                    ServerPlayNetworking.send(serverPlayerEntity, WIND_PARTICLE_PACKET, wp);
                                 }
                             }
                         }

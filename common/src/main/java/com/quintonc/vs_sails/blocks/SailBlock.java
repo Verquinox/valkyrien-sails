@@ -323,7 +323,7 @@ public class SailBlock extends Block {
         public void updateStateForDir(BlockState neighborState, BooleanProperty direction) {
             //LOGGER.info("state update called");
             if (!neighborState.isAir()) {
-                if (neighborState.is(SailsBlocks.SAIL_BLOCK.get())) {
+                if (neighborState.getBlock() instanceof SailBlock) {
                     invisCounter++;
                     LOGGER.info("invis="+invisCounter);
                     if (neighborState.getValue(INVISIBLE)) {

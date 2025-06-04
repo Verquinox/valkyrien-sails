@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "vs_sails:block/buoys/black_buoy_top",
+    "side": "vs_sails:block/buoys/black_buoy"
+  }
+}
