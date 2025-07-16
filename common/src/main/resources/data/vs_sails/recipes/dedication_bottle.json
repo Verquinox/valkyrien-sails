@@ -3,9 +3,10 @@
   "category": "misc",
   "ingredients": [
 
-    {"item": "minecraft:potion"},
+    {"item": "minecraft:glass_bottle"},
     {"item": "minecraft:redstone"},
-    {"item": "vs_sails:rope"}
+    {"item": "vs_sails:rope"},
+    {"item": "minecraft:apple"}
 
   ],
   "result": {

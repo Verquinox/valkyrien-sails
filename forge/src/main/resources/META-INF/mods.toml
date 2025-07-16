@@ -71,7 +71,7 @@ side="BOTH"
 [[dependencies.vs_sails]]
 modId="vlib"
 mandatory=true
-versionRange="[0.0.9,)"
+versionRange="[0.0.11,)"
 ordering="AFTER"
 side="BOTH"
 [[dependencies.vs_sails]]

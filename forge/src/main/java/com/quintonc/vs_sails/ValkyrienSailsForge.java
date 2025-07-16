@@ -5,6 +5,8 @@ import com.quintonc.vs_sails.client.particles.WindParticle;
 import com.quintonc.vs_sails.registration.SailsBlocks;
 import dev.architectury.platform.forge.EventBuses;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
+import net.minecraftforge.fml.ModContainer;
+import net.minecraftforge.fml.javafmlmod.FMLModContainer;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 import net.minecraft.core.particles.ParticleType;
@@ -37,16 +39,16 @@ public class ValkyrienSailsForge {
     public static RegistryObject<BlockEntityType<HelmBlockEntity>> HELM_BLOCK_ENTITY;
     public static RegistryObject<SimpleParticleType> WIND_PARTICLE = PARTICLE_TYPES.register("wind_particle", () -> new SimpleParticleType(true));
 
-    public ValkyrienSailsForge(FMLJavaModLoadingContext context) {
+    public ValkyrienSailsForge() {
         //LOGGER.info("Begin forge constructor");
-        IEventBus modEventBus = context.getModEventBus();
+        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         //LOGGER.info("add listener");
         modEventBus.addListener(this::commonSetup);
 
         //LOGGER.info("register event bus");
         MinecraftForge.EVENT_BUS.register(this);
-        EventBuses.registerModEventBus(ValkyrienSails.MOD_ID, context.getModEventBus());
+        EventBuses.registerModEventBus(ValkyrienSails.MOD_ID, modEventBus);
 
         ValkyrienSails.init();
         //registerItems();

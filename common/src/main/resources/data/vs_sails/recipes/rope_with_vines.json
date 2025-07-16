@@ -3,13 +3,13 @@
   "category": "functional",
   "key": {
     "X": {
-      "item": "minecraft:string"
+      "item": "minecraft:vine"
     }
   },
   "pattern": [
-    "  X",
-    " XX",
-    "XX "
+    "X  ",
+    "XX ",
+    " XX"
   ],
   "result": {
     "item": "vs_sails:rope"

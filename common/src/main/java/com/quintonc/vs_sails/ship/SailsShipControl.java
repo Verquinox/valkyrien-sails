@@ -180,12 +180,6 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
 
             physShip.applyRotDependentForce(keelForce);
 
-        //Ballast behavior
-//        if (numBallast > 0) {
-//            //physShip1.setBuoyantFactor(1.0 + numBallast * 0.0625); //0.375
-//
-//        }
-
         if (numMagicBallast > 0) {
             Vector3d shipUp = new Vector3d(0.0, 1.0, 0.0);
             Vector3d worldUp = new Vector3d(0.0, 1.0, 0.0);
@@ -215,10 +209,6 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
             physShip1.applyInvariantTorque(stabilizationTorque);
 
         }
-
-//        if (numBuoys > 0) {
-//
-//        }
 
         if (numBallast > 0 || numBuoys > 0) {
             physShip1.setBuoyantFactor(1.0 + numBuoys * buoyStrength + numBallast * ballastStrength);

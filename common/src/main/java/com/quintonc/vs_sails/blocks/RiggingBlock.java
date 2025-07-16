@@ -54,7 +54,8 @@ public class RiggingBlock extends CrossCollisionBlock {
     }
 
     private boolean canConnectToRigging(BlockState state) {
-        return state.is(TagKey.create(Registries.BLOCK, new ResourceLocation("rigging")));
+        TagKey<Block> tag = TagKey.create(Registries.BLOCK, new ResourceLocation("rigging"));
+        return state.is(tag)  == this.defaultBlockState().is(tag);
     }
 
     @SuppressWarnings("deprecation")

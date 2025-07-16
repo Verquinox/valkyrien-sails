@@ -7,7 +7,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "vs_sails:_buoy"
+          "name": "vs_sails:magenta_buoy"
         }
       ],
       "conditions": [

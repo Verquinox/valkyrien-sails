@@ -84,7 +84,7 @@ public class ConfigUtils {
         defaults.add("");
         defaults.add("magic-ballast-righting-force = 0.25 #[Default: 0.25]");
         defaults.add("");
-        defaults.add("ballast-float-strength = 0.0625 #[Default: 0.0625]");
+        defaults.add("ballast-float-strength = 0.0 #[Default: 0.0]");
         defaults.add("buoy-float-strength = 0.125 #[Default: 0.125]");
 
         return defaults;

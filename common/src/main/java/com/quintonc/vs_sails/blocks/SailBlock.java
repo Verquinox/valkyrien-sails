@@ -117,7 +117,7 @@ public class SailBlock extends Block {
             state = updater.state;
 
             if (updater.invisCounter > 3) {
-                LOGGER.info("invis set to true!");
+                //LOGGER.info("invis set to true!");
                 state = state.setValue(INVISIBLE, true);
             } else {
                 state = state.setValue(INVISIBLE, false);
@@ -226,27 +226,27 @@ public class SailBlock extends Block {
         sailType = calculateSailType(world, pos, controller);
         if (sailType == 's') {
             controller.numSquareSails++;
-            LOGGER.info("(a) NUMSQ: " + controller.numSquareSails);
+            //LOGGER.info("(a) NUMSQ: " + controller.numSquareSails);
         } else if (sailType == 'f') {
             controller.numFnASails++;
-            LOGGER.info("(a) NUMFA: " + controller.numFnASails);
+            //LOGGER.info("(a) NUMFA: " + controller.numFnASails);
         }
         controller.numSails++;
-        LOGGER.info("(a) NUMSAILS: " + controller.numSails);
+        //LOGGER.info("(a) NUMSAILS: " + controller.numSails);
     }
 
     private void removeSailFromShip(Level world, BlockPos pos, SailsShipControl controller) {
         sailType = calculateSailType(world, pos, controller);
         if (sailType == 's') {
             controller.numSquareSails--;
-            LOGGER.info("(r) NUMSQ: " + controller.numSquareSails);
+            //LOGGER.info("(r) NUMSQ: " + controller.numSquareSails);
         }
         if (sailType == 'f') {
             controller.numFnASails--;
-            LOGGER.info("(r) NUMFA: " + controller.numFnASails);
+            //LOGGER.info("(r) NUMFA: " + controller.numFnASails);
         }
         controller.numSails--;
-        LOGGER.info("(r) NUMSAILS: " + controller.numSails);
+        //LOGGER.info("(r) NUMSAILS: " + controller.numSails);
     }
 
     @SuppressWarnings({"deprecation","UnstableApiUsage"})
@@ -325,7 +325,7 @@ public class SailBlock extends Block {
             if (!neighborState.isAir()) {
                 if (neighborState.getBlock() instanceof SailBlock) {
                     invisCounter++;
-                    LOGGER.info("invis="+invisCounter);
+                    //LOGGER.info("invis="+invisCounter);
                     if (neighborState.getValue(INVISIBLE)) {
                         state = state.setValue(direction, false);
                     } else {
