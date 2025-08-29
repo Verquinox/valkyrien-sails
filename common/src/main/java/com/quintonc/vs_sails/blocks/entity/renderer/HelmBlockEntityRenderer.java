@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemDisplayContext;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.world.item.ItemStack;
@@ -16,11 +17,13 @@ import net.minecraft.core.Direction;
 import com.mojang.math.Axis;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 import static com.quintonc.vs_sails.blocks.HelmBlock.FACING;
-import static com.quintonc.vs_sails.blocks.HelmBlock.WHEEL_ANGLE;
 
 public class HelmBlockEntityRenderer implements BlockEntityRenderer<HelmBlockEntity> {
 
@@ -39,35 +42,44 @@ public class HelmBlockEntityRenderer implements BlockEntityRenderer<HelmBlockEnt
 
         matrices.pushPose();
         //int i =((HelmBlock)entity.getCachedState().getBlock()).wheelAngle;
+        BlockEntity be = Objects.requireNonNull(entity.getLevel()).getBlockEntity(entity.getBlockPos());
+        if (be instanceof HelmBlockEntity blockEntity) {
+            if (entity.getBlockState().getValue(FACING) == Direction.NORTH) {
 
-        if (entity.getBlockState().getValue(FACING) == Direction.NORTH) {
+                matrices.translate(0.5f,0.5f,0.5f);
+                //matrices.rotateAround(Axis.ZP.rotationDegrees(entity.getBlockState().getValue(WHEEL_ANGLE)%360), 0, 0.3125f, 0);
+                LOGGER.info("wheel angle: "+blockEntity.wheelAngle);
+                matrices.rotateAround(Axis.ZP.rotationDegrees(blockEntity.wheelAngle%360), 0, 0.3125f, 0);
 
-            matrices.translate(0.5f,0.5f,0.5f);
-            matrices.rotateAround(Axis.ZP.rotationDegrees(entity.getBlockState().getValue(WHEEL_ANGLE)%360), 0, 0.3125f, 0);
+            } else if (entity.getBlockState().getValue(FACING) == Direction.SOUTH) {
+                matrices.mulPose(Axis.YP.rotationDegrees(180));
+                matrices.translate(-0.5f,0.5f,-0.5f);
+                //matrices.rotateAround(Axis.ZP.rotationDegrees(entity.getBlockState().getValue(WHEEL_ANGLE)%360), 0, 0.3125f, 0);
+                matrices.rotateAround(Axis.ZP.rotationDegrees(blockEntity.wheelAngle%360), 0, 0.3125f, 0);
 
-        } else if (entity.getBlockState().getValue(FACING) == Direction.SOUTH) {
-            matrices.mulPose(Axis.YP.rotationDegrees(180));
-            matrices.translate(-0.5f,0.5f,-0.5f);
-            matrices.rotateAround(Axis.ZP.rotationDegrees(entity.getBlockState().getValue(WHEEL_ANGLE)%360), 0, 0.3125f, 0);
+            } else if (entity.getBlockState().getValue(FACING) == Direction.EAST) {
+                matrices.mulPose(Axis.YP.rotationDegrees(270));
+                matrices.translate(0.5f,0.5f,-0.5f);
+                //matrices.rotateAround(Axis.ZP.rotationDegrees(entity.getBlockState().getValue(WHEEL_ANGLE)%360), 0, 0.3125f, 0);
+                matrices.rotateAround(Axis.ZP.rotationDegrees(blockEntity.wheelAngle%360), 0, 0.3125f, 0);
 
-        } else if (entity.getBlockState().getValue(FACING) == Direction.EAST) {
-            matrices.mulPose(Axis.YP.rotationDegrees(270));
-            matrices.translate(0.5f,0.5f,-0.5f);
-            matrices.rotateAround(Axis.ZP.rotationDegrees(entity.getBlockState().getValue(WHEEL_ANGLE)%360), 0, 0.3125f, 0);
+            } else if (entity.getBlockState().getValue(FACING) == Direction.WEST) {
+                matrices.mulPose(Axis.YP.rotationDegrees(90));
+                matrices.translate(-0.5f,0.5f,0.5f);
+                //matrices.rotateAround(Axis.ZP.rotationDegrees(entity.getBlockState().getValue(WHEEL_ANGLE)%360), 0, 0.3125f, 0);
+                matrices.rotateAround(Axis.ZP.rotationDegrees(blockEntity.wheelAngle%360), 0, 0.3125f, 0);
 
-        } else if (entity.getBlockState().getValue(FACING) == Direction.WEST) {
-            matrices.mulPose(Axis.YP.rotationDegrees(90));
-            matrices.translate(-0.5f,0.5f,0.5f);
-            matrices.rotateAround(Axis.ZP.rotationDegrees(entity.getBlockState().getValue(WHEEL_ANGLE)%360), 0, 0.3125f, 0);
+            }
+            matrices.scale(1.6f, 1.6f, 1.6f);
 
+            //rotate wheel towards direction it is facing
+
+            itemRenderer.renderStatic(stack, ItemDisplayContext.GUI, getLightLevel(entity.getLevel(),
+                    entity.getBlockPos()), OverlayTexture.NO_OVERLAY, matrices, vertexConsumers, entity.getLevel(), 1);
+            //LOGGER.info("item rendered");
         }
-        matrices.scale(1.6f, 1.6f, 1.6f);
 
-        //rotate wheel towards direction it is facing
 
-        itemRenderer.renderStatic(stack, ItemDisplayContext.GUI, getLightLevel(entity.getLevel(),
-                entity.getBlockPos()), OverlayTexture.NO_OVERLAY, matrices, vertexConsumers, entity.getLevel(), 1);
-        //LOGGER.info("item rendered");
 
         matrices.popPose();
     }

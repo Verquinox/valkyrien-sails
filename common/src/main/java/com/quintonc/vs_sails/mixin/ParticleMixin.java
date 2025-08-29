@@ -43,9 +43,10 @@ public class ParticleMixin {
 			return dx;
 		}
 
-		Vec3 windEffect = calculateWindEffect(simpleName);
+		Vec3 oldParticlePos = new Vec3(this.x, this.y, this.z);
+		Vec3 windEffect = calculateWindEffect(simpleName, oldParticlePos);
 		Vec3 particlePos = new Vec3(this.x, this.y, this.z);
-		Vec3 windDirection = new Vec3(Math.cos(Math.toRadians(ClientWindManager.getWindDirection())), 0, Math.sin(Math.toRadians(ClientWindManager.getWindDirection())));
+		Vec3 windDirection = new Vec3(Math.cos(Math.toRadians(ClientWindManager.getWindDirection(this.level, particlePos))), 0, Math.sin(Math.toRadians(ClientWindManager.getWindDirection(this.level, particlePos))));
 
 		double windInfluenceFactor = getWindInfluenceFactor(particlePos, windDirection);
 		return dx + windEffect.x * windInfluenceFactor;
@@ -67,10 +68,10 @@ public class ParticleMixin {
 			return dz;
 		}
 
-
-		Vec3 windEffect = calculateWindEffect(simpleName);
+		Vec3 oldParticlePos = new Vec3(this.x, this.y, this.z);
+		Vec3 windEffect = calculateWindEffect(simpleName, oldParticlePos);
 		Vec3 particlePos = new Vec3(this.x, this.y, this.z);
-		Vec3 windDirection = new Vec3(Math.cos(Math.toRadians(ClientWindManager.getWindDirection())), 0, Math.sin(Math.toRadians(ClientWindManager.getWindDirection())));
+		Vec3 windDirection = new Vec3(Math.cos(Math.toRadians(ClientWindManager.getWindDirection(this.level, particlePos))), 0, Math.sin(Math.toRadians(ClientWindManager.getWindDirection(this.level, particlePos))));
 
 		double windInfluenceFactor = getWindInfluenceFactor(particlePos, windDirection);
 		return dz + windEffect.z * windInfluenceFactor;
@@ -100,7 +101,7 @@ public class ParticleMixin {
 	}
 
 	@Unique
-	private Vec3 calculateWindEffect(String simpleName) {
+	private Vec3 calculateWindEffect(String simpleName, Vec3 particlePos) {
 		double windEffectiveness = 0.2;
 
 		if (ParticlesToBlow.fullStrength.contains(simpleName)){
@@ -111,12 +112,13 @@ public class ParticleMixin {
 
 		windEffectiveness *= lightLevel/15f;
 
-		double angleRadians = Math.toRadians(ClientWindManager.getWindDirection());
-		double windX = Math.cos(angleRadians) * ClientWindManager.getWindStrength() * windEffectiveness;
-		double windZ = Math.sin(angleRadians) * ClientWindManager.getWindStrength() * windEffectiveness;
+		BlockPos pos = new BlockPos((int) this.x, (int) this.y, (int) this.z);
+
+		double angleRadians = Math.toRadians(ClientWindManager.getWindDirection(this.level, particlePos));
+		double windX = Math.cos(angleRadians) * ClientWindManager.getWindStrength(this.level, pos) * windEffectiveness;
+		double windZ = Math.sin(angleRadians) * ClientWindManager.getWindStrength(this.level, pos) * windEffectiveness;
 		Vec3 initialWindEffect = new Vec3(windX, 0, windZ);
 
-		BlockPos pos = new BlockPos((int) this.x, (int) this.y, (int) this.z);
 		return calculateRealisticWindFlow(initialWindEffect, pos);
 	}
 

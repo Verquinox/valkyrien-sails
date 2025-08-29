@@ -34,6 +34,7 @@ dependencies {
     modCompileOnly "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
 
     compileOnly files("libs/vlib-1.20.1-0.0.11-alpha-dev-shadow.jar")
+    compileOnly "maven.modrinth:weather-storms-tornadoes:1.20.1-2.8.3"
     //modImplementation("maven.modrinth:vlib:1.20.1-0.0.9-alpha+fabric")
 
     // Architectury API

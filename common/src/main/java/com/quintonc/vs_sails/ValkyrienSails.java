@@ -7,6 +7,7 @@ import com.quintonc.vs_sails.networking.WindModNetworking;
 import com.quintonc.vs_sails.registration.SailsBlocks;
 import com.quintonc.vs_sails.registration.SailsItems;
 import com.quintonc.vs_sails.ship.SailsShipControl;
+import dev.architectury.platform.Platform;
 import dev.architectury.registry.CreativeTabRegistry;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
@@ -31,9 +32,12 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.core.jmx.Server;
+import org.joml.Vector3d;
+import org.joml.Vector3dc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.valkyrienskies.core.api.ships.ServerShip;
+import org.valkyrienskies.core.api.ships.Ship;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 import org.valkyrienskies.mod.common.util.IEntityDraggingInformationProvider;
 
@@ -44,6 +48,8 @@ public class ValkyrienSails {
     public static final Logger LOGGER = LoggerFactory.getLogger("vs_sails_common");
     private static int tickCount = 0;
     private static final int refreshRate = 4;
+    public static boolean weather2 = Platform.isModLoaded("weather2");
+    public static boolean sailsWind = false;
     public static final double EULERS_NUMBER = 2.71828182846;
 
     public static final ResourceLocation WIND_PARTICLE_PACKET = ResourceLocation.tryBuild(MOD_ID, "wind_particle_packet");
@@ -82,7 +88,7 @@ public class ValkyrienSails {
 
     public static void InitializeVSWind(ServerLevel world) {
         LOGGER.info("The wind is blowing.");
-        ServerTickEvents.START_WORLD_TICK.register(ValkyrienSails::onWorldTick);
+        sailsWind = true;
     }
 
     @SuppressWarnings("UnstableApiUsage")
@@ -90,27 +96,38 @@ public class ValkyrienSails {
         if(tickCount == refreshRate) {
             tickCount = 0;
 
-            //Spawn wind particles for all players being dragged by ships with a SailsShipControl attachment
-            world.getServer().getPlayerList().getPlayers().forEach(serverPlayerEntity -> {
-                if (serverPlayerEntity instanceof IEntityDraggingInformationProvider player) {
-                    if (player.getDraggingInformation().getLastShipStoodOn() != null) {
-                        long shipId = player.getDraggingInformation().getLastShipStoodOn();
-                        ServerShip ship = (ServerShip) VSGameUtilsKt.getAllShips(world).getById(shipId);
-                        if (ship != null) {
-                            SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
-                            if (controller != null) {
-                                //serverPlayerEntity.sendMessage(ship.getAttachment(SailsShipControl.class).message, true);
-                                if (player.getDraggingInformation().getTicksSinceStoodOnShip() < 100) {
-                                    double windDir = Math.toRadians(ServerWindManager.getWindDirection()+180);
-                                    world.sendParticles(serverPlayerEntity, ValkyrienSails.WIND_PARTICLE, false, serverPlayerEntity.getX()+15*Math.sin(windDir), serverPlayerEntity.getY()+25, serverPlayerEntity.getZ()+15*Math.sin(windDir), 10, 20, 10, 20, 0);
-                                }
-                            }
-                        }
+            VSGameUtilsKt.getAllShips(world).forEach(ship -> {
+                ServerShip serverShip = (ServerShip) ship;
+                if (serverShip != null) {
+                    SailsShipControl controller = serverShip.getAttachment(SailsShipControl.class);
+                    if (controller != null) {
+                        controller.world = world;
                     }
                 }
             });
 
-
+            if (sailsWind) {
+                //Spawn wind particles for all players being dragged by ships with a SailsShipControl attachment
+                world.getServer().getPlayerList().getPlayers().forEach(serverPlayerEntity -> {
+                    if (serverPlayerEntity instanceof IEntityDraggingInformationProvider player) {
+                        if (player.getDraggingInformation().getLastShipStoodOn() != null) {
+                            long shipId = player.getDraggingInformation().getLastShipStoodOn();
+                            ServerShip ship = (ServerShip) VSGameUtilsKt.getAllShips(world).getById(shipId);
+                            if (ship != null) {
+                                SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
+                                if (controller != null) {
+                                    //serverPlayerEntity.sendMessage(ship.getAttachment(SailsShipControl.class).message, true);
+                                    if (player.getDraggingInformation().getTicksSinceStoodOnShip() < 100) {
+                                        Vector3dc shipPos = ship.getTransform().getPositionInWorld(); //fixme make sure this is the world pos of the ship
+                                        double windDir = Math.toRadians(ServerWindManager.getWindDirection(world, new Vec3(shipPos.x(), shipPos.y(), shipPos.z()))+180);
+                                        world.sendParticles(serverPlayerEntity, ValkyrienSails.WIND_PARTICLE, false, serverPlayerEntity.getX()+15*Math.sin(windDir), serverPlayerEntity.getY()+25, serverPlayerEntity.getZ()+15*Math.sin(windDir), 10, 20, 10, 20, 0);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
 
         } else {
             tickCount++;

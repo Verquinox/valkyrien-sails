@@ -42,9 +42,9 @@ public class ModSounds {
                         !player.isUnderWater()
                         && player.clientLevel.dimensionTypeId() == BuiltinDimensionTypes.OVERWORLD
                         && player.clientLevel.getBrightness(LightLayer.SKY, player.blockPosition()) > 3
-                        && Math.abs(ClientWindManager.getWindStrength()) > 0.35
+                        && Math.abs(ClientWindManager.getWindStrength(player.clientLevel, player.blockPosition())) > 0.35
                 ) {
-                    float windVolume = (player.clientLevel.getBrightness(LightLayer.SKY, player.blockPosition()) * Math.abs(ClientWindManager.getWindStrength()) / 15 - 0.35f);
+                    float windVolume = (player.clientLevel.getBrightness(LightLayer.SKY, player.blockPosition()) * Math.abs(ClientWindManager.getWindStrength(player.clientLevel, player.blockPosition())) / 15 - 0.35f);
                     player.clientLevel.playLocalSound(player.getX(), player.getY(), player.getZ(), WIND_AMBIENCE.get(), SoundSource.AMBIENT, windVolume, 1.0F, false);
                 }
 

@@ -90,13 +90,13 @@ public class SailBlock extends Block {
             if (VSGameUtilsKt.isBlockInShipyard(world, pos) && (!oldState.is(this) || state.getValue(SET) != oldState.getValue(SET))) {
                 ServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerLevel) world, pos);
                 if (ship != null) {
-                    SailsShipControl controller = SailsShipControl.getOrCreate(ship);
+                    SailsShipControl controller = SailsShipControl.getOrCreate(ship, world);
                     addSailToShip(world, pos, controller);
 
                 } else { //ship is being loaded from template
                     ship = VSGameUtilsKt.getShipManagingPos((ServerLevel) world, pos);
                     if (ship != null) {
-                        SailsShipControl controller = SailsShipControl.getOrCreate(ship);
+                        SailsShipControl controller = SailsShipControl.getOrCreate(ship, world);
                         addSailToShip(world, pos, controller);
                     }
                 }
@@ -162,8 +162,9 @@ public class SailBlock extends Block {
             //LOGGER.info(":)");
 
             //if this block's set state does not match the source block's, change it to match
-            if (world.getBlockState(sourcePos).getValue(SET) != state.getValue(SET)) {
-                state = state.setValue(SET, world.getBlockState(sourcePos).getValue(SET));
+            BlockState sourceState = world.getBlockState(sourcePos);
+            if (sourceState.hasProperty(SET) && sourceState.getValue(SET) != state.getValue(SET)) {
+                state = state.setValue(SET, sourceState.getValue(SET));
                 world.setBlock(pos, state, 10);
                 world.blockUpdated(pos, this);
                 updateDiagonals(world, pos, this);

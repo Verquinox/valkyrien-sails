@@ -3,6 +3,7 @@ package com.quintonc.vs_sails.client.particles;
 import com.quintonc.vs_sails.client.ClientWindManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.client.particle.*;
@@ -50,7 +51,7 @@ public class WindParticle extends TextureSheetParticle {
     }
 
     private void fade() {
-        double windStrength = ClientWindManager.getWindStrength();
+        double windStrength = ClientWindManager.getWindStrength(this.level, new BlockPos((int)this.x, (int)this.y, (int)this.z));
         //int lightLevel = this.world.getLightLevel(LightType.SKY, new BlockPos((int) this.x, (int) this.y, (int) this.z));
         //todo how would I get the viewing player to make the particles fade out when they get close to the player?
         this.alpha = (float)(Math.abs(windStrength)*0.75*Math.sin((Math.PI*age)/lifetime));
@@ -82,9 +83,10 @@ public class WindParticle extends TextureSheetParticle {
 //            return dx;
 //        }
 
-        Vec3 windEffect = calculateWindEffect();
+        Vec3 oldParticlePos = new Vec3(this.x, this.y, this.z); //fixme might not need this (same with ParticleMixin)
+        Vec3 windEffect = calculateWindEffect(oldParticlePos);
         Vec3 particlePos = new Vec3(this.x, this.y, this.z);
-        Vec3 windDirection = new Vec3(Math.cos(Math.toRadians(ClientWindManager.getWindDirection())), 0, Math.sin(Math.toRadians(ClientWindManager.getWindDirection())));
+        Vec3 windDirection = new Vec3(Math.cos(Math.toRadians(ClientWindManager.getWindDirection(this.level, particlePos))), 0, Math.sin(Math.toRadians(ClientWindManager.getWindDirection(this.level, particlePos))));
 
         double windInfluenceFactor = getWindInfluenceFactor(particlePos, windDirection);
         return dx + windEffect.x * windInfluenceFactor;
@@ -96,10 +98,10 @@ public class WindParticle extends TextureSheetParticle {
 //            return dz;
 //        }
 
-
-        Vec3 windEffect = calculateWindEffect();
+        Vec3 oldParticlePos = new Vec3(this.x, this.y, this.z); //fixme might not need this (same with ParticleMixin)
+        Vec3 windEffect = calculateWindEffect(oldParticlePos);
         Vec3 particlePos = new Vec3(this.x, this.y, this.z);
-        Vec3 windDirection = new Vec3(Math.cos(Math.toRadians(ClientWindManager.getWindDirection())), 0, Math.sin(Math.toRadians(ClientWindManager.getWindDirection())));
+        Vec3 windDirection = new Vec3(Math.cos(Math.toRadians(ClientWindManager.getWindDirection(this.level, particlePos))), 0, Math.sin(Math.toRadians(ClientWindManager.getWindDirection(this.level, particlePos))));
 
         double windInfluenceFactor = getWindInfluenceFactor(particlePos, windDirection);
         return dz + windEffect.z * windInfluenceFactor;
@@ -128,15 +130,15 @@ public class WindParticle extends TextureSheetParticle {
     }
 
     @Unique
-    private Vec3 calculateWindEffect() {
+    private Vec3 calculateWindEffect(Vec3 particlePos) {
         double windEffectiveness = 2;
+        BlockPos pos = new BlockPos((int) this.x, (int) this.y, (int) this.z);
 
-        double angleRadians = Math.toRadians(ClientWindManager.getWindDirection());
-        double windX = Math.cos(angleRadians) * ClientWindManager.getWindStrength() * windEffectiveness;
-        double windZ = Math.sin(angleRadians) * ClientWindManager.getWindStrength() * windEffectiveness;
+        double angleRadians = Math.toRadians(ClientWindManager.getWindDirection(this.level, particlePos));
+        double windX = Math.cos(angleRadians) * ClientWindManager.getWindStrength(this.level, pos) * windEffectiveness;
+        double windZ = Math.sin(angleRadians) * ClientWindManager.getWindStrength(this.level, pos) * windEffectiveness;
         Vec3 initialWindEffect = new Vec3(windX, 0, windZ);
 
-        BlockPos pos = new BlockPos((int) this.x, (int) this.y, (int) this.z);
         return calculateRealisticWindFlow(initialWindEffect, pos);
     }
 

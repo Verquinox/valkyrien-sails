@@ -3,16 +3,21 @@ package com.quintonc.vs_sails.ship;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.quintonc.vs_sails.ServerWindManager;
 import com.quintonc.vs_sails.config.ConfigUtils;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.valkyrienskies.core.api.ships.*;
 import org.valkyrienskies.core.impl.game.ships.PhysShipImpl;
+import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
 import static java.lang.Math.*;
 
@@ -78,13 +83,19 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
     public int boundz = 1;
 
     @JsonIgnore
+    public Level world = null;
+
+    @JsonIgnore
     public Component message;
 
     public Direction shipDirection = Direction.NORTH;
+
     @JsonIgnore
     public ServerShip ship = null;
 
-    public static SailsShipControl getOrCreate(ServerShip ship) {
+
+    @JsonIgnore
+    public static SailsShipControl getOrCreate(ServerShip ship, Level world) {
         if (ship != null) {
             if (ship.getAttachment(SailsShipControl.class) == null) {
                 ship.saveAttachment(SailsShipControl.class, new SailsShipControl());
@@ -92,6 +103,9 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
             SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
             //controller.ship = ship;
             assert controller != null;
+            if (world != null) {
+                controller.world = world;
+            }
             if (ship.getShipAABB() != null) {
                 controller.boundx = ship.getShipAABB().maxX() - ship.getShipAABB().minX();
                 controller.boundz = ship.getShipAABB().maxZ() - ship.getShipAABB().minZ();
@@ -125,6 +139,10 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
         } else {
             return null;
         }
+    }
+
+    public static SailsShipControl getOrCreate(ServerShip ship) {
+        return getOrCreate(ship, null);
     }
 
     @Override
@@ -229,8 +247,11 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
             );
 
             if (Boolean.parseBoolean(ConfigUtils.config.getOrDefault("enable-wind","true"))) {
-                double windDirection = ServerWindManager.getWindDirection(); //in degrees
-                double windStrength = ServerWindManager.getWindStrength(); // -1.0 -- 1.0
+                Vector3dc shipPos = physShip1.getTransform().getPositionInWorld();
+                Vec3 shipPos2 = new Vec3(shipPos.x(), shipPos.y(), shipPos.z());
+                BlockPos shipPos3 = new BlockPos((int)shipPos.x(), (int)shipPos.y(), (int)shipPos.z());
+                double windDirection = ServerWindManager.getWindDirection(world, shipPos2); //in degrees
+                double windStrength = ServerWindManager.getWindStrength(world, shipPos3); // -1.0 -- 1.0
                 double shipAngle = getShipYaw(physShip1.getTransform().getShipToWorldRotation()); //in radians
                 double windAngle;
                 double squareAngleBetween;

@@ -75,7 +75,7 @@ public class ServerWindManager extends WindManager {
 
         windDirection = DIRECTIONS.get(world.getServer().overworld().getMoonPhase());
         windDirection += 12 * windStrength;
-        windDirection += 10;
+        windDirection += 12;
 
         if (world.getServer().overworld().isThundering()){
             windStrength *= 2f;
@@ -104,9 +104,10 @@ public class ServerWindManager extends WindManager {
                 ServerPlayNetworking.send(serverPlayerEntity, WindModNetworking.WINDSTRENGTHS2CPACKET, buf1);
                 assert WindModNetworking.WINDDIRECTIONS2CPACKET != null;
                 ServerPlayNetworking.send(serverPlayerEntity, WindModNetworking.WINDDIRECTIONS2CPACKET, buf2);
-                //System.out.println("Sending packet to " + serverPlayerEntity.getEntityName()); //fixme comment this out
+                System.out.println("Sending packet to " + serverPlayerEntity.getScoreboardName()); //fixme comment this out
                 //System.out.println("windStrength: " + windStrength + " timeInfluence: " + timeInfluence);
                 //System.out.println("timeFactor: " + timeFactor + " randomFactor: " + randomFactor);
+                System.out.println("windDirection: " + windDirection);
             }
         });
     }

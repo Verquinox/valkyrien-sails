@@ -31,12 +31,12 @@ public abstract class CountableBlock extends Block {
         if (VSGameUtilsKt.isBlockInShipyard(world, pos)) {
             ServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerLevel) world, pos);
             if (ship != null) {
-                SailsShipControl controller = SailsShipControl.getOrCreate(ship);
+                SailsShipControl controller = SailsShipControl.getOrCreate(ship, world);
                 addToShip(controller);
             } else {
                 ship = VSGameUtilsKt.getShipManagingPos((ServerLevel) world, pos);
                 if (ship != null) {
-                    SailsShipControl controller = SailsShipControl.getOrCreate(ship);
+                    SailsShipControl controller = SailsShipControl.getOrCreate(ship, world);
                     addToShip(controller);
                 }
             }
