@@ -7,29 +7,27 @@ import com.quintonc.vs_sails.registration.SailsBlocks;
 import com.quintonc.vs_sails.ship.SailsShipControl;
 import dev.architectury.networking.NetworkManager;
 import io.netty.buffer.Unpooled;
+import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.commands.arguments.EntityAnchorArgument;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.phys.*;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import org.apache.logging.log4j.core.jmx.Server;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 import org.joml.Vector3dc;
@@ -46,23 +44,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.quintonc.vs_sails.blocks.HelmBlock.FACING;
-import static java.lang.Math.abs;
 import static java.lang.Math.sqrt;
-import static net.minecraft.world.level.block.Block.canSupportCenter;
 
-public class HelmBlockEntity extends BlockEntity {
+public abstract class BaseHelmBlockEntity extends BlockEntity {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("helm_entity");
 
     public static final int wheelInterval = Integer.parseInt(ConfigUtils.config.getOrDefault("wheel-interval","6"));
-    private static final double rudderarea = Double.parseDouble(ConfigUtils.config.getOrDefault("rudder-power","1.0"));
     private List<ShipMountingEntity> seats = new ArrayList<ShipMountingEntity>();
 
     public int wheelAngle = 360;
     public static final int maxAngle = 720;
 
-    public HelmBlockEntity(BlockPos pos, BlockState state) {
-        super(ValkyrienSails.HELM_BLOCK_ENTITY, pos, state);
+    public BaseHelmBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+        super(type, pos, blockState);
     }
 
     public static void tick(Level world, BlockPos pos, BlockState state) {
@@ -79,7 +74,7 @@ public class HelmBlockEntity extends BlockEntity {
                     SeatedControllingPlayer playerControl = ship.getAttachment(SeatedControllingPlayer.class);
 
                     BlockEntity be = world.getBlockEntity(pos);
-                    if (be instanceof HelmBlockEntity blockEntity) {
+                    if (be instanceof BaseHelmBlockEntity blockEntity) {
                         if (playerControl != null) {
                             if (playerControl.getLeftImpulse() < 0) {
                                 blockEntity.rotateWheelRight(state, (ServerLevel)world, pos);
@@ -88,55 +83,7 @@ public class HelmBlockEntity extends BlockEntity {
                             }
                         }
 
-                        //Matrix3dc moiTensor = ship.getInertiaData().getMomentOfInertiaTensor();
 
-                        //find rudder hinge point
-                        Vector3dc com = ship.getInertiaData().getCenterOfMassInShip();
-                        double rudderOffset = (ship.getShipAABB().maxX() - ship.getShipAABB().minX());
-                        Vec3i shipDir = SailsShipControl.getOrCreate(ship, world).shipDirection.getOpposite().getNormal();
-                        Vector3d loc = new Vector3d(com.x()+(rudderOffset*shipDir.getX()), com.y(), com.z()+(rudderOffset*shipDir.getZ())+1); //fixme shipDir.getZ()?
-                        Vector3d loc2 = new Vector3d(com.x()+(rudderOffset*shipDir.getX()),com.y(),com.z()+(rudderOffset*shipDir.getZ())-1);
-                        Vector3d rudderPos = new Vector3d(com.x()+(rudderOffset*shipDir.getX()),com.y(),com.z()+(rudderOffset*shipDir.getZ())); //fixme new
-
-                        //size of the ship's 'rudder'
-                        AABBic shipDims = ship.getShipAABB();
-                        double rudderSize = rudderarea * ((shipDims.maxX() - shipDims.minX()) * (shipDims.maxZ() - shipDims.minZ())) / 100.0;
-                        //todo make method in SailsShipController for getting dimensions (length+width)
-
-                        //angle of ship's 'rudder' (in radians) based on wheel position
-                        double rudderAngle = (((double)blockEntity.wheelAngle-360) / 10) * Math.PI/180;
-
-                        //mass of ship
-                        double mass = ship.getInertiaData().getMass() / 100;
-
-                        //ship velocity
-                        double vel = Math.sqrt(Math.pow(ship.getVelocity().x(), 2) + Math.pow(ship.getVelocity().z(), 2));
-
-                        //rudder force to be applied to rudder hinge point
-                        double rudderForce;
-                        if (Boolean.parseBoolean(ConfigUtils.config.getOrDefault("realistic-rudder","true"))) {
-                            rudderForce = (2 * Math.PI * rudderAngle) * 998 / 6 * sqrt(mass) * Math.pow(vel, 2) * rudderSize;
-                        } else {
-                            rudderForce = (2 * Math.PI * rudderAngle) * 998 * sqrt(mass) * rudderSize;
-                        }
-
-                        Vector3d turnvector = new Vector3d(rudderForce+mass, 0, 0);
-                        Vector3d turnvector2 = new Vector3d(-rudderForce-mass, 0, 0);
-                        Vector3d turnvector3 = new Vector3d(0, 0, rudderForce); //fixme new for lift-based rudder force (remove mass from turnvector)
-
-                        //LOGGER.info("VEL:"+vel);
-
-                        SailsShipControl shipForceApplier = ship.getAttachment(SailsShipControl.class);
-                        if (shipForceApplier != null) {
-                            shipForceApplier.applyRotDependentForceToPos(turnvector, loc.sub(ship.getTransform().getPositionInShip()));
-                            shipForceApplier.applyRotDependentForceToPos(turnvector2, loc2.sub(ship.getTransform().getPositionInShip()));
-                            //fixme wip lift-based rudder force
-//                        if (shipForceApplier.shipDirection == Direction.NORTH || shipForceApplier.shipDirection == Direction.SOUTH) {
-//                            shipForceApplier.applyRotDependentForceToPos(turnvector.mul(0.00001), rudderPos);
-//                        } else {
-//                            shipForceApplier.applyRotDependentForceToPos(turnvector3.mul(0.00001), rudderPos);
-//                        }
-                        }
                         setChanged(world, pos, state);
                     }
                 }
@@ -244,12 +191,12 @@ public class HelmBlockEntity extends BlockEntity {
     }
 
     private void playWheelSounds(Level world, BlockPos pos) {
-        if ((double)wheelAngle/HelmBlockEntity.maxAngle == 0.5) {
+        if ((double)wheelAngle/ BaseHelmBlockEntity.maxAngle == 0.5) {
             world.playSound(null, pos.below(), SoundEvents.BAMBOO_WOOD_BUTTON_CLICK_ON,
                     SoundSource.BLOCKS, 1.5f, world.getRandom().nextFloat() * 0.1F + 0.9F);
             world.playSound(null, pos.below(), SoundEvents.ARMOR_EQUIP_CHAIN,
                     SoundSource.BLOCKS, 0.1f, world.getRandom().nextFloat() * 0.1F + 0.9F);
-        } else if (wheelAngle == HelmBlockEntity.maxAngle || wheelAngle == 0) {
+        } else if (wheelAngle == BaseHelmBlockEntity.maxAngle || wheelAngle == 0) {
             world.playSound(null, pos.below(), SoundEvents.BAMBOO_WOOD_BUTTON_CLICK_ON,
                     SoundSource.BLOCKS, 1.5f, world.getRandom().nextFloat() * 0.1F + 0.9F);
         }

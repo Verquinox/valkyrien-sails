@@ -21,6 +21,7 @@ import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
 import static java.lang.Math.*;
 
+import java.text.DecimalFormat;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
