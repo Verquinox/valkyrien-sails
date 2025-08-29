@@ -41,32 +41,27 @@ public class HelmBlockEntityRenderer implements BlockEntityRenderer<HelmBlockEnt
         ItemStack stack = entity.getRenderStack();
 
         matrices.pushPose();
-        //int i =((HelmBlock)entity.getCachedState().getBlock()).wheelAngle;
         BlockEntity be = Objects.requireNonNull(entity.getLevel()).getBlockEntity(entity.getBlockPos());
         if (be instanceof HelmBlockEntity blockEntity) {
             if (entity.getBlockState().getValue(FACING) == Direction.NORTH) {
 
                 matrices.translate(0.5f,0.5f,0.5f);
-                //matrices.rotateAround(Axis.ZP.rotationDegrees(entity.getBlockState().getValue(WHEEL_ANGLE)%360), 0, 0.3125f, 0);
-                LOGGER.info("wheel angle: "+blockEntity.wheelAngle);
+                //LOGGER.info("wheel angle: "+blockEntity.wheelAngle);
                 matrices.rotateAround(Axis.ZP.rotationDegrees(blockEntity.wheelAngle%360), 0, 0.3125f, 0);
 
             } else if (entity.getBlockState().getValue(FACING) == Direction.SOUTH) {
                 matrices.mulPose(Axis.YP.rotationDegrees(180));
                 matrices.translate(-0.5f,0.5f,-0.5f);
-                //matrices.rotateAround(Axis.ZP.rotationDegrees(entity.getBlockState().getValue(WHEEL_ANGLE)%360), 0, 0.3125f, 0);
                 matrices.rotateAround(Axis.ZP.rotationDegrees(blockEntity.wheelAngle%360), 0, 0.3125f, 0);
 
             } else if (entity.getBlockState().getValue(FACING) == Direction.EAST) {
                 matrices.mulPose(Axis.YP.rotationDegrees(270));
                 matrices.translate(0.5f,0.5f,-0.5f);
-                //matrices.rotateAround(Axis.ZP.rotationDegrees(entity.getBlockState().getValue(WHEEL_ANGLE)%360), 0, 0.3125f, 0);
                 matrices.rotateAround(Axis.ZP.rotationDegrees(blockEntity.wheelAngle%360), 0, 0.3125f, 0);
 
             } else if (entity.getBlockState().getValue(FACING) == Direction.WEST) {
                 matrices.mulPose(Axis.YP.rotationDegrees(90));
                 matrices.translate(-0.5f,0.5f,0.5f);
-                //matrices.rotateAround(Axis.ZP.rotationDegrees(entity.getBlockState().getValue(WHEEL_ANGLE)%360), 0, 0.3125f, 0);
                 matrices.rotateAround(Axis.ZP.rotationDegrees(blockEntity.wheelAngle%360), 0, 0.3125f, 0);
 
             }

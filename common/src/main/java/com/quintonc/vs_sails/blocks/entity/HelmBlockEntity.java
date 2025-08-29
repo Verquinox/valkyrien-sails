@@ -11,7 +11,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
@@ -59,7 +61,6 @@ public class HelmBlockEntity extends BlockEntity {
     //private SailsShipControl controller = SailsShipControl.getOrCreate(shipW);
     private List<ShipMountingEntity> seats = new ArrayList<ShipMountingEntity>();
 
-    public int rotations = 1;
     public int wheelAngle = 360;
     public static final int maxAngle = 720;
 
@@ -84,48 +85,10 @@ public class HelmBlockEntity extends BlockEntity {
                     if (be instanceof HelmBlockEntity blockEntity) {
                         if (playerControl != null) {
                             if (playerControl.getLeftImpulse() < 0) {
-                                if (blockEntity.rotateWheelRight(state, (ServerLevel)world, pos)) {
-                                    if (/*HelmBlockEntity.maxAngle/blockEntity.wheelAngle == 2 ||*/ blockEntity.wheelAngle/HelmBlockEntity.maxAngle == 1 || blockEntity.wheelAngle == 0) {
-                                        world.playSound(null, pos.below(), SoundEvents.BAMBOO_WOOD_BUTTON_CLICK_ON,
-                                                SoundSource.BLOCKS, 1.5f, world.getRandom().nextFloat() * 0.1F + 0.9F);
-                                        world.playSound(null, pos.below(), SoundEvents.ARMOR_EQUIP_CHAIN,
-                                                SoundSource.BLOCKS, 0.75f, world.getRandom().nextFloat() * 0.1F + 0.9F);
-                                    }
-                                }
+                                blockEntity.rotateWheelRight(state, (ServerLevel)world, pos);
                             } else if (playerControl.getLeftImpulse() > 0) {
-                                if (blockEntity.rotateWheelLeft(state, (ServerLevel)world, pos)) {
-                                    if (/*HelmBlockEntity.maxAngle/blockEntity.wheelAngle == 2 ||*/ blockEntity.wheelAngle/HelmBlockEntity.maxAngle == 1 || blockEntity.wheelAngle == 0) {
-                                        world.playSound(null, pos.below(), SoundEvents.BAMBOO_WOOD_BUTTON_CLICK_ON, //fixme redundant code
-                                                SoundSource.BLOCKS, 1.5f, world.getRandom().nextFloat() * 0.1F + 0.9F);
-                                        world.playSound(null, pos.below(), SoundEvents.ARMOR_EQUIP_CHAIN,
-                                                SoundSource.BLOCKS, 0.75f, world.getRandom().nextFloat() * 0.1F + 0.9F);
-                                    }
-                                }
+                                blockEntity.rotateWheelLeft(state, (ServerLevel)world, pos);
                             }
-
-//                            if (playerControl.getLeftImpulse() < 0) {
-//                                if (state.getValue(WHEEL_ANGLE) > 0) {
-//                                    state = state.setValue(WHEEL_ANGLE, state.getValue(WHEEL_ANGLE)-wheelInterval);
-//                                    world.setBlock(pos, state, 10);
-//                                    if (state.getValue(WHEEL_ANGLE) == 720 || state.getValue(WHEEL_ANGLE) == 360 || state.getValue(WHEEL_ANGLE) == 0) {
-//                                        world.playSound(null, pos.below(), SoundEvents.BAMBOO_WOOD_BUTTON_CLICK_ON,
-//                                                SoundSource.BLOCKS, 1.5f, world.getRandom().nextFloat() * 0.1F + 0.9F);
-//                                    }
-//                                }
-//                            } else if (playerControl.getLeftImpulse() > 0) {
-//                                if (state.getValue(WHEEL_ANGLE) < 720) {
-//                                    state = state.setValue(WHEEL_ANGLE, state.getValue(WHEEL_ANGLE)+wheelInterval);
-//                                    world.setBlock(pos, state, 10);
-//                                    if (state.getValue(WHEEL_ANGLE) == 720 || state.getValue(WHEEL_ANGLE) == 360 || state.getValue(WHEEL_ANGLE) == 0) {
-//                                        world.playSound(null, pos.below(), SoundEvents.BAMBOO_WOOD_BUTTON_CLICK_ON,
-//                                                SoundSource.BLOCKS, 1.5f, world.getRandom().nextFloat() * 0.1F + 0.9F);
-//                                    }
-//    //                                else if (state.get(WHEEL_ANGLE) % 15 == 0) { fixme code for additional wheel sfx
-//    //                                    world.playSound(null, pos.down(), SoundEvents.BLOCK_BAMBOO_WOOD_BUTTON_CLICK_OFF,
-//    //                                            SoundSource.BLOCKS, 0.25f, world.getRandom().nextFloat() * 0.1F + 0.9F);
-//    //                                }
-//                                }
-//                            }
                         }
 
                         //Matrix3dc moiTensor = ship.getInertiaData().getMomentOfInertiaTensor();
@@ -144,7 +107,6 @@ public class HelmBlockEntity extends BlockEntity {
                         //todo make method in SailsShipController for getting dimensions (length+width)
 
                         //angle of ship's 'rudder' (in radians) based on wheel position
-                        //double rudderAngle = (((double)state.getValue(WHEEL_ANGLE)-360) / 10) * Math.PI/180;
                         double rudderAngle = (((double)blockEntity.wheelAngle-360) / 10) * Math.PI/180;
 
                         //mass of ship
@@ -258,6 +220,7 @@ public class HelmBlockEntity extends BlockEntity {
         boolean success = false;
         if (wheelAngle-wheelInterval >= 0) {
             wheelAngle-=wheelInterval;
+            playWheelSounds(world, pos);
             success = true;
         }
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
@@ -265,18 +228,6 @@ public class HelmBlockEntity extends BlockEntity {
         buf.writeBlockPos(pos);
         NetworkManager.sendToPlayers(world.getServer().getPlayerList().getPlayers(), PacketHandler.WHEEL_ANGLE_PACKET, buf);
 
-//        if (wheelAngle-wheelInterval == 0 && rotations > 1) {
-//            rotations--;
-//            state = state.setValue(WHEEL_ANGLE, 360);
-//            world.setBlock(pos, state, 10);
-//        } else if (wheelAngle-wheelInterval != wheelAngle-wheelInterval % 360 && rotations > 1) {
-//            rotations--;
-//            state = state.setValue(WHEEL_ANGLE, (wheelAngle-wheelInterval) % 360);
-//            world.setBlock(pos, state, 10);
-//        } else {
-//            state = state.setValue(WHEEL_ANGLE, wheelAngle-wheelInterval);
-//            world.setBlock(pos, state, 10);
-//        }
         return success;
     }
 
@@ -284,6 +235,7 @@ public class HelmBlockEntity extends BlockEntity {
         boolean success = false;
         if (wheelAngle+wheelInterval <= 720) {
             wheelAngle+=wheelInterval;
+            playWheelSounds(world, pos);
             success = true;
         }
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
@@ -291,15 +243,19 @@ public class HelmBlockEntity extends BlockEntity {
         buf.writeBlockPos(pos);
         NetworkManager.sendToPlayers(world.getServer().getPlayerList().getPlayers(), PacketHandler.WHEEL_ANGLE_PACKET, buf);
 
-//        if (wheelAngle+wheelInterval <= 360) {
-//            state = state.setValue(WHEEL_ANGLE, wheelAngle+wheelInterval);
-//            world.setBlock(pos, state, 10);
-//        } else if (rotations < maxRotations) {
-//            rotations++;
-//            state = state.setValue(WHEEL_ANGLE, (wheelAngle+wheelInterval) % 360);
-//            world.setBlock(pos, state, 10);
-//        }
         return success;
+    }
+
+    private void playWheelSounds(Level world, BlockPos pos) {
+        if ((double)wheelAngle/HelmBlockEntity.maxAngle == 0.5) {
+            world.playSound(null, pos.below(), SoundEvents.BAMBOO_WOOD_BUTTON_CLICK_ON,
+                    SoundSource.BLOCKS, 1.5f, world.getRandom().nextFloat() * 0.1F + 0.9F);
+            world.playSound(null, pos.below(), SoundEvents.ARMOR_EQUIP_CHAIN,
+                    SoundSource.BLOCKS, 0.1f, world.getRandom().nextFloat() * 0.1F + 0.9F);
+        } else if (wheelAngle == HelmBlockEntity.maxAngle || wheelAngle == 0) {
+            world.playSound(null, pos.below(), SoundEvents.BAMBOO_WOOD_BUTTON_CLICK_ON,
+                    SoundSource.BLOCKS, 1.5f, world.getRandom().nextFloat() * 0.1F + 0.9F);
+        }
     }
 
     @Override
