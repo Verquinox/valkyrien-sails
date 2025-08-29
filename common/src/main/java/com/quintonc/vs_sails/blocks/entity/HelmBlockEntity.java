@@ -62,6 +62,8 @@ public class HelmBlockEntity extends BlockEntity {
     private List<ShipMountingEntity> seats = new ArrayList<ShipMountingEntity>();
 
     public int wheelAngle = 360;
+    public float renderWheelAngle = wheelAngle;
+    public float renderWheelAngleVel = 0;
     public static final int maxAngle = 720;
 
     public HelmBlockEntity(BlockPos pos, BlockState state) {
