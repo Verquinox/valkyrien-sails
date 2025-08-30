@@ -37,6 +37,14 @@ public class HelmBlockEntityRenderer implements BlockEntityRenderer<HelmBlockEnt
     public void render(HelmBlockEntity entity, float tickDelta, PoseStack matrices,
                        MultiBufferSource vertexConsumers, int light, int overlay) {
 
+
+        float diff = entity.wheelAngle - entity.renderWheelAngle;
+        entity.renderWheelAngleVel += diff / (Minecraft.getInstance().getFps() * 1.2f);
+        entity.renderWheelAngleVel *= 0.9f;
+
+        float wheelRotation = entity.renderWheelAngle + entity.renderWheelAngleVel;
+        entity.renderWheelAngle = wheelRotation;
+
         ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
         ItemStack stack = entity.getRenderStack();
 
@@ -45,24 +53,24 @@ public class HelmBlockEntityRenderer implements BlockEntityRenderer<HelmBlockEnt
         if (be instanceof HelmBlockEntity blockEntity) {
             if (entity.getBlockState().getValue(FACING) == Direction.NORTH) {
 
-                matrices.translate(0.5f,0.5f,0.5f);
+                matrices.translate(0.5f, 0.5f, 0.5f);
                 //LOGGER.info("wheel angle: "+blockEntity.wheelAngle);
-                matrices.rotateAround(Axis.ZP.rotationDegrees(blockEntity.wheelAngle%360), 0, 0.3125f, 0);
+                matrices.rotateAround(Axis.ZP.rotationDegrees(wheelRotation % 360), 0, 0.3125f, 0);
 
             } else if (entity.getBlockState().getValue(FACING) == Direction.SOUTH) {
                 matrices.mulPose(Axis.YP.rotationDegrees(180));
-                matrices.translate(-0.5f,0.5f,-0.5f);
-                matrices.rotateAround(Axis.ZP.rotationDegrees(blockEntity.wheelAngle%360), 0, 0.3125f, 0);
+                matrices.translate(-0.5f, 0.5f, -0.5f);
+                matrices.rotateAround(Axis.ZP.rotationDegrees(wheelRotation % 360), 0, 0.3125f, 0);
 
             } else if (entity.getBlockState().getValue(FACING) == Direction.EAST) {
                 matrices.mulPose(Axis.YP.rotationDegrees(270));
-                matrices.translate(0.5f,0.5f,-0.5f);
-                matrices.rotateAround(Axis.ZP.rotationDegrees(blockEntity.wheelAngle%360), 0, 0.3125f, 0);
+                matrices.translate(0.5f, 0.5f, -0.5f);
+                matrices.rotateAround(Axis.ZP.rotationDegrees(wheelRotation % 360), 0, 0.3125f, 0);
 
             } else if (entity.getBlockState().getValue(FACING) == Direction.WEST) {
                 matrices.mulPose(Axis.YP.rotationDegrees(90));
-                matrices.translate(-0.5f,0.5f,0.5f);
-                matrices.rotateAround(Axis.ZP.rotationDegrees(blockEntity.wheelAngle%360), 0, 0.3125f, 0);
+                matrices.translate(-0.5f, 0.5f, 0.5f);
+                matrices.rotateAround(Axis.ZP.rotationDegrees(wheelRotation % 360), 0, 0.3125f, 0);
 
             }
             matrices.scale(1.6f, 1.6f, 1.6f);
@@ -73,7 +81,6 @@ public class HelmBlockEntityRenderer implements BlockEntityRenderer<HelmBlockEnt
                     entity.getBlockPos()), OverlayTexture.NO_OVERLAY, matrices, vertexConsumers, entity.getLevel(), 1);
             //LOGGER.info("item rendered");
         }
-
 
 
         matrices.popPose();
