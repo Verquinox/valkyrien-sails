@@ -1,6 +1,7 @@
 package com.quintonc.vs_sails;
 
 import com.quintonc.vs_sails.blocks.entity.HelmBlockEntity;
+import com.quintonc.vs_sails.blocks.entity.RedstoneHelmBlockEntity;
 import com.quintonc.vs_sails.items.SailWand;
 import com.quintonc.vs_sails.registration.SailsBlocks;
 import net.fabricmc.api.ModInitializer;
@@ -61,6 +62,7 @@ public class ValkyrienSailsFabric implements ModInitializer {
     }
 
     public static BlockEntityType<HelmBlockEntity> HELM_BLOCK_ENTITY;
+    public static BlockEntityType<RedstoneHelmBlockEntity> REDSTONE_HELM_BLOCK_ENTITY;
 
     public static void registerBlockEntities() {
         //block entities go here
@@ -70,5 +72,12 @@ public class ValkyrienSailsFabric implements ModInitializer {
                 FabricBlockEntityTypeBuilder.create(HelmBlockEntity::new, SailsBlocks.HELM_BLOCK.get()).build()
         );
         ValkyrienSails.HELM_BLOCK_ENTITY = HELM_BLOCK_ENTITY;
+
+        REDSTONE_HELM_BLOCK_ENTITY = Registry.register(
+                BuiltInRegistries.BLOCK_ENTITY_TYPE,
+                new ResourceLocation("vs_sails", "redstone_helm_block_entity"),
+                FabricBlockEntityTypeBuilder.create(RedstoneHelmBlockEntity::new, SailsBlocks.REDSTONE_HELM_BLOCK.get()).build()
+        );
+        ValkyrienSails.REDSTONE_HELM_BLOCK_ENTITY = REDSTONE_HELM_BLOCK_ENTITY;
     }
 }

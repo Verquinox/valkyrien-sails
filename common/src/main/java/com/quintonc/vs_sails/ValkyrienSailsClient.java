@@ -18,6 +18,7 @@ public class ValkyrienSailsClient {
 
     public static void clientInit() {
         BlockEntityRenderers.register(ValkyrienSails.HELM_BLOCK_ENTITY, HelmBlockEntityRenderer::new);
+        BlockEntityRenderers.register(ValkyrienSails.REDSTONE_HELM_BLOCK_ENTITY, HelmBlockEntityRenderer::new);
 
         //System.out.println("Client init");
         com.quintonc.vs_sails.client.ClientWindManager.InitializeWind();

@@ -2,6 +2,7 @@ package com.quintonc.vs_sails;
 
 import com.quintonc.vs_sails.blocks.*;
 import com.quintonc.vs_sails.blocks.entity.HelmBlockEntity;
+import com.quintonc.vs_sails.blocks.entity.RedstoneHelmBlockEntity;
 import com.quintonc.vs_sails.config.ConfigUtils;
 import com.quintonc.vs_sails.networking.WindModNetworking;
 import com.quintonc.vs_sails.registration.SailsBlocks;
@@ -61,6 +62,7 @@ public class ValkyrienSails {
 
     //Block Entities
     public static BlockEntityType<HelmBlockEntity> HELM_BLOCK_ENTITY;
+    public static BlockEntityType<RedstoneHelmBlockEntity> REDSTONE_HELM_BLOCK_ENTITY;
 
     public static RegistrySupplier<CreativeModeTab> SAILS_MAIN;
     public static RegistrySupplier<CreativeModeTab> SAILS_COLORS;

@@ -48,47 +48,18 @@ import static java.lang.Math.sqrt;
 
 public abstract class BaseHelmBlockEntity extends BlockEntity {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger("helm_entity");
+    public static final Logger LOGGER = LoggerFactory.getLogger("base_helm_entity");
 
-    public static final int wheelInterval = Integer.parseInt(ConfigUtils.config.getOrDefault("wheel-interval","6"));
+    public static int wheelInterval;
     private List<ShipMountingEntity> seats = new ArrayList<ShipMountingEntity>();
 
-    public int wheelAngle = 360;
-    public static final int maxAngle = 720;
+    public int wheelAngle;
+    public float renderWheelAngle = wheelAngle;
+    public float renderWheelAngleVel = 0;
+    public static int maxAngle;
 
     public BaseHelmBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
-    }
-
-    public static void tick(Level world, BlockPos pos, BlockState state) {
-        //do seated controlling player stuff and have their impulses affect the turnval
-        // changes by some amount each tick, possibly configurable in the future, possibly based on ship mass
-
-        if (!world.isClientSide) {
-
-            if (VSGameUtilsKt.isBlockInShipyard(world, pos)) {
-                ChunkPos chunkPos = world.getChunk(pos).getPos();
-                LoadedServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerLevel) world, chunkPos);
-
-                if (ship != null) {
-                    SeatedControllingPlayer playerControl = ship.getAttachment(SeatedControllingPlayer.class);
-
-                    BlockEntity be = world.getBlockEntity(pos);
-                    if (be instanceof BaseHelmBlockEntity blockEntity) {
-                        if (playerControl != null) {
-                            if (playerControl.getLeftImpulse() < 0) {
-                                blockEntity.rotateWheelRight(state, (ServerLevel)world, pos);
-                            } else if (playerControl.getLeftImpulse() > 0) {
-                                blockEntity.rotateWheelLeft(state, (ServerLevel)world, pos);
-                            }
-                        }
-
-
-                        setChanged(world, pos, state);
-                    }
-                }
-            }
-        }
     }
 
     public boolean startRiding(Player player, boolean force, BlockPos pos, BlockState state, ServerLevel world) {
@@ -214,12 +185,10 @@ public abstract class BaseHelmBlockEntity extends BlockEntity {
         wheelAngle = pTag.getInt("wheel_angle");
     }
 
-    public ItemStack getRenderStack() {
-        return new ItemStack(SailsBlocks.HELM_WHEEL.get().asItem());
-    }
+    public abstract ItemStack getRenderStack();
 
     public int getWheelAngle() {
-        return 0;
+        return wheelAngle;
     }
 
     @Override

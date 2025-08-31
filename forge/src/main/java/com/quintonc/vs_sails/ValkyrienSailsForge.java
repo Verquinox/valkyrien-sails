@@ -1,6 +1,7 @@
 package com.quintonc.vs_sails;
 
 import com.quintonc.vs_sails.blocks.entity.HelmBlockEntity;
+import com.quintonc.vs_sails.blocks.entity.RedstoneHelmBlockEntity;
 import com.quintonc.vs_sails.client.particles.WindParticle;
 import com.quintonc.vs_sails.registration.SailsBlocks;
 import dev.architectury.platform.forge.EventBuses;
@@ -38,6 +39,7 @@ public class ValkyrienSailsForge {
             DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, ValkyrienSails.MOD_ID);
 
     public static RegistryObject<BlockEntityType<HelmBlockEntity>> HELM_BLOCK_ENTITY;
+    public static RegistryObject<BlockEntityType<RedstoneHelmBlockEntity>> REDSTONE_HELM_BLOCK_ENTITY;
     public static RegistryObject<SimpleParticleType> WIND_PARTICLE = PARTICLE_TYPES.register("wind_particle", () -> new SimpleParticleType(true));
 
     public ValkyrienSailsForge() {
@@ -61,12 +63,14 @@ public class ValkyrienSailsForge {
     private void commonSetup(final FMLCommonSetupEvent event) {
 
         ValkyrienSails.HELM_BLOCK_ENTITY = HELM_BLOCK_ENTITY.get();
+        ValkyrienSails.REDSTONE_HELM_BLOCK_ENTITY = REDSTONE_HELM_BLOCK_ENTITY.get();
         ValkyrienSails.WIND_PARTICLE = WIND_PARTICLE.get();
     }
 
     private void registerBlockEntities(IEventBus eventBus) {
 
         HELM_BLOCK_ENTITY = BLOCK_ENTITIES.register("helm_block_entity", () -> BlockEntityType.Builder.of(HelmBlockEntity::new, SailsBlocks.HELM_BLOCK.get()).build(null));
+        REDSTONE_HELM_BLOCK_ENTITY = BLOCK_ENTITIES.register("redstone_helm_block_entity", () -> BlockEntityType.Builder.of(RedstoneHelmBlockEntity::new, SailsBlocks.REDSTONE_HELM_BLOCK.get()).build(null));
 
         BLOCK_ENTITIES.register(eventBus);
 

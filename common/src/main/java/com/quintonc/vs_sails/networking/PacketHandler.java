@@ -1,6 +1,7 @@
 package com.quintonc.vs_sails.networking;
 
 import com.quintonc.vs_sails.ValkyrienSails;
+import com.quintonc.vs_sails.blocks.entity.BaseHelmBlockEntity;
 import com.quintonc.vs_sails.blocks.entity.HelmBlockEntity;
 import com.quintonc.vs_sails.blocks.entity.renderer.HelmBlockEntityRenderer;
 import dev.architectury.networking.simple.MessageType;
@@ -28,7 +29,7 @@ public class PacketHandler {
             int wheelAngle = buf.readInt();
             BlockPos pos = buf.readBlockPos();
             BlockEntity be = context.getPlayer().level().getBlockEntity(pos);
-            if (be instanceof HelmBlockEntity blockEntity) {
+            if (be instanceof BaseHelmBlockEntity blockEntity) {
                 blockEntity.wheelAngle = wheelAngle;
             }
         });

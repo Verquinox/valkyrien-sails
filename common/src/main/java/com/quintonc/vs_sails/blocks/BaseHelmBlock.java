@@ -1,6 +1,7 @@
 package com.quintonc.vs_sails.blocks;
 
 import com.quintonc.vs_sails.ValkyrienSails;
+import com.quintonc.vs_sails.blocks.entity.BaseHelmBlockEntity;
 import com.quintonc.vs_sails.blocks.entity.HelmBlockEntity;
 import com.quintonc.vs_sails.config.ConfigUtils;
 import com.quintonc.vs_sails.ship.SailsShipControl;
@@ -11,6 +12,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -21,6 +23,9 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,8 +37,12 @@ import java.util.Objects;
 public abstract class BaseHelmBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING;
     public static final Logger LOGGER = LoggerFactory.getLogger("base_helm_block");
-    //private static final VoxelShape SHAPE = Block.createCuboidShape(1,0,5,15,13,11);
-    public static final int wheelInterval = Integer.parseInt(ConfigUtils.config.getOrDefault("wheel-interval","6"));
+    private static final VoxelShape EW_BASE_SHAPE = Block.box(2,0,5,14,16,11);
+    private static final VoxelShape NS_BASE_SHAPE = Block.box(5,0,2,11,16,14);
+    private static final VoxelShape NORTH_SHAPE = Shapes.or(Block.box(5,0,2,11,16,11), Block.box(0, 5, 11, 16, 21, 14)) ;
+    private static final VoxelShape SOUTH_SHAPE = Shapes.or(Block.box(5,0,5,11,16,14), Block.box(0, 5, 2, 16, 21, 5));
+    private static final VoxelShape EAST_SHAPE = Shapes.or(Block.box(5,0,5,14,16,11), Block.box(2, 5, 0, 5, 21, 16));
+    private static final VoxelShape WEST_SHAPE = Shapes.or(Block.box(2,0,5,11,16,11), Block.box(11, 5, 0, 14, 21, 16));
 
     public BaseHelmBlock(Properties settings) {
         super(settings);
@@ -43,6 +52,21 @@ public abstract class BaseHelmBlock extends BaseEntityBlock {
 //    public VoxelShape getVisualShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
 //        return SHAPE;
 //    }
+
+    @Override
+    public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+        switch ((state.getValue(FACING))) {
+            case NORTH:
+            default:
+                return NORTH_SHAPE;
+            case SOUTH:
+                return SOUTH_SHAPE;
+            case EAST:
+                return EAST_SHAPE;
+            case WEST:
+                return WEST_SHAPE;
+        }
+    }
 
     @Override
     public RenderShape getRenderShape(BlockState state) {
@@ -91,7 +115,7 @@ public abstract class BaseHelmBlock extends BaseEntityBlock {
             return InteractionResult.SUCCESS;
         } else {
             BlockEntity be = world.getBlockEntity(pos);
-            if (be instanceof HelmBlockEntity blockEntity) {
+            if (be instanceof BaseHelmBlockEntity blockEntity) {
                 if (VSGameUtilsKt.isBlockInShipyard(world, pos)) {
                     blockEntity.sit(player);
 
@@ -127,18 +151,6 @@ public abstract class BaseHelmBlock extends BaseEntityBlock {
         if (state.hasBlockEntity() && !state.is(newState.getBlock())) {
             world.removeBlockEntity(pos);
         }
-    }
-
-    @Nullable
-    @Override
-    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new HelmBlockEntity(pos, state);
-    }
-
-    @Nullable
-    @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state, BlockEntityType<T> type) {
-        return createTickerHelper(type, ValkyrienSails.HELM_BLOCK_ENTITY, (world1, pos, state1, blockEntity) -> HelmBlockEntity.tick(world1, pos, state1));
     }
 
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
