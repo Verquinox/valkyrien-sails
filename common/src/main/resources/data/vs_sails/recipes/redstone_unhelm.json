@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "functional",
+  "key": {
+    "W": {
+      "item": "vs_sails:redstone_helm_block"
+    }
+  },
+  "pattern": [
+    "W"
+  ],
+  "result": {
+    "item": "vs_sails:redstone_helm_wheel"
+  },
+  "show_notification": false
+}
