@@ -1,0 +1,22 @@
+{
+  "values": [
+    "vs_sails:rope",
+    "vs_sails:sail_block",
+    "vs_sails:white_sail",
+    "vs_sails:light_gray_sail",
+    "vs_sails:gray_sail",
+    "vs_sails:black_sail",
+    "vs_sails:brown_sail",
+    "vs_sails:red_sail",
+    "vs_sails:orange_sail",
+    "vs_sails:yellow_sail",
+    "vs_sails:lime_sail",
+    "vs_sails:green_sail",
+    "vs_sails:cyan_sail",
+    "vs_sails:light_blue_sail",
+    "vs_sails:blue_sail",
+    "vs_sails:purple_sail",
+    "vs_sails:magenta_sail",
+    "vs_sails:pink_sail"
+  ]
+}

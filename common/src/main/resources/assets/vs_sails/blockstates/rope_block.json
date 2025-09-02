@@ -1,0 +1,59 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "vs_sails:block/sail_doused"
+      },
+      "when": {
+        "up": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "vs_sails:block/sail_doused",
+        "x": 180
+      },
+      "when": {
+        "down": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "vs_sails:block/sail_doused",
+        "x": 90
+      },
+      "when": {
+        "north": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "vs_sails:block/sail_doused",
+        "x": -90
+      },
+      "when": {
+        "south": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "vs_sails:block/sail_doused",
+        "x": 90,
+        "y": 90
+      },
+      "when": {
+        "east": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "vs_sails:block/sail_doused",
+        "x": 90,
+        "y": -90
+      },
+      "when": {
+        "west": "true"
+      }
+    }
+  ]
+}

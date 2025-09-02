@@ -11,6 +11,7 @@ import net.fabricmc.fabric.api.gamerule.v1.GameRuleFactory;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
+import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.item.*;
@@ -36,6 +37,46 @@ public class ValkyrienSailsFabric implements ModInitializer {
     public void onInitialize() {
 
         ValkyrienSails.init();
+
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.SAIL_BLOCK.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.ROPE_BLOCK.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.BUOY_BLOCK.get(), 5, 20);
+
+        //Yes, I know this is disgusting
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.WHITE_SAIL.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.LIGHT_GRAY_SAIL.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.GRAY_SAIL.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.BLACK_SAIL.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.BROWN_SAIL.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.RED_SAIL.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.ORANGE_SAIL.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.YELLOW_SAIL.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.LIME_SAIL.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.GREEN_SAIL.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.CYAN_SAIL.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.LIGHT_BLUE_SAIL.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.BLUE_SAIL.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.PURPLE_SAIL.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.MAGENTA_SAIL.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.PINK_SAIL.get(), 5, 20);
+
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.WHITE_BUOY.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.LIGHT_GRAY_BUOY.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.GRAY_BUOY.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.BLACK_BUOY.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.BROWN_BUOY.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.RED_BUOY.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.ORANGE_BUOY.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.YELLOW_BUOY.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.LIME_BUOY.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.GREEN_BUOY.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.CYAN_BUOY.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.LIGHT_BLUE_BUOY.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.BLUE_BUOY.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.PURPLE_BUOY.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.MAGENTA_BUOY.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.PINK_BUOY.get(), 5, 20);
+
 
         //registerItems();
         registerBlockEntities();

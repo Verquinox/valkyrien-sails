@@ -37,8 +37,6 @@ import java.util.Objects;
 public abstract class BaseHelmBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING;
     public static final Logger LOGGER = LoggerFactory.getLogger("base_helm_block");
-    private static final VoxelShape EW_BASE_SHAPE = Block.box(2,0,5,14,16,11);
-    private static final VoxelShape NS_BASE_SHAPE = Block.box(5,0,2,11,16,14);
     private static final VoxelShape NORTH_SHAPE = Shapes.or(Block.box(5,0,2,11,16,11), Block.box(0, 5, 11, 16, 21, 14)) ;
     private static final VoxelShape SOUTH_SHAPE = Shapes.or(Block.box(5,0,5,11,16,14), Block.box(0, 5, 2, 16, 21, 5));
     private static final VoxelShape EAST_SHAPE = Shapes.or(Block.box(5,0,5,14,16,11), Block.box(2, 5, 0, 5, 21, 16));

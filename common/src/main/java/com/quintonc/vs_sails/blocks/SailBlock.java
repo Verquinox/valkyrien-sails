@@ -3,6 +3,7 @@ package com.quintonc.vs_sails.blocks;
 import com.quintonc.vs_sails.ValkyrienSails;
 import com.quintonc.vs_sails.registration.SailsBlocks;
 import com.quintonc.vs_sails.ship.SailsShipControl;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -28,17 +29,10 @@ import org.valkyrienskies.core.api.ships.LoadedServerShip;
 import org.valkyrienskies.core.api.ships.ServerShip;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
-public class SailBlock extends Block {
-    public static final BooleanProperty SET = BooleanProperty.create("set");
+public class SailBlock extends SailToggleBlock {
+
     public static final BooleanProperty INVISIBLE = BooleanProperty.create("invisible");
-    public static final BooleanProperty NORTH = BooleanProperty.create("north");
-    public static final BooleanProperty EAST = BooleanProperty.create("east");
-    public static final BooleanProperty SOUTH = BooleanProperty.create("south");
-    public static final BooleanProperty WEST = BooleanProperty.create("west");
-    public static final BooleanProperty UP = BooleanProperty.create("up");
-    public static final BooleanProperty DOWN = BooleanProperty.create("down");
-//    protected static final Map<Direction, BooleanProperty> FACING_PROPERTIES;
-    //public static final DirectionProperty FACING;
+
     public static final Logger LOGGER = LoggerFactory.getLogger("sail_block");
     public static final VoxelShape SET_SHAPE = Block.box(0,0,0,16,16,16);
 
@@ -46,32 +40,11 @@ public class SailBlock extends Block {
 
     public SailBlock(Properties settings) {
         super(settings);
-        this.registerDefaultState(this.defaultBlockState().setValue(SET, true));
     }
 
-//    @SuppressWarnings("deprecation")
-//    public BlockState rotate(BlockState state, BlockRotation rotation) {
-//        return state.with(FACING, rotation.rotate(state.get(FACING)));
-//    }
-
-//    @SuppressWarnings("deprecation")
-//    public BlockState mirror(BlockState state, BlockMirror mirror) {
-//        return state.rotate(mirror.getRotation(state.get(FACING)));
-//    }
-
+    @Override
     public BlockState getStateForPlacement(BlockPlaceContext ctx) {
-        return this.defaultBlockState()
-                //.with(FACING, ctx.getHorizontalPlayerFacing().getOpposite())
-                .setValue(SET, true)
-                .setValue(INVISIBLE, false)
-                .setValue(NORTH, ctx.getLevel().getBlockState(ctx.getClickedPos().north()).is(this))
-                .setValue(EAST, ctx.getLevel().getBlockState(ctx.getClickedPos().east()).is(this))
-                .setValue(SOUTH, ctx.getLevel().getBlockState(ctx.getClickedPos().south()).is(this))
-                .setValue(WEST, ctx.getLevel().getBlockState(ctx.getClickedPos().west()).is(this))
-                .setValue(UP, ctx.getLevel().getBlockState(ctx.getClickedPos().above()).is(this))
-                .setValue(DOWN, ctx.getLevel().getBlockState(ctx.getClickedPos().below()).is(this))
-                ;
-
+        return super.getStateForPlacement(ctx).setValue(INVISIBLE, true);
     }
 
     @SuppressWarnings("deprecation")
@@ -128,51 +101,9 @@ public class SailBlock extends Block {
         }
     }
 
-    @SuppressWarnings("deprecation")
-    public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        if (!player.getItemInHand(InteractionHand.MAIN_HAND).is(this.asItem())) {
-            if (!world.isClientSide) {
-                //if the sail is set, stow the sail, else set it
-                if (state.getValue(SET)) {
-                    state = state.setValue(SET, false);
-                } else {
-                    state = state.setValue(SET, true);
-                }
-                world.setBlock(pos, state, 10);
-                world.blockUpdated(pos, this);
-                updateDiagonals(world, pos, this);
-            } else {
-                boolean bl = state.getValue(SET);
-                world.playSound(player, pos, bl ? SoundEvents.LEASH_KNOT_PLACE : SoundEvents.WOOL_PLACE, SoundSource.BLOCKS, 0.75F, world.getRandom().nextFloat() * 0.1F + 0.9F);
+    public void updateAdjacents(Level world, BlockPos sourcePos, Block sourceBlock) {
+        world.blockUpdated(sourcePos, sourceBlock);
 
-            }
-            return InteractionResult.sidedSuccess(world.isClientSide);
-        }
-
-        return InteractionResult.PASS;
-    }
-
-    @SuppressWarnings("deprecation")
-    public void neighborChanged(BlockState state, Level world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {
-        //LOGGER.info("neighborUpdate called!");
-        //LOGGER.info(" " + sourceBlock.getClass());
-
-        //if source block is a sail and is not air, check if can toggle state
-        if (sourceBlock instanceof SailBlock && !world.getBlockState(sourcePos).isAir()) {
-            //LOGGER.info(":)");
-
-            //if this block's set state does not match the source block's, change it to match
-            BlockState sourceState = world.getBlockState(sourcePos);
-            if (sourceState.hasProperty(SET) && sourceState.getValue(SET) != state.getValue(SET)) {
-                state = state.setValue(SET, sourceState.getValue(SET));
-                world.setBlock(pos, state, 10);
-                world.blockUpdated(pos, this);
-                updateDiagonals(world, pos, this);
-            }
-        }
-    }
-
-    public void updateDiagonals(Level world, BlockPos sourcePos, Block sourceBlock) {
         world.neighborChanged(sourcePos.offset(1, 1, 0), sourceBlock, sourcePos);
             //pos.x+1 pos.y+1 pos.z+1
             //pos.x+1 pos.y+1 pos.z-1
@@ -268,6 +199,10 @@ public class SailBlock extends Block {
         }
     }
 
+    public Item getSailItem() {
+        return this.asItem();
+    }
+
     @SuppressWarnings("deprecation")
     public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
         if (state.getValue(SET)) {
@@ -301,16 +236,10 @@ public class SailBlock extends Block {
         return RenderShape.MODEL;
     }
 
+    @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(SET);
+        super.createBlockStateDefinition(builder);
         builder.add(INVISIBLE);
-        builder.add(NORTH);
-        builder.add(EAST);
-        builder.add(SOUTH);
-        builder.add(WEST);
-        builder.add(UP);
-        builder.add(DOWN);
-        //FACING_PROPERTIES = (Map)ConnectingBlock.FACING_PROPERTIES.entrySet().stream().filter((entry) -> ((Direction)entry.getKey()).getAxis().isHorizontal()).collect(Util.toMap());
     }
 
     private static class StateUpdater {
