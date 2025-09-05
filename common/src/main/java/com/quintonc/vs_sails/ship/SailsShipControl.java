@@ -233,14 +233,6 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
             physShip1.setBuoyantFactor(1.0 + numBuoys * buoyStrength + numBallast * ballastStrength);
         }
 
-
-//        if (ship != null) { //fixme old code
-//            Vector3d rightingpos = new Vector3d(ship.getInertiaData().getCenterOfMassInShip());
-//            //rightingpos.y += ship.getShipAABB().maxY()-ship.getShipAABB().minY(); //oldcode
-//            rightingpos.y += numBallast*4; //newcode
-//            physShip1.applyInvariantForceToPos(new Vector3d(0, physShip1.getInertia().getShipMass(), 0), rightingpos);
-//        }
-
         //sail force implementation
         if (numSails > 0) {
             Vector3d sailForce = new Vector3d(

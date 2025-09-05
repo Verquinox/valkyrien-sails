@@ -188,7 +188,7 @@ public class SailBlock extends SailToggleBlock {
                 LoadedServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerLevel) world, pos);
                 if (ship != null) {
                     SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
-                    if (!newState.isAir() && !newState.getValue(SET) && state.getValue(SET) != newState.getValue(SET) && controller != null) {
+                    if (!newState.isAir() && newState.hasProperty(SET) && !newState.getValue(SET) && state.getValue(SET) != newState.getValue(SET) && controller != null) {
                         removeSailFromShip(world, pos, controller);
                     }
                     if (newState.isAir() && state.getValue(SET) && controller != null) {
