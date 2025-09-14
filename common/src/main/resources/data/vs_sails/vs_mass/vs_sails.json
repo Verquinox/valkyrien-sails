@@ -146,5 +146,9 @@
   {
     "block": "vs_sails:pink_buoy",
     "mass": 0.1
+  },
+  {
+    "block": "vs_sails:rope_block",
+    "mass": 0.1
   }
 ]
