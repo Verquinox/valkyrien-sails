@@ -1,9 +1,10 @@
 package com.quintonc.vs_sails;
 
-import com.quintonc.vs_sails.networking.WindModNetworking;
+import com.quintonc.vs_sails.networking.PacketHandler;
+import dev.architectury.event.events.common.TickEvent;
+import dev.architectury.networking.NetworkManager;
+import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
@@ -44,7 +45,8 @@ public class ServerWindManager extends WindManager {
         random = new Random();
 
         System.out.println("ServerWindManager Init");
-        ServerTickEvents.START_WORLD_TICK.register(ServerWindManager::onWorldTick);
+        //ServerTickEvents.START_WORLD_TICK.register(ServerWindManager::onWorldTick);
+        TickEvent.SERVER_LEVEL_PRE.register(ServerWindManager::onWorldTick);
     }
 
     private static void onWorldTick(ServerLevel world) {
@@ -84,30 +86,19 @@ public class ServerWindManager extends WindManager {
         }
         windStrength /= 2;
 
-//        if (abs(windStrength) < minWindSpeed) {
-//            windStrength = minWindSpeed;
-//        }
-
-        FriendlyByteBuf buf1 = PacketByteBufs.create();
-        buf1.writeFloat(windStrength);
-
-        buf1.readerIndex(0);
-
-        FriendlyByteBuf buf2 = PacketByteBufs.create();
-        buf2.writeFloat(windDirection);
-
-        buf2.readerIndex(0);
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
 
         world.getServer().getPlayerList().getPlayers().forEach(serverPlayerEntity -> {
             if (serverPlayerEntity.serverLevel().dimensionTypeId() == BuiltinDimensionTypes.OVERWORLD) {
-                assert WindModNetworking.WINDSTRENGTHS2CPACKET != null;
-                ServerPlayNetworking.send(serverPlayerEntity, WindModNetworking.WINDSTRENGTHS2CPACKET, buf1);
-                assert WindModNetworking.WINDDIRECTIONS2CPACKET != null;
-                ServerPlayNetworking.send(serverPlayerEntity, WindModNetworking.WINDDIRECTIONS2CPACKET, buf2);
-                //System.out.println("Sending packet to " + serverPlayerEntity.getScoreboardName());
-                //System.out.println("windStrength: " + windStrength + " timeInfluence: " + timeInfluence);
-                //System.out.println("timeFactor: " + timeFactor + " randomFactor: " + randomFactor);
-                //System.out.println("windDirection: " + windDirection);
+
+                buf.writeFloat(windStrength);
+                buf.writeFloat(windDirection);
+                NetworkManager.sendToPlayers(world.getServer().getPlayerList().getPlayers(), PacketHandler.WIND_DATA_PACKET, buf);
+
+//                System.out.println("Sending packet to " + serverPlayerEntity.getScoreboardName());
+//                System.out.println("windStrength: " + windStrength + " timeInfluence: " + timeInfluence);
+//                System.out.println("timeFactor: " + timeFactor + " randomFactor: " + randomFactor);
+//                System.out.println("windDirection: " + windDirection);
             }
         });
     }

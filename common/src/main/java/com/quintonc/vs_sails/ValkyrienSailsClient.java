@@ -1,16 +1,10 @@
 package com.quintonc.vs_sails;
 
 import com.quintonc.vs_sails.blocks.entity.renderer.HelmBlockEntityRenderer;
-import com.quintonc.vs_sails.client.particles.WindParticle;
 import com.quintonc.vs_sails.networking.PacketHandler;
-import com.quintonc.vs_sails.networking.WindModNetworking;
-import dev.architectury.networking.NetworkManager;
+import dev.architectury.event.events.client.ClientTickEvent;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
-import net.minecraft.world.entity.player.Player;
 
 public class ValkyrienSailsClient {
 
@@ -30,7 +24,8 @@ public class ValkyrienSailsClient {
         PacketHandler.register();
 
         if (!ValkyrienSails.weather2) {
-            ClientTickEvents.END_CLIENT_TICK.register(ModSounds::windSoundHandler);
+            //ClientTickEvents.END_CLIENT_TICK.register(ModSounds::windSoundHandler);
+            ClientTickEvent.CLIENT_POST.register(ModSounds::windSoundHandler);
         }
 
 

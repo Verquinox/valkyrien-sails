@@ -6,8 +6,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 public class WindManager {
-    protected static float windDirection;
-    protected static float windStrength;
+    public static float windDirection;
+    public static float windStrength;
     protected static float windGustiness;
     protected static float windShear;
 

@@ -1,44 +1,34 @@
 package com.quintonc.vs_sails;
 
-import com.quintonc.vs_sails.blocks.*;
 import com.quintonc.vs_sails.blocks.entity.HelmBlockEntity;
 import com.quintonc.vs_sails.blocks.entity.RedstoneHelmBlockEntity;
 import com.quintonc.vs_sails.config.ConfigUtils;
-import com.quintonc.vs_sails.networking.WindModNetworking;
 import com.quintonc.vs_sails.registration.SailsBlocks;
 import com.quintonc.vs_sails.registration.SailsItems;
 import com.quintonc.vs_sails.ship.SailsShipControl;
+import dev.architectury.event.events.common.TickEvent;
+import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.platform.Platform;
 import dev.architectury.registry.CreativeTabRegistry;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.phys.Vec3;
-import org.apache.logging.log4j.core.jmx.Server;
-import org.joml.Vector3d;
 import org.joml.Vector3dc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.valkyrienskies.core.api.ships.ServerShip;
-import org.valkyrienskies.core.api.ships.Ship;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 import org.valkyrienskies.mod.common.util.IEntityDraggingInformationProvider;
 
@@ -82,15 +72,19 @@ public class ValkyrienSails {
         SailsBlocks.register();
         SailsItems.register();
 
-        ServerLifecycleEvents.SERVER_STARTED.register(ValkyrienSails::onServerStarted);
-        ServerTickEvents.START_WORLD_TICK.register(ValkyrienSails::onWorldTick);
+        //ServerLifecycleEvents.SERVER_STARTED.register(ValkyrienSails::onServerStarted);
+        //ServerTickEvents.START_WORLD_TICK.register(ValkyrienSails::onWorldTick);
+
+        LifecycleEvent.SERVER_STARTED.register(ValkyrienSails::onServerStarted);
+        TickEvent.SERVER_LEVEL_PRE.register(ValkyrienSails::onWorldTick);
+
 
         LOGGER.info("Sailing time.");
     }
 
     public static void InitializeVSWind(ServerLevel world) {
         LOGGER.info("The wind is blowing.");
-        sailsWind = true;
+        sailsWind = Boolean.parseBoolean(ConfigUtils.config.getOrDefault("wind-shows-no-sails","true")); //fixme unfinished
     }
 
     @SuppressWarnings("UnstableApiUsage")
@@ -144,7 +138,6 @@ public class ValkyrienSails {
         if (Boolean.parseBoolean(ConfigUtils.config.getOrDefault("enable-wind","true"))) {
             ServerWindManager.InitializeWind(server.overworld());
             ValkyrienSails.InitializeVSWind(server.overworld());
-            WindModNetworking.networkingInit();
         }
     }
 }
