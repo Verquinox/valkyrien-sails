@@ -2,7 +2,6 @@ package com.quintonc.vs_sails.blocks;
 
 import com.quintonc.vs_sails.ValkyrienSails;
 import com.quintonc.vs_sails.blocks.entity.BaseHelmBlockEntity;
-import com.quintonc.vs_sails.blocks.entity.HelmBlockEntity;
 import com.quintonc.vs_sails.blocks.entity.RedstoneHelmBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

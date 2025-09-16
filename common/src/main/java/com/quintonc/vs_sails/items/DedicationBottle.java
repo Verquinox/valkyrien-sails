@@ -1,6 +1,5 @@
 package com.quintonc.vs_sails.items;
 
-import com.quintonc.vs_sails.ValkyrienSails;
 import g_mungus.vlib.api.VLibGameUtils;
 import com.quintonc.vs_sails.registration.SailsItems;
 import net.minecraft.world.entity.player.Player;

@@ -2,35 +2,16 @@ package com.quintonc.vs_sails.blocks.entity;
 
 import com.quintonc.vs_sails.ValkyrienSails;
 import com.quintonc.vs_sails.config.ConfigUtils;
-import com.quintonc.vs_sails.networking.PacketHandler;
 import com.quintonc.vs_sails.registration.SailsBlocks;
 import com.quintonc.vs_sails.ship.SailsShipControl;
-import dev.architectury.networking.NetworkManager;
-import io.netty.buffer.Unpooled;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.commands.arguments.EntityAnchorArgument;
-import net.minecraft.world.entity.MoverType;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.phys.*;
 import net.minecraft.world.level.Level;
-import org.apache.logging.log4j.core.jmx.Server;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 import org.joml.Vector3dc;
 import org.joml.primitives.AABBic;
@@ -39,16 +20,9 @@ import org.slf4j.LoggerFactory;
 import org.valkyrienskies.core.api.ships.LoadedServerShip;
 import org.valkyrienskies.mod.api.SeatedControllingPlayer;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
-import org.valkyrienskies.mod.common.ValkyrienSkiesMod;
-import org.valkyrienskies.mod.common.entity.ShipMountingEntity;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.quintonc.vs_sails.blocks.HelmBlock.FACING;
 import static java.lang.Math.abs;
 import static java.lang.Math.sqrt;
-import static net.minecraft.world.level.block.Block.canSupportCenter;
 
 public class HelmBlockEntity extends BaseHelmBlockEntity {
 

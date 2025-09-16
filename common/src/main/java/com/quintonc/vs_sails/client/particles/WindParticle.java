@@ -3,7 +3,6 @@ package com.quintonc.vs_sails.client.particles;
 import com.quintonc.vs_sails.client.ClientWindManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.client.particle.*;

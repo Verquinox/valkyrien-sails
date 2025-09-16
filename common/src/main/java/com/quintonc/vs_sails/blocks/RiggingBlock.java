@@ -50,7 +50,7 @@ public class RiggingBlock extends CrossCollisionBlock {
 
     public boolean canConnect(BlockState state, boolean neighborIsFullSquare, Direction dir) {
         boolean bl = this.canConnectToRigging(state);
-        return !isExceptionForConnection(state) && neighborIsFullSquare || bl;
+        return !isExceptionForConnection(state) && neighborIsFullSquare || bl && !(state.getBlock() instanceof SailBlock);
     }
 
     private boolean canConnectToRigging(BlockState state) {
