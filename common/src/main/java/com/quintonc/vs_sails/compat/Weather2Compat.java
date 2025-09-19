@@ -8,10 +8,10 @@ import net.minecraft.world.level.Level;
 public class Weather2Compat {
 
     public static double getWindStrength(Level world, BlockPos pos) {
-        return (WindReader.getWindSpeed(world, pos)-90) % 360;
+        return WindReader.getWindSpeed(world, pos);
     }
 
     public static double getWindDirection(Level world, Vec3 pos) {
-        return WindReader.getWindAngle(world, pos);
+        return (WindReader.getWindAngle(world, pos)-270) % 360;
     }
 }

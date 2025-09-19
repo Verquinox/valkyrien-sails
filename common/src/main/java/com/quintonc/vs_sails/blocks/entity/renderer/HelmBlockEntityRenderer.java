@@ -2,6 +2,7 @@ package com.quintonc.vs_sails.blocks.entity.renderer;
 
 import com.quintonc.vs_sails.blocks.entity.BaseHelmBlockEntity;
 import com.quintonc.vs_sails.blocks.entity.HelmBlockEntity;
+import com.quintonc.vs_sails.networking.PacketHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -10,6 +11,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemDisplayContext;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.world.item.ItemStack;
@@ -40,12 +42,28 @@ public class HelmBlockEntityRenderer implements BlockEntityRenderer<BaseHelmBloc
 
 
 //        float diff = entity.wheelAngle - entity.renderWheelAngle;
-//        entity.renderWheelAngleVel += diff / (Minecraft.getInstance().getFps() * 1.2f);
-//        entity.renderWheelAngleVel *= 0.9f;
 //
 //
-//        float wheelRotation = entity.renderWheelAngle + entity.renderWheelAngleVel;
-//        entity.renderWheelAngle = wheelRotation;
+////        entity.renderWheelAngleVel += diff / (Minecraft.getInstance().getFps() * 1.2f);
+////        entity.renderWheelAngleVel *= 0.9f;
+////
+////
+////        float wheelRotation = entity.renderWheelAngle + entity.renderWheelAngleVel;
+////        entity.renderWheelAngle = wheelRotation;
+//        //String x = Minecraft.getInstance().getFps();
+//        float angleModifier = (float) BaseHelmBlockEntity.wheelInterval * (PacketHandler.serverTPS / Minecraft.getInstance().getFps());
+//        if (diff > 0 && entity.renderWheelAngleVel > 0) {
+//            entity.renderWheelAngle += angleModifier;
+//            entity.renderWheelAngleVel--;
+//        } else if (diff < 0 && entity.renderWheelAngleVel > 0) {
+//            entity.renderWheelAngle -= angleModifier;
+//            entity.renderWheelAngleVel--;
+//        } else {
+//            entity.renderWheelAngle = entity.wheelAngle;
+//        }
+//        Minecraft.getInstance().player.displayClientMessage(Component.literal("wA:"+entity.wheelAngle+" rwA: "+entity.renderWheelAngle+" mod: "+angleModifier+" tps: "+PacketHandler.serverTPS), true);
+//
+//        int wheelRotation = Math.round(entity.renderWheelAngle);
 
         ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
         ItemStack stack = entity.getRenderStack();
