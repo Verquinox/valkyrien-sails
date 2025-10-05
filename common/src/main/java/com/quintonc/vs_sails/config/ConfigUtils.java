@@ -1,6 +1,6 @@
 package com.quintonc.vs_sails.config;
 
-import net.fabricmc.loader.api.FabricLoader;
+import dev.architectury.platform.Platform;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -16,7 +16,8 @@ public class ConfigUtils {
 
     public static Map<String,String> loadConfigs()
     {
-        File file = new File(FabricLoader.getInstance().getConfigDir().toString() + "/vs_sails/config.cfg");
+
+        File file = new File(Platform.getConfigFolder().toString() + "/vs_sails/config.cfg");
         try {
             List<String> lines = FileUtils.readLines(file,"utf-8");
             lines.forEach(line->
@@ -35,10 +36,9 @@ public class ConfigUtils {
         return config;
     }
 
-    @SuppressWarnings("deprecation")
     public static void generateConfigs(List<String> input)
     {
-        File file = new File(FabricLoader.getInstance().getConfigDirectory().getPath() + "/vs_sails/config.cfg");
+        File file = new File(Platform.getConfigFolder().toString() + "/vs_sails/config.cfg");
 
         try {
             FileUtils.writeLines(file,input);
@@ -47,10 +47,9 @@ public class ConfigUtils {
         }
     }
 
-    @SuppressWarnings("deprecation")
     public static Map<String,String> checkConfigs()
     {
-        if(new File(FabricLoader.getInstance().getConfigDirectory().getPath() + "/vs_sails/config.cfg").exists())
+        if(new File(Platform.getConfigFolder().toString() + "/vs_sails/config.cfg").exists())
         {
             if (360 % Integer.parseInt(ConfigUtils.config.getOrDefault("wheel-interval","6")) != 0) {
                 throw new RuntimeException("WHEEL INTERVAL MUST BE A FACTOR OF 360. It is: "+
