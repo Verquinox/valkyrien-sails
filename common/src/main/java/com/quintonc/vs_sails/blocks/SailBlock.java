@@ -1,6 +1,14 @@
 package com.quintonc.vs_sails.blocks;
 
 import com.quintonc.vs_sails.ship.SailsShipControl;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -10,6 +18,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -21,22 +30,22 @@ import org.valkyrienskies.core.api.ships.LoadedServerShip;
 import org.valkyrienskies.core.api.ships.ServerShip;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
-public class SailBlock extends SailToggleBlock {
+public class SailBlock extends Block {
 
+    public static final BooleanProperty SET = BooleanProperty.create("set");
     public static final BooleanProperty INVISIBLE = BooleanProperty.create("invisible");
 
     public static final Logger LOGGER = LoggerFactory.getLogger("sail_block");
     public static final VoxelShape SET_SHAPE = Block.box(0,0,0,16,16,16);
 
-    public char sailType = 'x';
-
     public SailBlock(Properties settings) {
         super(settings);
+        this.registerDefaultState(this.defaultBlockState().setValue(SET, true).setValue(INVISIBLE, false));
     }
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext ctx) {
-        return super.getStateForPlacement(ctx).setValue(INVISIBLE, true);
+        return this.defaultBlockState().setValue(SET, true);
     }
 
     @SuppressWarnings("deprecation")
@@ -47,8 +56,7 @@ public class SailBlock extends SailToggleBlock {
 
         //LOGGER.info("Sail block is added");
         if (state.getValue(SET)) {
-            //state = state.with(INVISIBLE, false);
-            //LOGGER.info("invis false");
+
             world.setBlock(pos, state, 10);
 
             //if sail is in shipyard and the set state is changing, add it to the ship
@@ -67,28 +75,191 @@ public class SailBlock extends SailToggleBlock {
                 }
             }
 
-        } else {
-            //LOGGER.info("sail is not set!");
-            BlockState savedState = state;
+        }
+//        else {
+//            //LOGGER.info("sail is not set!");
+//            BlockState savedState = state;
+//
+//            StateUpdater updater = new StateUpdater(state);
+//            updater.updateStateForDir(world.getBlockState(pos.above()), UP);
+//            updater.updateStateForDir(world.getBlockState(pos.below()), DOWN);
+//            updater.updateStateForDir(world.getBlockState(pos.north()), NORTH);
+//            updater.updateStateForDir(world.getBlockState(pos.south()), SOUTH);
+//            updater.updateStateForDir(world.getBlockState(pos.east()), EAST);
+//            updater.updateStateForDir(world.getBlockState(pos.west()), WEST);
+//
+//            state = updater.state;
+//
+//            if (updater.invisCounter > 3) {
+//                //LOGGER.info("invis set to true!");
+//                state = state.setValue(INVISIBLE, true);
+//            } else {
+//                state = state.setValue(INVISIBLE, false);
+//            }
+//            if (savedState != state) {
+//                world.setBlock(pos, state, 10);
+//            }
+//        }
+    }
 
-            StateUpdater updater = new StateUpdater(state);
-            updater.updateStateForDir(world.getBlockState(pos.above()), UP);
-            updater.updateStateForDir(world.getBlockState(pos.below()), DOWN);
-            updater.updateStateForDir(world.getBlockState(pos.north()), NORTH);
-            updater.updateStateForDir(world.getBlockState(pos.south()), SOUTH);
-            updater.updateStateForDir(world.getBlockState(pos.east()), EAST);
-            updater.updateStateForDir(world.getBlockState(pos.west()), WEST);
-
-            state = updater.state;
-
-            if (updater.invisCounter > 3) {
-                //LOGGER.info("invis set to true!");
-                state = state.setValue(INVISIBLE, true);
+    @SuppressWarnings("deprecation")
+    public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        TagKey<Item> tag = TagKey.create(Registries.ITEM, new ResourceLocation("sail_togglers"));
+        if (!player.getItemInHand(InteractionHand.MAIN_HAND).is(tag)) {
+            if (!world.isClientSide) {
+                toggleFirstSail(state, world, pos);
             } else {
-                state = state.setValue(INVISIBLE, false);
+                boolean bl = state.getValue(SET);
+                world.playSound(player, pos, bl ? SoundEvents.LEASH_KNOT_PLACE : SoundEvents.WOOL_PLACE, SoundSource.BLOCKS, 0.75F, world.getRandom().nextFloat() * 0.1F + 0.9F);
+
             }
-            if (savedState != state) {
-                world.setBlock(pos, state, 10);
+            return InteractionResult.sidedSuccess(world.isClientSide);
+        }
+
+        return InteractionResult.PASS;
+    }
+
+    public void toggleFirstSail(BlockState state, Level world, BlockPos pos) { //todo make this called by rope as well
+        //if the sail is set, stow the sail, else set it
+        if (state.getValue(SET)) {
+            toggleOff(state, world, pos);
+        } else {
+            state = state.setValue(SET, true);
+            state = state.setValue(INVISIBLE, false);
+            world.setBlock(pos, state, 10);
+            updateAdjacents(world, pos, this);
+        }
+        //BlockState state2 = SailsBlocks.HELM_WHEEL.get().defaultBlockState();
+
+
+    }
+
+    public void toggleOff(BlockState state, Level world, BlockPos pos) {
+
+        if ( // a sail should become a "furled" sail if:
+                // it has a non-sail block directly or diagonally adjacent to it
+                //try horizontalFaceNeighbors.stream().anyMatch(offset -> isNotSailOrAir(world, pos.offset(offset)))
+                isNotSailOrAir(world, pos.offset(1, 1, 0))
+                        || isNotSailOrAir(world, pos.offset(-1, 1, 0))
+                        || isNotSailOrAir(world, pos.offset(0, 1, 1))
+                        || isNotSailOrAir(world, pos.offset(0, 1, -1))
+                        || isNotSailOrAir(world, pos.offset(1, -1, 0))
+                        || isNotSailOrAir(world, pos.offset(-1, -1, 0))
+                        || isNotSailOrAir(world, pos.offset(0, -1, 1))
+                        || isNotSailOrAir(world, pos.offset(0, -1, -1))
+                        || isNotSailOrAir(world, pos.above())
+                        || isNotSailOrAir(world, pos.below())
+                // it has air directly above it and fewer than 2 sail blocks diagonally above it
+                        //|| (world.getBlockState(pos.above()).isAir() && fewerThanXSailsHorizontally(world, pos.above(), 2))
+                // it has a sail above it, fewer than 3 sail blocks diagonally above it, and at least 2 sail blocks below it
+                        //|| (world.getBlockState(pos.above()).getBlock() instanceof SailBlock && fewerThanXSailsHorizontally(world, pos.above(), 3) && atLeastXSailsHorizontally(world, pos.below(), 2))
+        ) {
+            //fixme THE PROBLEM AREA
+            //if (atLeastXSailsHorizontally(world, pos.above(), 1) && !world.getBlockState(pos.above()).isAir()/*has a solid block above*/ && hasMismatchedOppositeAir(world, pos)) { //also check if sail has above and below perpendicular to the spar
+               // state = state.setValue(INVISIBLE, true);
+            //} else {
+            //if (atLeastXSailsHorizontally(world, pos.above(), 1) && atLeastXSailsHorizontally(world, pos.below(), 1)) {
+                //if (noBlockHereOrAboveOrBelow(world, pos.north()) != noBlockHereOrAboveOrBelow(world, pos.south()) || noBlockHereOrAboveOrBelow(world, pos.east()) != noBlockHereOrAboveOrBelow(world, pos.west())) {
+                //    state = state.setValue(INVISIBLE, true);
+                //} else {
+                //    state = state.setValue(INVISIBLE, false);
+                //}
+            //} else {
+                state = state.setValue(INVISIBLE, false);
+            //}
+
+            //}
+        } else {
+            state = state.setValue(INVISIBLE, true);
+        }
+
+        state = state.setValue(SET, false);
+        world.setBlock(pos, state, 10);
+        updateAdjacents(world, pos, this);
+    }
+
+    private boolean isNotSailOrAir(Level world, BlockPos pos) {
+        BlockState state = world.getBlockState(pos);
+        return !(state.getBlock() instanceof SailBlock || state.isAir() || !state.isCollisionShapeFullBlock(world, pos));
+    }
+
+    private boolean fewerThanXSailsHorizontally(Level world, BlockPos pos, int x) {
+        return countHorizontallyAdjacentSails(world, pos) < x;
+    }
+
+    private boolean atLeastXSailsHorizontally(Level world, BlockPos pos, int x) {
+        return countHorizontallyAdjacentSails(world, pos) >= x;
+    }
+
+    //private List<Vec3i> horizontalFaceNeighbors = List.of(Direction.NORTH.getNormal(), Direction.SOUTH.getNormal(), Direction.EAST.getNormal(), Direction.WEST.getNormal());
+    //private List<Vec3i> horizontalEdgeNeighbors = List.of(new Vec3i(1, 0, 1), new Vec3i());
+
+    private int countHorizontallyAdjacentSails(Level world, BlockPos pos) {
+        int n = 0;
+        if (world.getBlockState(pos).getBlock() instanceof SailBlock) {n++;}
+//        for (var offset : horizontalFaceNeighbors) {
+//            if (world.getBlockState(pos.offset(offset)).getBlock() instanceof SailBlock) {
+//                n++;
+//            }
+//        }
+        if (world.getBlockState(pos.north()).getBlock() instanceof SailBlock) {n++;}
+        if (world.getBlockState(pos.south()).getBlock() instanceof SailBlock) {n++;}
+        if (world.getBlockState(pos.east()).getBlock() instanceof SailBlock) {n++;}
+        if (world.getBlockState(pos.west()).getBlock() instanceof SailBlock) {n++;}
+        if (world.getBlockState(pos.east().north()).getBlock() instanceof SailBlock) {n++;}
+        if (world.getBlockState(pos.east().south()).getBlock() instanceof SailBlock) {n++;}
+        if (world.getBlockState(pos.west().north()).getBlock() instanceof SailBlock) {n++;}
+        if (world.getBlockState(pos.west().south()).getBlock() instanceof SailBlock) {n++;}
+        return n;
+    }
+
+    private boolean noBlockHereOrAboveOrBelow(Level world, BlockPos pos) {
+        return isNotSailOrAir(world, pos) && isNotSailOrAir(world, pos.above()) && isNotSailOrAir(world, pos.below());
+    }
+
+    private int countHorizontallyAdjacentSolids(Level world, BlockPos pos) {
+        int n = 0;
+        if (!world.getBlockState(pos).isAir()) {n++;}
+        if (!world.getBlockState(pos.north()).isAir()) {n++;}
+        if (!world.getBlockState(pos.south()).isAir()) {n++;}
+        if (!world.getBlockState(pos.east()).isAir()) {n++;}
+        if (!world.getBlockState(pos.west()).isAir()) {n++;}
+        if (!world.getBlockState(pos.east().north()).isAir()) {n++;}
+        if (!world.getBlockState(pos.east().south()).isAir()) {n++;}
+        if (!world.getBlockState(pos.west().north()).isAir()) {n++;}
+        if (!world.getBlockState(pos.west().south()).isAir()) {n++;}
+        return n;
+    }
+
+    //kill me
+    private boolean hasMismatchedOppositeAir(Level world, BlockPos pos) {
+        return ((world.getBlockState(pos.north()).isAir() != world.getBlockState(pos.south()).isAir()) && (world.getBlockState(pos.north()).getBlock() instanceof SailBlock || world.getBlockState(pos.south()).getBlock() instanceof SailBlock)) ||
+                ((world.getBlockState(pos.east()).isAir() != world.getBlockState(pos.west()).isAir()) && (world.getBlockState(pos.east()).getBlock() instanceof SailBlock || world.getBlockState(pos.west()).getBlock() instanceof SailBlock)) ||
+                ((world.getBlockState(pos.north().east()).isAir() != world.getBlockState(pos.south().west()).isAir()) && (world.getBlockState(pos.north().east()).getBlock() instanceof SailBlock || world.getBlockState(pos.south().west()).getBlock() instanceof SailBlock)) ||
+                ((world.getBlockState(pos.north().west()).isAir() != world.getBlockState(pos.south().east()).isAir()) && (world.getBlockState(pos.north().west()).getBlock() instanceof SailBlock || world.getBlockState(pos.south().east()).getBlock() instanceof SailBlock));
+    }
+
+    @SuppressWarnings("deprecation")
+    public void neighborChanged(BlockState state, Level world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {
+        //LOGGER.info("neighborUpdate called!");
+        //LOGGER.info(" " + sourceBlock.getClass());
+
+        //if source block is a sail and is not air, check if can toggle state
+        if ((sourceBlock instanceof SailBlock || sourceBlock instanceof SailToggleBlock) && !world.getBlockState(sourcePos).isAir()) {
+            //LOGGER.info(":)");
+
+            //if this block's set state does not match the source block's, change it to match
+            BlockState sourceState = world.getBlockState(sourcePos);
+            if (sourceState.hasProperty(SET) && sourceState.getValue(SET) != state.getValue(SET)) {
+                if (sourceState.getValue(SET)) {
+                    //toggle on
+                    state = state.setValue(SET, true);
+                    state = state.setValue(INVISIBLE, false);
+                    world.setBlock(pos, state, 10);
+                    updateAdjacents(world, pos, this);
+                } else {
+                    toggleOff(state, world, pos);
+                }
             }
         }
     }
@@ -125,7 +296,7 @@ public class SailBlock extends SailToggleBlock {
         if (!world.getBlockState(pos.north()).isAir() || !world.getBlockState(pos.south()).isAir()) {
             if (world.getBlockState(pos.east()).isAir() && world.getBlockState(pos.west()).isAir()) {
                 if (controller.shipDirection == Direction.EAST || controller.shipDirection == Direction.WEST) {
-                    return 's'; //todo use static final strings to make this more readable
+                    return 's'; //fixme use static final strings to make this more readable
                 } else {
                     return 'f';
                 }
@@ -147,7 +318,7 @@ public class SailBlock extends SailToggleBlock {
 
     private void addSailToShip(Level world, BlockPos pos, SailsShipControl controller) {
         //sails only add to one of the sail types when they have free opposite faces
-        sailType = calculateSailType(world, pos, controller);
+        char sailType = calculateSailType(world, pos, controller);
         if (sailType == 's') {
             controller.numSquareSails++;
             //LOGGER.info("(a) NUMSQ: " + controller.numSquareSails);
@@ -160,7 +331,7 @@ public class SailBlock extends SailToggleBlock {
     }
 
     private void removeSailFromShip(Level world, BlockPos pos, SailsShipControl controller) {
-        sailType = calculateSailType(world, pos, controller);
+        char sailType = calculateSailType(world, pos, controller);
         if (sailType == 's') {
             controller.numSquareSails--;
             //LOGGER.info("(r) NUMSQ: " + controller.numSquareSails);
@@ -195,21 +366,42 @@ public class SailBlock extends SailToggleBlock {
         return this.asItem();
     }
 
-    @SuppressWarnings("deprecation")
-    public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
-        if (state.getValue(SET)) {
-            return SET_SHAPE;
-        }
-        return Shapes.empty();
+    public boolean isFlammable(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
+        return true;
+    }
+
+    public int getFlammability(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
+        return 5;
+    }
+
+    public int getFireSpreadSpeed(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
+        return 20;
     }
 
     @SuppressWarnings("deprecation")
-    public VoxelShape getVisualShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
-        if (state.getValue(SET)) {
-            return SET_SHAPE;
+    public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+        if (state.getValue(INVISIBLE)) {
+            return Shapes.empty();
         }
-        return Shapes.empty();
+        return SET_SHAPE;
     }
+
+//    @SuppressWarnings("deprecation")
+//    public VoxelShape getVisualShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+//        if (state.getValue(INVISIBLE)) {
+//            return Shapes.empty();
+//        }
+//        return SET_SHAPE;
+//    }
+
+//    @Override
+//    public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+//        if (state.getValue(INVISIBLE)) {
+//            return Block.box(0,0,0,16,16,16);
+//        } else {
+//            return SET_SHAPE;
+//        }
+//    }
 
     public boolean propagatesSkylightDown(BlockState state, BlockGetter world, BlockPos pos) {
         return !state.getValue(SET);
@@ -228,37 +420,36 @@ public class SailBlock extends SailToggleBlock {
         return RenderShape.MODEL;
     }
 
-    @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        super.createBlockStateDefinition(builder);
+        builder.add(SET);
         builder.add(INVISIBLE);
     }
 
-    private static class StateUpdater {
-        BlockState state;
-        int invisCounter = 0;
-
-        public StateUpdater(BlockState state) {
-            this.state = state;
-        }
-
-        public void updateStateForDir(BlockState neighborState, BooleanProperty direction) {
-            //LOGGER.info("state update called");
-            if (!neighborState.isAir()) {
-                if (neighborState.getBlock() instanceof SailBlock) {
-                    invisCounter++;
-                    //LOGGER.info("invis="+invisCounter);
-                    if (neighborState.getValue(INVISIBLE)) {
-                        state = state.setValue(direction, false);
-                    } else {
-                        state = state.setValue(direction, true);
-                    }
-                } else {
-                    state = state.setValue(direction, true);
-                }
-            } else {
-                state = state.setValue(direction, false);
-            }
-        }
-    }
+//    private static class StateUpdater {
+//        BlockState state;
+//        int invisCounter = 0;
+//
+//        public StateUpdater(BlockState state) {
+//            this.state = state;
+//        }
+//
+//        public void updateStateForDir(BlockState neighborState, BooleanProperty direction) {
+//            //LOGGER.info("state update called");
+//            if (!neighborState.isAir()) {
+//                if (neighborState.getBlock() instanceof SailBlock) {
+//                    invisCounter++;
+//                    //LOGGER.info("invis="+invisCounter);
+//                    if (neighborState.getValue(INVISIBLE)) {
+//                        state = state.setValue(direction, false);
+//                    } else {
+//                        state = state.setValue(direction, true);
+//                    }
+//                } else {
+//                    state = state.setValue(direction, true);
+//                }
+//            } else {
+//                state = state.setValue(direction, false);
+//            }
+//        }
+//    }
 }

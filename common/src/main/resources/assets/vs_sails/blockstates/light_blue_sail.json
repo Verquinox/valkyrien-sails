@@ -10,78 +10,19 @@
     },
     {
       "apply": {
+        "model": "vs_sails:block/sails/light_blue_sail"
+      },
+      "when": {
+        "set": "false",
+        "invisible": "false"
+      }
+    },
+    {
+      "apply": {
         "model": "vs_sails:block/sail_invis"
       },
       "when": {
-        "invisible": "true",
-        "set": "false"
-      }
-    },
-    {
-      "apply": {
-        "model": "vs_sails:block/sail_doused"
-      },
-      "when": {
-        "up": "true",
-        "invisible": "false",
-        "set": "false"
-      }
-    },
-    {
-      "apply": {
-        "model": "vs_sails:block/sail_doused",
-        "x": 180
-      },
-      "when": {
-        "down": "true",
-        "invisible": "false",
-        "set": "false"
-      }
-    },
-    {
-      "apply": {
-        "model": "vs_sails:block/sail_doused",
-        "x": 90
-      },
-      "when": {
-        "north": "true",
-        "invisible": "false",
-        "set": "false"
-      }
-    },
-    {
-      "apply": {
-        "model": "vs_sails:block/sail_doused",
-        "x": -90
-      },
-      "when": {
-        "south": "true",
-        "invisible": "false",
-        "set": "false"
-      }
-    },
-    {
-      "apply": {
-        "model": "vs_sails:block/sail_doused",
-        "x": 90,
-        "y": 90
-      },
-      "when": {
-        "east": "true",
-        "invisible": "false",
-        "set": "false"
-      }
-    },
-    {
-      "apply": {
-        "model": "vs_sails:block/sail_doused",
-        "x": 90,
-        "y": -90
-      },
-      "when": {
-        "west": "true",
-        "invisible": "false",
-        "set": "false"
+        "invisible": "true"
       }
     }
   ]

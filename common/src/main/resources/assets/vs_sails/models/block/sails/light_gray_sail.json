@@ -1,5 +1,5 @@
 {
-  "parent": "minecraft:block/cube_all",
+  "parent": "vs_sails:block/sail",
   "textures": {
     "all": "vs_sails:block/sails/light_gray_sail"
   }

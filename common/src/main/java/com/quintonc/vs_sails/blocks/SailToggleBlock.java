@@ -79,7 +79,7 @@ public abstract class SailToggleBlock extends Block {
         //LOGGER.info(" " + sourceBlock.getClass());
 
         //if source block is a sail and is not air, check if can toggle state
-        if (sourceBlock instanceof SailToggleBlock && !world.getBlockState(sourcePos).isAir()) {
+        if ((sourceBlock instanceof SailToggleBlock || sourceBlock instanceof SailBlock) && !world.getBlockState(sourcePos).isAir()) {
             //LOGGER.info(":)");
 
             //if this block's set state does not match the source block's, change it to match

@@ -1,6 +1,6 @@
 {
   "parent": "vs_sails:block/sail",
   "textures": {
-    "all": "vs_sails:block/sails/light_blue_sail"
+    "all": "vs_sails:block/sails/sail_block_furled"
   }
 }
