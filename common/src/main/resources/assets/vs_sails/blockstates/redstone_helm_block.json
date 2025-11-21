@@ -1,17 +1,62 @@
 {
   "variants": {
-    "facing=east": {
+    "facing=east,right=true,left=false": {
+      "model": "vs_sails:block/redstone_helm_block_base_right",
+      "y": 90
+    },
+    "facing=east,right=false,left=true": {
+      "model": "vs_sails:block/redstone_helm_block_base_left",
+      "y": 90
+    },
+    "facing=east,right=false,left=false": {
       "model": "vs_sails:block/redstone_helm_block_base",
       "y": 90
     },
-    "facing=north": {
+    "facing=east,right=true,left=true": {
+      "model": "vs_sails:block/redstone_helm_block_base",
+      "y": 90
+    },
+    "facing=north,right=true,left=false": {
+      "model": "vs_sails:block/redstone_helm_block_base_right"
+    },
+    "facing=north,right=false,left=true": {
+      "model": "vs_sails:block/redstone_helm_block_base_left"
+    },
+    "facing=north,right=false,left=false": {
       "model": "vs_sails:block/redstone_helm_block_base"
     },
-    "facing=south": {
+    "facing=north,right=true,left=true": {
+      "model": "vs_sails:block/redstone_helm_block_base"
+    },
+    "facing=south,right=true,left=false": {
+      "model": "vs_sails:block/redstone_helm_block_base_right",
+      "y": 180
+    },
+    "facing=south,right=false,left=true": {
+      "model": "vs_sails:block/redstone_helm_block_base_left",
+      "y": 180
+    },
+    "facing=south,right=false,left=false": {
       "model": "vs_sails:block/redstone_helm_block_base",
       "y": 180
     },
-    "facing=west": {
+    "facing=south,right=true,left=true": {
+      "model": "vs_sails:block/redstone_helm_block_base",
+      "y": 180
+    },
+    "facing=west,right=true,left=false": {
+      "model": "vs_sails:block/redstone_helm_block_base_right",
+      "y": 270
+    },
+    "facing=west,right=false,left=true": {
+      "model": "vs_sails:block/redstone_helm_block_base_left",
+      "y": 270
+    },
+    "facing=west,right=false,left=false": {
+      "model": "vs_sails:block/redstone_helm_block_base",
+      "y": 270
+    },
+    "facing=west,right=true,left=true": {
       "model": "vs_sails:block/redstone_helm_block_base",
       "y": 270
     }

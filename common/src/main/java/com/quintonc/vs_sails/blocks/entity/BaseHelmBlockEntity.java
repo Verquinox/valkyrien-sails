@@ -1,27 +1,42 @@
 package com.quintonc.vs_sails.blocks.entity;
 
 import com.quintonc.vs_sails.networking.PacketHandler;
+import com.quintonc.vs_sails.registration.SailsBlocks;
+import com.quintonc.vs_sails.registration.SailsItems;
 import dev.architectury.networking.NetworkManager;
 import io.netty.buffer.Unpooled;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.Clearable;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.ticks.ContainerSingleItem;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 import org.joml.Vector3dc;
@@ -32,11 +47,13 @@ import org.valkyrienskies.mod.common.entity.ShipMountingEntity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 import static com.quintonc.vs_sails.blocks.HelmBlock.FACING;
 import static java.lang.Math.sqrt;
 
-public abstract class BaseHelmBlockEntity extends BlockEntity {
+public abstract class BaseHelmBlockEntity extends BlockEntity implements Clearable, ContainerSingleItem {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("base_helm_entity");
 
@@ -48,8 +65,11 @@ public abstract class BaseHelmBlockEntity extends BlockEntity {
     public float renderWheelAngleVel = 0;
     public static int maxAngle;
 
+    private final NonNullList<ItemStack> items;
+
     public BaseHelmBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
+        this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
     }
 
     public boolean startRiding(Player player, boolean force, BlockPos pos, BlockState state, ServerLevel world) {
@@ -167,17 +187,21 @@ public abstract class BaseHelmBlockEntity extends BlockEntity {
 
     @Override
     protected void saveAdditional(CompoundTag pTag) {
-        pTag.putInt("wheel_angle", wheelAngle);
         super.saveAdditional(pTag);
+        if (!this.getFirstItem().isEmpty()) {
+            pTag.put("wheel_item", this.getFirstItem().save(new CompoundTag()));
+        }
+        pTag.putInt("wheel_angle", wheelAngle);
     }
 
     @Override
     public void load(CompoundTag pTag) {
         super.load(pTag);
+        if (pTag.contains("wheel_item", 10)) {
+            this.items.set(0, ItemStack.of(pTag.getCompound("wheel_item")));
+        }
         wheelAngle = pTag.getInt("wheel_angle");
     }
-
-    public abstract ItemStack getRenderStack();
 
     public int getWheelAngle() {
         return wheelAngle;
@@ -199,6 +223,64 @@ public abstract class BaseHelmBlockEntity extends BlockEntity {
     @Override
     public CompoundTag getUpdateTag() {
         return saveWithoutMetadata();
+    }
+
+    @Override
+    public ItemStack getItem(int slot) {
+        return this.items.get(slot);
+    }
+
+    @Override
+    public ItemStack removeItem(int slot, int amount) {
+        ItemStack itemStack = Objects.requireNonNullElse(this.items.get(slot), ItemStack.EMPTY);
+        this.items.set(slot, ItemStack.EMPTY);
+        if (!itemStack.isEmpty()) {
+            //this.setHasRecordBlockState((Entity)null, false);
+            this.setChanged();
+        }
+
+        return itemStack;
+    }
+
+    @Override
+    public void setItem(int slot, ItemStack stack) {
+        TagKey<Item> tag = TagKey.create(Registries.ITEM, new ResourceLocation("helm_wheels"));
+        if (stack.is(tag) && this.level != null) {
+            this.items.set(slot, stack);
+            //this.setHasRecordBlockState((Entity)null, true);
+            if (!level.isClientSide) {
+                FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+                buf.writeItem(stack);
+                buf.writeBlockPos(this.getBlockPos());
+                NetworkManager.sendToPlayers(level.getServer().getPlayerList().getPlayers(), PacketHandler.WHEEL_PACKET, buf);
+            }
+            this.setChanged();
+        }
+    }
+
+    @Override
+    public boolean stillValid(Player player) {
+        return Container.stillValidBlockEntity(this, player);
+    }
+
+    public boolean canPlaceItem(int index, ItemStack stack) {
+        TagKey<Item> tag = TagKey.create(Registries.ITEM, new ResourceLocation("helm_wheels"));
+        return stack.is(tag) && this.getItem(index).isEmpty();
+    }
+
+    public void dropWheel() {
+        if (this.level != null && !this.level.isClientSide) {
+            BlockPos blockPos = this.getBlockPos();
+            ItemStack itemStack = this.getFirstItem();
+            if (!itemStack.isEmpty()) {
+                this.removeFirstItem();
+                Vec3 vec3 = Vec3.atLowerCornerWithOffset(blockPos, 0.5, 1.01, 0.5).offsetRandom(this.level.random, 0.7F);
+                ItemStack itemStack2 = itemStack.copy();
+                ItemEntity itemEntity = new ItemEntity(this.level, vec3.x(), vec3.y(), vec3.z(), itemStack2);
+                itemEntity.setDefaultPickUpDelay();
+                this.level.addFreshEntity(itemEntity);
+            }
+        }
     }
 
 }

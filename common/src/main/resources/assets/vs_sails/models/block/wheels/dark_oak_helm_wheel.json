@@ -1,0 +1,7 @@
+{
+  "parent": "vs_sails:block/helm_wheel",
+  "textures": {
+    "0": "vs_sails:block/dark_oak_wheel",
+    "particle": "block/dark_oak_planks"
+  }
+}

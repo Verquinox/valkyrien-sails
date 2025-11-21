@@ -7,7 +7,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "vs_sails:spruce_helm_wheel"
+          "name": "vs_sails:redstone_helm_block"
         }
       ],
       "conditions": [

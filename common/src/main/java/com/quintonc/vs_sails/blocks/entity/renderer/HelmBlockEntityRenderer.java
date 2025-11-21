@@ -66,7 +66,8 @@ public class HelmBlockEntityRenderer implements BlockEntityRenderer<BaseHelmBloc
 //        int wheelRotation = Math.round(entity.renderWheelAngle);
 
         ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
-        ItemStack stack = entity.getRenderStack();
+        ItemStack stack = entity.getItem(0);
+        //Minecraft.getInstance().player.displayClientMessage(Component.literal("Helm item: "+ stack), true);
 
         matrices.pushPose();
         if (entity.getBlockState().getValue(FACING) == Direction.NORTH) {
@@ -95,11 +96,11 @@ public class HelmBlockEntityRenderer implements BlockEntityRenderer<BaseHelmBloc
             matrices.rotateAround(Axis.ZP.rotationDegrees(entity.wheelAngle % 360), 0, 0.3125f, 0);
 
         }
-        matrices.scale(1.6f, 1.6f, 1.6f);
+        //matrices.scale(1.6f, 1.6f, 1.6f);
 
         //rotate wheel towards direction it is facing
 
-        itemRenderer.renderStatic(stack, ItemDisplayContext.GUI, getLightLevel(entity.getLevel(),
+        itemRenderer.renderStatic(stack, ItemDisplayContext.NONE, getLightLevel(entity.getLevel(),
                 entity.getBlockPos()), OverlayTexture.NO_OVERLAY, matrices, vertexConsumers, entity.getLevel(), 1);
         //LOGGER.info("item rendered");
 

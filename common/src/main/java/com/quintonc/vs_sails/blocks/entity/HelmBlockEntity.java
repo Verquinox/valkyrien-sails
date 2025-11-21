@@ -6,6 +6,12 @@ import com.quintonc.vs_sails.registration.SailsBlocks;
 import com.quintonc.vs_sails.ship.SailsShipControl;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -115,10 +121,5 @@ public class HelmBlockEntity extends BaseHelmBlockEntity {
                 }
             }
         }
-    }
-
-    @Override
-    public ItemStack getRenderStack() {
-        return new ItemStack(SailsBlocks.HELM_WHEEL.get().asItem());
     }
 }

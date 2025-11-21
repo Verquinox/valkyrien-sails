@@ -1,18 +1,31 @@
 package com.quintonc.vs_sails.blocks;
 
 import com.quintonc.vs_sails.blocks.entity.BaseHelmBlockEntity;
+import com.quintonc.vs_sails.networking.PacketHandler;
 import com.quintonc.vs_sails.ship.SailsShipControl;
+import dev.architectury.networking.NetworkManager;
+import io.netty.buffer.Unpooled;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.JukeboxBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -35,6 +48,10 @@ public abstract class BaseHelmBlock extends BaseEntityBlock {
     private static final VoxelShape SOUTH_SHAPE = Shapes.or(Block.box(5,0,5,11,16,14), Block.box(0, 5, 2, 16, 21, 5));
     private static final VoxelShape EAST_SHAPE = Shapes.or(Block.box(5,0,5,14,16,11), Block.box(2, 5, 0, 5, 21, 16));
     private static final VoxelShape WEST_SHAPE = Shapes.or(Block.box(2,0,5,11,16,11), Block.box(11, 5, 0, 14, 21, 16));
+    private static final VoxelShape NORTH_BASE = Block.box(5,0,2,11,16,11);
+    private static final VoxelShape SOUTH_BASE = Block.box(5,0,5,11,16,14);
+    private static final VoxelShape EAST_BASE = Block.box(5,0,5,14,16,11);
+    private static final VoxelShape WEST_BASE = Block.box(2,0,5,11,16,11);
 
     public BaseHelmBlock(Properties settings) {
         super(settings);
@@ -47,17 +64,30 @@ public abstract class BaseHelmBlock extends BaseEntityBlock {
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
-        switch ((state.getValue(FACING))) {
-            case NORTH:
-            default:
-                return NORTH_SHAPE;
-            case SOUTH:
-                return SOUTH_SHAPE;
-            case EAST:
-                return EAST_SHAPE;
-            case WEST:
-                return WEST_SHAPE;
+        if (world.getBlockEntity(pos) instanceof BaseHelmBlockEntity helmBlockEntity && helmBlockEntity.getFirstItem().isEmpty()) {
+            switch ((state.getValue(FACING))) {
+                case NORTH:
+                    return NORTH_BASE;
+                case SOUTH:
+                    return SOUTH_BASE;
+                case EAST:
+                    return EAST_BASE;
+                case WEST:
+                    return WEST_BASE;
+            }
+        } else {
+            switch ((state.getValue(FACING))) {
+                case NORTH:
+                    return NORTH_SHAPE;
+                case SOUTH:
+                    return SOUTH_SHAPE;
+                case EAST:
+                    return EAST_SHAPE;
+                case WEST:
+                    return WEST_SHAPE;
+            }
         }
+        return NORTH_BASE;
     }
 
     @Override
@@ -108,19 +138,27 @@ public abstract class BaseHelmBlock extends BaseEntityBlock {
         } else {
             BlockEntity be = world.getBlockEntity(pos);
             if (be instanceof BaseHelmBlockEntity blockEntity) {
-                if (VSGameUtilsKt.isBlockInShipyard(world, pos)) {
-                    blockEntity.sit(player);
+                ItemStack heldItem = player.getItemInHand(InteractionHand.MAIN_HAND);
+                if (!blockEntity.getFirstItem().isEmpty()) {
+                    if (VSGameUtilsKt.isBlockInShipyard(world, pos)) {
+                        blockEntity.sit(player);
 
-                } else {
-                    //todo make this properly work with non 360 factors (the two methods)
-                    if (player.isShiftKeyDown()) {
-                        blockEntity.rotateWheelLeft(state, (ServerLevel)world, pos);
                     } else {
-                        blockEntity.rotateWheelRight(state, (ServerLevel)world, pos);
+                        //todo make this properly work with non 360 factors (the two methods)
+                        if (player.isShiftKeyDown()) {
+                            blockEntity.rotateWheelLeft(state, (ServerLevel)world, pos);
+                        } else {
+                            blockEntity.rotateWheelRight(state, (ServerLevel)world, pos);
+                        }
+                        player.displayClientMessage(Component.literal("Angle: "+ blockEntity.wheelAngle), true);
                     }
-                    //player.displayClientMessage(Component.literal("Angle: "+ (state.getValue(WHEEL_ANGLE) + (blockEntity.rotations - 1) * 360) + " Rotations: " + blockEntity.rotations), true);
-                    player.displayClientMessage(Component.literal("Angle: "+ blockEntity.wheelAngle), true);
+                } else if (blockEntity.canPlaceItem(0, heldItem)) {
+                    blockEntity.setItem(0, heldItem.copyWithCount(1));
+                    world.playSound(null, pos.below(), SoundEvents.WOOD_PLACE,
+                            SoundSource.BLOCKS, 1.5f, world.getRandom().nextFloat() * 0.1F + 0.9F);
+                    heldItem.shrink(1);
                 }
+
                 return InteractionResult.sidedSuccess(false);
             }
         }
@@ -137,6 +175,13 @@ public abstract class BaseHelmBlock extends BaseEntityBlock {
                     assert controller != null;
                     controller.numHelms--;
                 }
+            }
+        }
+
+        if (!state.is(newState.getBlock())) {
+            BlockEntity var7 = world.getBlockEntity(pos);
+            if (var7 instanceof BaseHelmBlockEntity helmBlockEntity) {
+                helmBlockEntity.dropWheel();
             }
         }
 

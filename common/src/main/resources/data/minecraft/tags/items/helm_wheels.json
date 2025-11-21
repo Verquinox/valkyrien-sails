@@ -1,9 +1,7 @@
 {
-  "replace": false,
   "values": [
-    "vs_sails:helm_block",
-    "vs_sails:rigging_block",
     "vs_sails:helm_wheel",
+    "vs_sails:redstone_helm_wheel",
     "vs_sails:oak_helm_wheel",
     "vs_sails:spruce_helm_wheel",
     "vs_sails:birch_helm_wheel",

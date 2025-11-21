@@ -16,6 +16,8 @@ import org.valkyrienskies.core.api.ships.LoadedServerShip;
 import org.valkyrienskies.mod.api.SeatedControllingPlayer;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
+import static com.quintonc.vs_sails.blocks.RedstoneHelmBlock.LEFT;
+import static com.quintonc.vs_sails.blocks.RedstoneHelmBlock.RIGHT;
 import static java.lang.Math.sqrt;
 
 public class RedstoneHelmBlockEntity extends BaseHelmBlockEntity {
@@ -64,11 +66,25 @@ public class RedstoneHelmBlockEntity extends BaseHelmBlockEntity {
                     }
                 }
             }
+            BlockEntity be = world.getBlockEntity(pos);
+            if (be instanceof RedstoneHelmBlockEntity blockEntity) {
+                if (state.is(SailsBlocks.REDSTONE_HELM_BLOCK.get())) {
+                    BlockState oldState = state;
+                    if (blockEntity.wheelAngle > 360) {
+                        state = state.setValue(LEFT, true);
+                        state = state.setValue(RIGHT, false);
+                    } else if (blockEntity.wheelAngle < 360) {
+                        state = state.setValue(LEFT, false);
+                        state = state.setValue(RIGHT, true);
+                    } else {
+                        state = state.setValue(LEFT, false);
+                        state = state.setValue(RIGHT, false);
+                    }
+                    if (!oldState.equals(state)) {
+                        world.setBlock(pos, state, 10);
+                    }
+                }
+            }
         }
-    }
-
-    @Override
-    public ItemStack getRenderStack() {
-        return new ItemStack(SailsBlocks.REDSTONE_HELM_WHEEL.get().asItem());
     }
 }

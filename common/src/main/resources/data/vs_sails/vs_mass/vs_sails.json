@@ -4,6 +4,42 @@
     "mass": 480
   },
   {
+    "block": "vs_sails:helm_wheel",
+    "mass": 240
+  },
+  {
+    "block": "vs_sails:redstone_helm_block",
+    "mass": 480
+  },
+  {
+    "block": "vs_sails:redstone_helm_wheel",
+    "mass": 240
+  },
+  {
+    "block": "vs_sails:oak_helm_wheel",
+    "mass": 240
+  },
+  {
+    "block": "vs_sails:spruce_helm_wheel",
+    "mass": 240
+  },
+  {
+    "block": "vs_sails:birch_helm_wheel",
+    "mass": 240
+  },
+  {
+    "block": "vs_sails:jungle_helm_wheel",
+    "mass": 240
+  },
+  {
+    "block": "vs_sails:dark_oak_helm_wheel",
+    "mass": 240
+  },
+  {
+    "block": "vs_sails:acacia_helm_wheel",
+    "mass": 240
+  },
+  {
     "block": "vs_sails:sail_block",
     "mass": 0.01
   },

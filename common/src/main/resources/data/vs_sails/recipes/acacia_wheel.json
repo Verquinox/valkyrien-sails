@@ -3,13 +3,13 @@
   "category": "functional",
   "key": {
     "I": {
-      "item": "minecraft:gold_ingot"
+      "item": "minecraft:iron_ingot"
     },
     "S": {
       "item": "minecraft:stick"
     },
     "X": {
-      "item": "minecraft:dark_oak_planks"
+      "item": "minecraft:acacia_planks"
     }
   },
   "pattern": [
@@ -18,7 +18,7 @@
     "SXS"
   ],
   "result": {
-    "item": "vs_sails:dark_oak_helm_wheel"
+    "item": "vs_sails:acacia_helm_wheel"
   },
   "show_notification": true
 }
