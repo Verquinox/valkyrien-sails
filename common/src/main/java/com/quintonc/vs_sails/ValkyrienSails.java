@@ -12,8 +12,6 @@ import dev.architectury.platform.Platform;
 import dev.architectury.registry.CreativeTabRegistry;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.Registries;
@@ -72,9 +70,6 @@ public class ValkyrienSails {
         SailsBlocks.register();
         SailsItems.register();
 
-        //ServerLifecycleEvents.SERVER_STARTED.register(ValkyrienSails::onServerStarted);
-        //ServerTickEvents.START_WORLD_TICK.register(ValkyrienSails::onWorldTick);
-
         LifecycleEvent.SERVER_STARTED.register(ValkyrienSails::onServerStarted);
         TickEvent.SERVER_LEVEL_PRE.register(ValkyrienSails::onWorldTick);
 
@@ -113,10 +108,12 @@ public class ValkyrienSails {
                                 SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
                                 if (controller != null) {
                                     //serverPlayerEntity.displayClientMessage(ship.getAttachment(SailsShipControl.class).message, true);
-                                    if (player.getDraggingInformation().getTicksSinceStoodOnShip() < 100) {
-                                        Vector3dc shipPos = ship.getTransform().getPositionInWorld(); //fixme make sure this is the world pos of the ship
-                                        double windDir = Math.toRadians(ServerWindManager.getWindDirection(world, new Vec3(shipPos.x(), shipPos.y(), shipPos.z()))+180);
-                                        world.sendParticles(serverPlayerEntity, ValkyrienSails.WIND_PARTICLE, false, serverPlayerEntity.getX()+15*Math.sin(windDir), serverPlayerEntity.getY()+25, serverPlayerEntity.getZ()+15*Math.sin(windDir), 10, 20, 10, 20, 0);
+                                    if (controller.numSails > 0) {
+                                        if (player.getDraggingInformation().getTicksSinceStoodOnShip() < 100) {
+                                            Vector3dc shipPos = ship.getTransform().getPositionInWorld(); //fixme make sure this is the world pos of the ship
+                                            double windDir = Math.toRadians(ServerWindManager.getWindDirection(world, new Vec3(shipPos.x(), shipPos.y(), shipPos.z()))+180);
+                                            world.sendParticles(serverPlayerEntity, ValkyrienSails.WIND_PARTICLE, false, serverPlayerEntity.getX()+15*Math.sin(windDir), serverPlayerEntity.getY()+25, serverPlayerEntity.getZ()+15*Math.sin(windDir), 10, 20, 10, 20, 0);
+                                        }
                                     }
                                 }
                             }
