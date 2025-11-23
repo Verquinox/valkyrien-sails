@@ -1,11 +1,11 @@
 {
   "variants": {
     "facing=east": {
-      "model": "vs_sails:block/oak_helm_wheel",
+      "model": "vs_sails:block/wheels/oak_helm_wheel",
       "y": 270
     },
     "facing=north": {
-      "model": "vs_sails:block/oak_helm_wheel",
+      "model": "vs_sails:block/wheels/oak_helm_wheel",
       "y": 180
     },
     "facing=south": {

@@ -137,6 +137,7 @@
 			}
 		}
 	],
+	"gui_light": "front",
 	"display": {
 		"firstperson_righthand": {
 			"scale": [0.625, 0.625, 0.625]
