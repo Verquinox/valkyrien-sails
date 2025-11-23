@@ -3,7 +3,7 @@
   "category": "functional",
   "key": {
     "S": {
-      "item": "minecraft:spruce_slab"
+      "item": "minecraft:acacia_slab"
     },
     "R": {
       "item": "vs_sails:rope"
@@ -14,7 +14,7 @@
     "SRS"
   ],
   "result": {
-    "item": "vs_sails:spruce_helm"
+    "item": "vs_sails:acacia_helm"
   },
   "show_notification": true
 }

@@ -36,6 +36,13 @@ public class SailsBlocks {
 
     //public static RegistrySupplier<FurledSailBlock> FURLED_SAIL_BLOCK;
 
+    public static RegistrySupplier<HelmBlock> OAK_HELM;
+    public static RegistrySupplier<HelmBlock> SPRUCE_HELM;
+    public static RegistrySupplier<HelmBlock> BIRCH_HELM;
+    public static RegistrySupplier<HelmBlock> JUNGLE_HELM;
+    public static RegistrySupplier<HelmBlock> DARK_OAK_HELM;
+    public static RegistrySupplier<HelmBlock> ACACIA_HELM;
+
     public static RegistrySupplier<HelmWheel> OAK_HELM_WHEEL;
     public static RegistrySupplier<HelmWheel> SPRUCE_HELM_WHEEL;
     public static RegistrySupplier<HelmWheel> BIRCH_HELM_WHEEL;
@@ -89,6 +96,13 @@ public class SailsBlocks {
         PURPLE_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "purple_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion()));
         MAGENTA_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "magenta_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion()));
         PINK_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "pink_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion()));
+
+        OAK_HELM = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "oak_helm"), () -> new HelmBlock(BlockBehaviour.Properties.copy(Blocks.OAK_PLANKS).noOcclusion()));
+        SPRUCE_HELM = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "spruce_helm"), () -> new HelmBlock(BlockBehaviour.Properties.copy(Blocks.SPRUCE_PLANKS).noOcclusion()));
+        BIRCH_HELM = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "birch_helm"), () -> new HelmBlock(BlockBehaviour.Properties.copy(Blocks.BIRCH_PLANKS).noOcclusion()));
+        JUNGLE_HELM = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "jungle_helm"), () -> new HelmBlock(BlockBehaviour.Properties.copy(Blocks.JUNGLE_PLANKS).noOcclusion()));
+        DARK_OAK_HELM = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "dark_oak_helm"), () -> new HelmBlock(BlockBehaviour.Properties.copy(Blocks.DARK_OAK_PLANKS).noOcclusion()));
+        ACACIA_HELM = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "acacia_helm"), () -> new HelmBlock(BlockBehaviour.Properties.copy(Blocks.ACACIA_PLANKS).noOcclusion()));
 
         OAK_HELM_WHEEL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "oak_helm_wheel"), () -> new HelmWheel(BlockBehaviour.Properties.copy(Blocks.OAK_PLANKS).noOcclusion()));
         SPRUCE_HELM_WHEEL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "spruce_helm_wheel"), () -> new HelmWheel(BlockBehaviour.Properties.copy(Blocks.SPRUCE_PLANKS).noOcclusion()));
@@ -146,6 +160,13 @@ public class SailsBlocks {
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "magenta_sail"), () -> new BlockItem(MAGENTA_SAIL.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "pink_sail"), () -> new BlockItem(PINK_SAIL.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
 
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "oak_helm"), () -> new BlockItem(OAK_HELM.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "spruce_helm"), () -> new BlockItem(SPRUCE_HELM.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "birch_helm"), () -> new BlockItem(BIRCH_HELM.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "jungle_helm"), () -> new BlockItem(JUNGLE_HELM.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "dark_oak_helm"), () -> new BlockItem(DARK_OAK_HELM.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "acacia_helm"), () -> new BlockItem(ACACIA_HELM.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
+
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "oak_helm_wheel"), () -> new BlockItem(OAK_HELM_WHEEL.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "spruce_helm_wheel"), () -> new BlockItem(SPRUCE_HELM_WHEEL.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "birch_helm_wheel"), () -> new BlockItem(BIRCH_HELM_WHEEL.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
@@ -155,10 +176,10 @@ public class SailsBlocks {
 
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "rope"), () -> new BlockItem(ROPE_BLOCK.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
 
-        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "helm_block"), () -> new BlockItem(HELM_BLOCK.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
-        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "helm_wheel"), () -> new BlockItem(HELM_WHEEL.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "helm_block"), () -> new BlockItem(HELM_BLOCK.get(), new Item.Properties()));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "helm_wheel"), () -> new BlockItem(HELM_WHEEL.get(), new Item.Properties()));
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "redstone_helm_block"), () -> new BlockItem(REDSTONE_HELM_BLOCK.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
-        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "redstone_helm_wheel"), () -> new BlockItem(REDSTONE_HELM_WHEEL.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "redstone_helm_wheel"), () -> new BlockItem(REDSTONE_HELM_WHEEL.get(), new Item.Properties()));
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "rigging_block"), () -> new BlockItem(RIGGING_BLOCK.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "ballast_block"), () -> new BlockItem(BALLAST_BLOCK.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "magic_ballast_block"), () -> new BlockItem(MAGIC_BALLAST_BLOCK.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));

@@ -110,7 +110,15 @@ public class ValkyrienSailsFabric implements ModInitializer {
         HELM_BLOCK_ENTITY = Registry.register(
                 BuiltInRegistries.BLOCK_ENTITY_TYPE,
                 new ResourceLocation("vs_sails", "helm_block_entity"),
-                FabricBlockEntityTypeBuilder.create(HelmBlockEntity::new, SailsBlocks.HELM_BLOCK.get()).build()
+                FabricBlockEntityTypeBuilder.create(
+                        HelmBlockEntity::new,
+                        SailsBlocks.HELM_BLOCK.get(),
+                        SailsBlocks.OAK_HELM.get(),
+                        SailsBlocks.SPRUCE_HELM.get(),
+                        SailsBlocks.BIRCH_HELM.get(),
+                        SailsBlocks.JUNGLE_HELM.get(),
+                        SailsBlocks.DARK_OAK_HELM.get(),
+                        SailsBlocks.ACACIA_HELM.get()).build()
         );
         ValkyrienSails.HELM_BLOCK_ENTITY = HELM_BLOCK_ENTITY;
 

@@ -64,7 +64,15 @@ public class ValkyrienSailsForge {
 
     private void registerBlockEntities(IEventBus eventBus) {
 
-        HELM_BLOCK_ENTITY = BLOCK_ENTITIES.register("helm_block_entity", () -> BlockEntityType.Builder.of(HelmBlockEntity::new, SailsBlocks.HELM_BLOCK.get()).build(null));
+        HELM_BLOCK_ENTITY = BLOCK_ENTITIES.register("helm_block_entity", () -> BlockEntityType.Builder.of(
+                HelmBlockEntity::new,
+                SailsBlocks.HELM_BLOCK.get(),
+                SailsBlocks.OAK_HELM.get(),
+                SailsBlocks.SPRUCE_HELM.get(),
+                SailsBlocks.BIRCH_HELM.get(),
+                SailsBlocks.JUNGLE_HELM.get(),
+                SailsBlocks.DARK_OAK_HELM.get(),
+                SailsBlocks.ACACIA_HELM.get()).build(null));
         REDSTONE_HELM_BLOCK_ENTITY = BLOCK_ENTITIES.register("redstone_helm_block_entity", () -> BlockEntityType.Builder.of(RedstoneHelmBlockEntity::new, SailsBlocks.REDSTONE_HELM_BLOCK.get()).build(null));
 
         BLOCK_ENTITIES.register(eventBus);

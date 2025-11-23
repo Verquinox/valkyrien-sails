@@ -12,6 +12,30 @@
     "mass": 480
   },
   {
+    "block": "vs_sails:oak_helm",
+    "mass": 480
+  },
+  {
+    "block": "vs_sails:spruce_helm",
+    "mass": 480
+  },
+  {
+    "block": "vs_sails:birch_helm",
+    "mass": 480
+  },
+  {
+    "block": "vs_sails:jungle_helm",
+    "mass": 480
+  },
+  {
+    "block": "vs_sails:dark_oak_helm",
+    "mass": 480
+  },
+  {
+    "block": "vs_sails:acacia_helm",
+    "mass": 480
+  },
+  {
     "block": "vs_sails:redstone_helm_wheel",
     "mass": 240
   },
