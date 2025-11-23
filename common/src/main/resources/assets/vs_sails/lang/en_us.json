@@ -12,12 +12,12 @@
   "item.vs_sails.dedication_bottle": "Dedication Bottle",
   "sounds.vs_sails.wind_ambience": "Wind blows",
 
-  "block.vs_sails.oak_helm": "Oak Ship's Helm Base",
-  "block.vs_sails.spruce_helm": "Spruce Ship's Helm Base",
-  "block.vs_sails.birch_helm": "Birch Ship's Helm Base",
-  "block.vs_sails.jungle_helm": "Jungle Ship's Helm Base",
-  "block.vs_sails.dark_oak_helm": "Dark Oak Ship's Helm Base",
-  "block.vs_sails.acacia_helm": "Acacia Ship's Helm Base",
+  "block.vs_sails.oak_helm": "Oak Helm Base",
+  "block.vs_sails.spruce_helm": "Spruce Helm Base",
+  "block.vs_sails.birch_helm": "Birch Helm Base",
+  "block.vs_sails.jungle_helm": "Jungle Helm Base",
+  "block.vs_sails.dark_oak_helm": "Dark Oak Helm Base",
+  "block.vs_sails.acacia_helm": "Acacia Helm Base",
 
   "block.vs_sails.oak_helm_wheel": "Oak Ship's Wheel",
   "block.vs_sails.spruce_helm_wheel": "Spruce Ship's Wheel",
