@@ -4,13 +4,17 @@ import com.quintonc.vs_sails.ValkyrienSails;
 import com.quintonc.vs_sails.blocks.*;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class SailsBlocks {
     public static DeferredRegister<Block> BLOCKS = DeferredRegister.create(ValkyrienSails.MOD_ID, Registries.BLOCK);
@@ -79,23 +83,23 @@ public class SailsBlocks {
     public static RegistrySupplier<BuoyBlock> PINK_BUOY;
 
     public static void register() {
-        SAIL_BLOCK = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "sail_block"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion()));
-        WHITE_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "white_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion()));
-        LIGHT_GRAY_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "light_gray_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.LIGHT_GRAY_WOOL).noOcclusion()));
-        GRAY_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "gray_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.GRAY_WOOL).noOcclusion()));
-        BLACK_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "black_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.BLACK_WOOL).noOcclusion()));
-        BROWN_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "brown_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.BROWN_WOOL).noOcclusion()));
-        RED_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "red_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.RED_WOOL).noOcclusion()));
-        ORANGE_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "orange_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.ORANGE_WOOL).noOcclusion()));
-        YELLOW_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "yellow_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion()));
-        LIME_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "lime_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion()));
-        GREEN_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "green_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion()));
-        CYAN_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "cyan_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion().ignitedByLava()));
-        LIGHT_BLUE_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "light_blue_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion()));
-        BLUE_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "blue_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion()));
-        PURPLE_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "purple_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion()));
-        MAGENTA_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "magenta_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion()));
-        PINK_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "pink_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion()));
+        SAIL_BLOCK = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "sail_block"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
+        WHITE_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "white_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
+        LIGHT_GRAY_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "light_gray_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.LIGHT_GRAY_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
+        GRAY_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "gray_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.GRAY_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
+        BLACK_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "black_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.BLACK_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
+        BROWN_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "brown_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.BROWN_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
+        RED_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "red_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.RED_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
+        ORANGE_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "orange_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.ORANGE_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
+        YELLOW_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "yellow_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
+        LIME_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "lime_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
+        GREEN_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "green_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
+        CYAN_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "cyan_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion().ignitedByLava().isValidSpawn(SailsBlocks::never)));
+        LIGHT_BLUE_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "light_blue_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
+        BLUE_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "blue_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
+        PURPLE_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "purple_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
+        MAGENTA_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "magenta_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
+        PINK_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "pink_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
 
         OAK_HELM = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "oak_helm"), () -> new HelmBlock(BlockBehaviour.Properties.copy(Blocks.OAK_PLANKS).noOcclusion()));
         SPRUCE_HELM = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "spruce_helm"), () -> new HelmBlock(BlockBehaviour.Properties.copy(Blocks.SPRUCE_PLANKS).noOcclusion()));
@@ -111,7 +115,7 @@ public class SailsBlocks {
         DARK_OAK_HELM_WHEEL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "dark_oak_helm_wheel"), () -> new HelmWheel(BlockBehaviour.Properties.copy(Blocks.DARK_OAK_PLANKS).noOcclusion()));
         ACACIA_HELM_WHEEL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "acacia_helm_wheel"), () -> new HelmWheel(BlockBehaviour.Properties.copy(Blocks.ACACIA_PLANKS).noOcclusion()));
 
-        ROPE_BLOCK = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "rope_block"), () -> new RopeBlock(BlockBehaviour.Properties.copy(Blocks.BROWN_WOOL).noOcclusion()));
+        ROPE_BLOCK = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "rope_block"), () -> new RopeBlock(BlockBehaviour.Properties.copy(Blocks.BROWN_WOOL).noOcclusion().explosionResistance(0.0f).instabreak()));
 
         HELM_BLOCK = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "helm_block"), () -> new HelmBlock(BlockBehaviour.Properties.copy(Blocks.SPRUCE_PLANKS).noOcclusion()));
         HELM_WHEEL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "helm_wheel"), () -> new HelmWheel(BlockBehaviour.Properties.copy(Blocks.SPRUCE_PLANKS).noOcclusion()));
@@ -202,5 +206,9 @@ public class SailsBlocks {
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "magenta_buoy"), () -> new BlockItem(MAGENTA_BUOY.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "pink_buoy"), () -> new BlockItem(PINK_BUOY.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
 
+    }
+
+    private static Boolean never(BlockState state, BlockGetter blockGetter, BlockPos pos, EntityType<?> entity) {
+        return false;
     }
 }
