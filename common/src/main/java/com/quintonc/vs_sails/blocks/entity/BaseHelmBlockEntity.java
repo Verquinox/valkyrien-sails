@@ -199,6 +199,8 @@ public abstract class BaseHelmBlockEntity extends BlockEntity implements Clearab
         super.load(pTag);
         if (pTag.contains("wheel_item", 10)) {
             this.items.set(0, ItemStack.of(pTag.getCompound("wheel_item")));
+        } else if (this.getBlockState().is(SailsBlocks.HELM_BLOCK.get())) {
+            this.items.set(0, new ItemStack(SailsBlocks.SPRUCE_HELM_WHEEL.get(), 1));
         }
         wheelAngle = pTag.getInt("wheel_angle");
     }
