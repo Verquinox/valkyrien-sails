@@ -69,6 +69,7 @@ public class ConfigUtils {
         defaults.add("#Valkyrien Sails Configuration\n");
         defaults.add("#World Options");
         defaults.add("enable-wind = true #[Default: true]");
+        defaults.add("enable-aerodynamic-wind = true #[Default: true] Enables wind to impart forces on ships without sails");
         //defaults.add("wind-shows-no-sails = true #[Default: true] Whether wind particles show when there are no set sails");
         defaults.add("no-sail-zone = 90 #[Default: 90] Angular size in degrees of zone where sails lose most of their effectiveness");
         //defaults.add("min-wind-speed = 0.2");

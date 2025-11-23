@@ -33,7 +33,7 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
     modCompileOnly "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
 
-    modImplementation("maven.modrinth:vlib:1.20.1-0.0.11-alpha+fabric")
+    modImplementation("maven.modrinth:vlib:1.20.1-0.1.0+fabric")
     compileOnly "maven.modrinth:weather-storms-tornadoes:1.20.1-2.8.3"
     //modImplementation("maven.modrinth:vlib:1.20.1-0.0.9-alpha+fabric")
 
@@ -45,7 +45,7 @@ dependencies {
 
     // VS Core
     compileOnly("org.valkyrienskies.core:api:${rootProject.vs_core_version}")
-    compileOnly("org.valkyrienskies.core:api-game:${rootProject.vs_core_version}")
+    compileOnly("org.valkyrienskies.core:internal:${rootProject.vs_core_version}")
     compileOnly("org.valkyrienskies.core:util:${rootProject.vs_core_version}")
     compileOnly("org.valkyrienskies.core:impl:${rootProject.vs_core_version}")
 

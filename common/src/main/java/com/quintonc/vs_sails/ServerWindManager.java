@@ -1,5 +1,6 @@
 package com.quintonc.vs_sails;
 
+import com.quintonc.vs_sails.config.ConfigUtils;
 import com.quintonc.vs_sails.networking.PacketHandler;
 import dev.architectury.event.events.common.TickEvent;
 import dev.architectury.networking.NetworkManager;
@@ -8,6 +9,10 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
+import org.joml.Vector3d;
+import org.joml.Vector3dc;
+import org.valkyrienskies.core.api.ships.LoadedServerShip;
+import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
 import java.util.Arrays;
 import java.util.List;
@@ -101,6 +106,15 @@ public class ServerWindManager extends WindManager {
 //                System.out.println("windDirection: " + windDirection);
             }
         });
+
+        if (Boolean.parseBoolean(ConfigUtils.config.getOrDefault("enable-aerodynamic-wind","true"))) {
+            for (LoadedServerShip ship : VSGameUtilsKt.getShipObjectWorld(world).getLoadedShips()) {
+                if (ship.getDragController() != null)  {
+                    ship.getDragController().setWindDirection(new Vector3d(0, 0, -1).rotateY(Math.toRadians(windDirection)));
+                    ship.getDragController().setWindSpeed(windStrength);
+                }
+            }
+        }
     }
 
 

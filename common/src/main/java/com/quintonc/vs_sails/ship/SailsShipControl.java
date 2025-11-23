@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.quintonc.vs_sails.ServerWindManager;
 import com.quintonc.vs_sails.config.ConfigUtils;
+import kotlin.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.core.Direction;
@@ -16,12 +17,16 @@ import org.joml.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.valkyrienskies.core.api.ships.*;
+import org.valkyrienskies.core.api.world.PhysLevel;
 import org.valkyrienskies.core.impl.game.ships.PhysShipImpl;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
 import static java.lang.Math.*;
 
 import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -33,7 +38,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 )
 @SuppressWarnings({"deprecation","UnstableApiUsage"})
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
+public final class SailsShipControl implements ShipPhysicsListener, ServerTickListener {
 
     @JsonIgnore
     public static final Logger LOGGER = LoggerFactory.getLogger("ship_control");
@@ -92,14 +97,14 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
     public Direction shipDirection = Direction.NORTH;
 
     @JsonIgnore
-    public ServerShip ship = null;
+    public LoadedServerShip ship = null;
 
 
     @JsonIgnore
-    public static SailsShipControl getOrCreate(ServerShip ship, Level world) {
+    public static SailsShipControl getOrCreate(LoadedServerShip ship, Level world) {
         if (ship != null) {
             if (ship.getAttachment(SailsShipControl.class) == null) {
-                ship.saveAttachment(SailsShipControl.class, new SailsShipControl());
+                ship.setAttachment(SailsShipControl.class, new SailsShipControl());
             }
             SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
             //controller.ship = ship;
@@ -142,12 +147,12 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
         }
     }
 
-    public static SailsShipControl getOrCreate(ServerShip ship) {
+    public static SailsShipControl getOrCreate(LoadedServerShip ship) {
         return getOrCreate(ship, null);
     }
 
     @Override
-    public void applyForces(@NotNull PhysShip physShip) {
+    public void physTick(@NotNull PhysShip physShip, @NotNull PhysLevel physLevel) {
         //LOGGER.info("forces applied");
         PhysShipImpl physShip1 = (PhysShipImpl) physShip;
 
@@ -183,10 +188,10 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
 //        }
 
         //KEEL BEHAVIOR
-            Vector3dc linearVelocity = physShip1.getPoseVel().getVel();
+            Vector3dc linearVelocity = physShip1.getVelocity();
 
             Vector3d acceleration = linearVelocity.negate(new Vector3d());
-            Vector3d force = acceleration.mul(physShip1.getInertia().getShipMass());
+            Vector3d force = acceleration.mul(physShip1.getMass());
 
             force = physShip1.getTransform().getWorldToShip().transformDirection(force);
 
@@ -215,11 +220,11 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
                 );
             }
 
-            Vector3dc omega = physShip1.getPoseVel().getOmega();
+            Vector3dc omega = physShip1.getAngularVelocity();
             idealAngularAcceleration.sub(omega.x(), omega.y(), omega.z());
 
             Vector3d stabilizationTorque = physShip1.getTransform().getShipToWorldRotation().transform(
-                    physShip1.getInertia().getMomentOfInertiaTensor().transform(
+                    physShip1.getMomentOfInertia().transform(
                             physShip1.getTransform().getShipToWorldRotation().transformInverse(idealAngularAcceleration)
                     )
             );
@@ -283,6 +288,8 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
                 //message = Component.literal("w: "+f.format(shipw)+" x: "+f.format(shipx)+" y: "+f.format(shipy)+" z: "+f.format(shipz));
 
                 //message = Component.literal("angle: "+toDegrees(getShipYaw(physShip1.getTransform().getShipToWorldRotation())));
+
+                //message = Component.literal("WindSpeed: "+windStrength+" WindDirection: "+windDirection);
 
                 double squareWindModifier = numSquareSails/calculateWindAngleModifier(squareAngleBetween, PI-noSailZone);
                 double fnAWindModifier = numFnASails/calculateWindAngleModifier(fnaAngleBetween, PI-noSailZone);
@@ -363,6 +370,10 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
         data.pos = pos;
         rotPosForces.add(data);
         //LOGGER.info("applyrotforceTOPOS called");
+    }
+
+    public void updateRudderAngle(double angle) {
+
     }
 
     private double calculateWindAngleModifier(double windAngle, double noSail) {

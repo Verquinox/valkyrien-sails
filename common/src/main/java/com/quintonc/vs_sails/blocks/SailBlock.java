@@ -63,13 +63,13 @@ public class SailBlock extends Block {
             if (VSGameUtilsKt.isBlockInShipyard(world, pos) && (!oldState.is(this) || state.getValue(SET) != oldState.getValue(SET))) {
                 ServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerLevel) world, pos);
                 if (ship != null) {
-                    SailsShipControl controller = SailsShipControl.getOrCreate(ship, world);
+                    SailsShipControl controller = SailsShipControl.getOrCreate((LoadedServerShip) ship, world);
                     addSailToShip(world, pos, controller);
 
                 } else { //ship is being loaded from template
                     ship = VSGameUtilsKt.getShipManagingPos((ServerLevel) world, pos);
-                    if (ship != null) {
-                        SailsShipControl controller = SailsShipControl.getOrCreate(ship, world);
+                    if (ship instanceof LoadedServerShip) {
+                        SailsShipControl controller = SailsShipControl.getOrCreate((LoadedServerShip) ship, world);
                         addSailToShip(world, pos, controller);
                     }
                 }

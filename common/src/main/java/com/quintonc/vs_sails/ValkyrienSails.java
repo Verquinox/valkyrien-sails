@@ -26,7 +26,9 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3dc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.valkyrienskies.core.api.ships.LoadedServerShip;
 import org.valkyrienskies.core.api.ships.ServerShip;
+import org.valkyrienskies.mod.api.ValkyrienSkies;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 import org.valkyrienskies.mod.common.util.IEntityDraggingInformationProvider;
 
@@ -62,6 +64,16 @@ public class ValkyrienSails {
         LOGGER.info("Common Init");
         ConfigUtils.checkConfigs();
 
+        ValkyrienSkies.api().registerAttachment(ValkyrienSkies.api()
+                .newAttachmentRegistrationBuilder(SailsShipControl.class)
+                .useLegacySerializer()
+                .build()
+        );
+
+        ValkyrienSkies.api().getShipLoadEvent().on(ship -> {
+            SailsShipControl.getOrCreate(ship.getShip());
+        });
+
         SAILS_MAIN = TABS.register("sails_main", () -> CreativeTabRegistry.create(Component.translatable("category.sails_main"), () -> new ItemStack(SailsBlocks.HELM_BLOCK.get().asItem())));
         SAILS_COLORS = TABS.register("sails_colors", () -> CreativeTabRegistry.create(Component.translatable("category.sails_colors"), () -> new ItemStack(SailsBlocks.CYAN_BUOY.get().asItem())));
 
@@ -87,10 +99,9 @@ public class ValkyrienSails {
         if(tickCount == refreshRate) {
             tickCount = 0;
 
-            VSGameUtilsKt.getAllShips(world).forEach(ship -> {
-                ServerShip serverShip = (ServerShip) ship;
-                if (serverShip != null) {
-                    SailsShipControl controller = serverShip.getAttachment(SailsShipControl.class);
+            VSGameUtilsKt.getShipObjectWorld(world).getLoadedShips().forEach(ship -> {
+                if (ship != null) {
+                    SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
                     if (controller != null) {
                         controller.world = world;
                     }
@@ -103,7 +114,7 @@ public class ValkyrienSails {
                     if (serverPlayerEntity instanceof IEntityDraggingInformationProvider player) {
                         if (player.getDraggingInformation().getLastShipStoodOn() != null) {
                             long shipId = player.getDraggingInformation().getLastShipStoodOn();
-                            ServerShip ship = (ServerShip) VSGameUtilsKt.getAllShips(world).getById(shipId);
+                            LoadedServerShip ship = (LoadedServerShip) VSGameUtilsKt.getShipObjectWorld(world).getLoadedShips().getById(shipId);
                             if (ship != null) {
                                 SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
                                 if (controller != null) {
