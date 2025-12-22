@@ -202,7 +202,7 @@ public final class SailsShipControl implements ShipPhysicsListener, ServerTickLi
                 keelForce = new Vector3d(0,0,force.z()*4);
             }
 
-            physShip.applyRotDependentForce(keelForce);
+            if (numSails > 0) physShip.applyRotDependentForce(keelForce);
 
         if (numMagicBallast > 0) {
             Vector3d shipUp = new Vector3d(0.0, 1.0, 0.0);
