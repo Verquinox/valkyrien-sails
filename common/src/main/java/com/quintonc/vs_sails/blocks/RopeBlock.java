@@ -99,9 +99,9 @@ public class RopeBlock extends SailToggleBlock {
 
         @Override
     public void neighborChanged(BlockState state, Level world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {
-        if (!(sourceBlock instanceof SailBlock)) { //todo add config for allowing ropes to connect isolated sails
+        //if (!(sourceBlock instanceof SailBlock)) { //todo add config for allowing ropes to connect isolated sails
             super.neighborChanged(state, world, pos, sourceBlock, sourcePos, notify);
-        }
+        //}
     }
 
     @Override
