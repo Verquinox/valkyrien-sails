@@ -3,10 +3,10 @@
   "category": "functional",
   "key": {
     "W": {
-      "item": "vs_sails:redstone_helm_wheel"
+      "item": "minecraft:cobblestone"
     },
     "S": {
-      "item": "minecraft:dark_oak_slab"
+      "item": "minecraft:smooth_stone_slab"
     },
     "R": {
       "item": "vs_sails:rope"
