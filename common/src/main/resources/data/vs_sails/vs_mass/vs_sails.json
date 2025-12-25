@@ -1,67 +1,67 @@
 [
   {
     "block": "vs_sails:helm_block",
-    "mass": 480
+    "mass": 48
   },
   {
     "block": "vs_sails:helm_wheel",
-    "mass": 240
+    "mass": 24
   },
   {
     "block": "vs_sails:redstone_helm_block",
-    "mass": 480
+    "mass": 48
   },
   {
     "block": "vs_sails:oak_helm",
-    "mass": 480
+    "mass": 48
   },
   {
     "block": "vs_sails:spruce_helm",
-    "mass": 480
+    "mass": 48
   },
   {
     "block": "vs_sails:birch_helm",
-    "mass": 480
+    "mass": 48
   },
   {
     "block": "vs_sails:jungle_helm",
-    "mass": 480
+    "mass": 48
   },
   {
     "block": "vs_sails:dark_oak_helm",
-    "mass": 480
+    "mass": 48
   },
   {
     "block": "vs_sails:acacia_helm",
-    "mass": 480
+    "mass": 48
   },
   {
     "block": "vs_sails:redstone_helm_wheel",
-    "mass": 240
+    "mass": 24
   },
   {
     "block": "vs_sails:oak_helm_wheel",
-    "mass": 240
+    "mass": 24
   },
   {
     "block": "vs_sails:spruce_helm_wheel",
-    "mass": 240
+    "mass": 24
   },
   {
     "block": "vs_sails:birch_helm_wheel",
-    "mass": 240
+    "mass": 24
   },
   {
     "block": "vs_sails:jungle_helm_wheel",
-    "mass": 240
+    "mass": 24
   },
   {
     "block": "vs_sails:dark_oak_helm_wheel",
-    "mass": 240
+    "mass": 24
   },
   {
     "block": "vs_sails:acacia_helm_wheel",
-    "mass": 240
+    "mass": 24
   },
   {
     "block": "vs_sails:sail_block",
@@ -133,11 +133,11 @@
   },
   {
     "block": "vs_sails:rigging_block",
-    "mass": 10
+    "mass": 1.0
   },
   {
     "block": "vs_sails:ballast_block",
-    "mass": 20000
+    "mass": 2000.0
   },
   {
     "block": "vs_sails:buoy_block",
