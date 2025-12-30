@@ -35,7 +35,7 @@
 		"java": ">=17",
 		"fabric-api": "*",
 
-		"valkyrienskies": ">=2.1.3-beta.1+a52f38bd68",
+		"valkyrienskies": ">=${vs2_version}",
 		"vlib": ">=0.0.11"
 	},
 	"suggests": {
