@@ -447,7 +447,7 @@ public final class SailsShipControl implements ShipPhysicsListener, ServerTickLi
 
     private void deleteIfEmpty() { //fixme add call for this
         if (numBallast <= 0 && numSails <= 0 && numMagicBallast <= 0 && numBuoys <= 0 && numHelms == 0) {
-            ship.saveAttachment(SailsShipControl.class, null);
+            ship.setAttachment(SailsShipControl.class, null);
         }
     }
 
