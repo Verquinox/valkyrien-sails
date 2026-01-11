@@ -110,8 +110,8 @@ public class ServerWindManager extends WindManager {
         if (Boolean.parseBoolean(ConfigUtils.config.getOrDefault("enable-aerodynamic-wind","true"))) {
             for (LoadedServerShip ship : VSGameUtilsKt.getShipObjectWorld(world).getLoadedShips()) {
                 if (ship.getDragController() != null)  {
-                    ship.getDragController().setWindDirection(new Vector3d(0, 0, -1).rotateY(Math.toRadians(windDirection)));
-                    ship.getDragController().setWindSpeed(windStrength);
+                    ship.getDragController().setWindDirection(new Vector3d(0, 0, -1).rotateY(Math.toRadians(windDirection)),"default");
+                    ship.getDragController().setWindSpeed(windStrength,"default");
                 }
             }
         }
