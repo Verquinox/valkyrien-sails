@@ -56,14 +56,8 @@ dependencies {
     modImplementation("com.terraformersmc:modmenu:7.2.2")
     //modImplementation("me.shedaniel.cloth:cloth-config:${cloth_config_version}")
 
-    // VLib
-    modImplementation("maven.modrinth:vlib:1.20.1-0.1.1")
-
-    modImplementation("maven.modrinth:forge-config-api-port:v8.0.2-1.20.1-Fabric")
-
     // Valkyrien Skies 2
-    //modApi("org.valkyrienskies:valkyrienskies-120-fabric:${rootProject.vs2_version}")
-    modImplementation "maven.modrinth:valkyrien-skies:1.20.1-fabric-2.4.4"
+    modApi("org.valkyrienskies:valkyrienskies-120-fabric:${rootProject.vs2_version}")
 
     //modImplementation("maven.modrinth:vlib:1.20.1-0.0.9-alpha+fabric")
 

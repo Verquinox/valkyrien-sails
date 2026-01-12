@@ -62,18 +62,14 @@ mandatory=true
 versionRange="${minecraft_version}"
 ordering="NONE"
 side="BOTH"
+
 [[dependencies.vs_sails]]
 modId="valkyrienskies"
 mandatory=true
 versionRange="[${vs2_version},)"
 ordering="AFTER"
 side="BOTH"
-[[dependencies.vs_sails]]
-modId="vlib"
-mandatory=true
-versionRange="[0.0.11,)"
-ordering="AFTER"
-side="BOTH"
+
 [[dependencies.vs_sails]]
 modId = "architectury"
 mandatory = true
