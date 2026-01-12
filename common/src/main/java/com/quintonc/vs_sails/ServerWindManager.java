@@ -5,7 +5,6 @@ import com.quintonc.vs_sails.networking.PacketHandler;
 import dev.architectury.event.events.common.TickEvent;
 import dev.architectury.networking.NetworkManager;
 import io.netty.buffer.Unpooled;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;

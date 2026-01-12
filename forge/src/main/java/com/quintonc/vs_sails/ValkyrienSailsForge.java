@@ -2,9 +2,11 @@ package com.quintonc.vs_sails;
 
 import com.quintonc.vs_sails.blocks.entity.HelmBlockEntity;
 import com.quintonc.vs_sails.blocks.entity.RedstoneHelmBlockEntity;
+import com.quintonc.vs_sails.blocks.entity.renderer.HelmBlockEntityRenderer;
 import com.quintonc.vs_sails.client.particles.WindParticle;
 import com.quintonc.vs_sails.registration.SailsBlocks;
 import dev.architectury.platform.forge.EventBuses;
+import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
@@ -91,6 +93,12 @@ public class ValkyrienSailsForge {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
             ValkyrienSailsClient.clientInit();
+        }
+
+        @SubscribeEvent
+        public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
+            event.registerBlockEntityRenderer(ValkyrienSails.HELM_BLOCK_ENTITY, HelmBlockEntityRenderer::new);
+            event.registerBlockEntityRenderer(ValkyrienSails.REDSTONE_HELM_BLOCK_ENTITY, HelmBlockEntityRenderer::new);
         }
 
         @SubscribeEvent

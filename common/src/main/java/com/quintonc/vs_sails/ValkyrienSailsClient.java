@@ -3,7 +3,7 @@ package com.quintonc.vs_sails;
 import com.quintonc.vs_sails.blocks.entity.renderer.HelmBlockEntityRenderer;
 import com.quintonc.vs_sails.networking.PacketHandler;
 import dev.architectury.event.events.client.ClientTickEvent;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import dev.architectury.registry.client.rendering.BlockEntityRendererRegistry;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 
 public class ValkyrienSailsClient {
@@ -11,9 +11,6 @@ public class ValkyrienSailsClient {
     //private static KeyBinding testKeyBinding;
 
     public static void clientInit() {
-        BlockEntityRenderers.register(ValkyrienSails.HELM_BLOCK_ENTITY, HelmBlockEntityRenderer::new);
-        BlockEntityRenderers.register(ValkyrienSails.REDSTONE_HELM_BLOCK_ENTITY, HelmBlockEntityRenderer::new);
-
         //System.out.println("Client init");
         com.quintonc.vs_sails.client.ClientWindManager.InitializeWind();
 
