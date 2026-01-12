@@ -33,7 +33,6 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
     modCompileOnly "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
 
-    modImplementation("maven.modrinth:vlib:1.20.1-0.1.0+fabric")
     compileOnly "maven.modrinth:weather-storms-tornadoes:1.20.1-2.8.3"
     //modImplementation("maven.modrinth:vlib:1.20.1-0.0.9-alpha+fabric")
 
@@ -53,40 +52,3 @@ dependencies {
     api "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.10"
     api "org.jetbrains.kotlin:kotlin-reflect:1.9.10"
 }
-
-//publishing {
-//    publications {
-//        mavenCommon(MavenPublication) {
-//            groupId = "org.valkyrienskies.eureka"
-//            version = project.version
-//            artifactId = rootProject.archives_base_name + "-" + project.name
-//            from components.java
-//        }
-//    }
-//
-//    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-//    repositories {
-//        if (project.vs_maven_username && project.vs_maven_password) {
-//            println "Publishing to VS Maven"
-//            maven {
-//                url = project.vs_maven_url
-//                credentials {
-//                    username = project.vs_maven_username
-//                    password = project.vs_maven_password
-//                }
-//            }
-//        }
-//        // Add repositories to publish to here.
-//        if (System.getenv("GITHUB_ACTOR") != null) {
-//            println "Publishing to Github Packages"
-//            maven {
-//                name = "GitHubPackages"
-//                url = uri("https://maven.pkg.github.com/ValkyrienSkies/Eureka")
-//                credentials {
-//                    username = System.getenv("GITHUB_ACTOR")
-//                    password = System.getenv("GITHUB_TOKEN")
-//                }
-//            }
-//        }
-//    }
-//}
