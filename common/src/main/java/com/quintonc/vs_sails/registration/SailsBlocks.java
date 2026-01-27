@@ -64,6 +64,9 @@ public class SailsBlocks {
     public static RegistrySupplier<BallastBlock> BALLAST_BLOCK;
     public static RegistrySupplier<MagicBallastBlock> MAGIC_BALLAST_BLOCK;
 
+    public static RegistrySupplier<CapstanBlock> CAPSTAN_BLOCK;
+    public static RegistrySupplier<AnchorBlock> ANCHOR_BLOCK;
+
     public static RegistrySupplier<BuoyBlock> BUOY_BLOCK;
     public static RegistrySupplier<BuoyBlock> WHITE_BUOY;
     public static RegistrySupplier<BuoyBlock> LIGHT_GRAY_BUOY;
@@ -124,6 +127,9 @@ public class SailsBlocks {
         RIGGING_BLOCK = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "rigging_block"), () -> new RiggingBlock(BlockBehaviour.Properties.copy(Blocks.DARK_OAK_FENCE)));
         BALLAST_BLOCK = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "ballast_block"), () -> new BallastBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).explosionResistance(0.0f)));
         MAGIC_BALLAST_BLOCK = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "magic_ballast_block"), () -> new MagicBallastBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).explosionResistance(0.0f)));
+
+        CAPSTAN_BLOCK = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "capstan_block"), () -> new CapstanBlock(BlockBehaviour.Properties.copy(Blocks.ANVIL)));
+        ANCHOR_BLOCK = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "anchor"), () -> new AnchorBlock(BlockBehaviour.Properties.copy(Blocks.ANVIL)));
 
         BUOY_BLOCK = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "buoy_block"), () -> new BuoyBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).explosionResistance(0.0f)));
         WHITE_BUOY = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "white_buoy"), () -> new BuoyBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).explosionResistance(0.0f)));
@@ -187,6 +193,9 @@ public class SailsBlocks {
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "rigging_block"), () -> new BlockItem(RIGGING_BLOCK.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "ballast_block"), () -> new BlockItem(BALLAST_BLOCK.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "magic_ballast_block"), () -> new BlockItem(MAGIC_BALLAST_BLOCK.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
+
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "capstan_block"), () -> new BlockItem(CAPSTAN_BLOCK.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "anchor"), () -> new BlockItem(ANCHOR_BLOCK.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
 
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "buoy_block"), () -> new BlockItem(BUOY_BLOCK.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "white_buoy"), () -> new BlockItem(WHITE_BUOY.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));

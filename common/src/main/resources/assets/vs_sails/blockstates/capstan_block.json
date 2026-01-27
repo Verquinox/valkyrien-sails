@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "vs_sails:block/capstan_block"
+    }
+  }
+}
