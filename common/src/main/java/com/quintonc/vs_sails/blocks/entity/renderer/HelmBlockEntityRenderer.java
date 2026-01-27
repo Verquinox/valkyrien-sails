@@ -33,7 +33,7 @@ public class HelmBlockEntityRenderer implements BlockEntityRenderer<BaseHelmBloc
     public static final Logger LOGGER = LoggerFactory.getLogger("helm_block_renderer");
 
     public HelmBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
-        super();
+        //super();
     }
 
     @Override

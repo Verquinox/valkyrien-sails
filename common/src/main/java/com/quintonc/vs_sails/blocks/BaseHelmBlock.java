@@ -37,6 +37,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.valkyrienskies.core.api.ships.LoadedServerShip;
+import org.valkyrienskies.core.api.ships.ServerShip;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
 import java.util.Objects;
@@ -116,17 +117,31 @@ public abstract class BaseHelmBlock extends BaseEntityBlock {
             return;
         }
         if (VSGameUtilsKt.isBlockInShipyard(world, pos)) {
-            LoadedServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerLevel) world, pos);
+            ServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerLevel) world, pos);
             if (ship != null) {
-                SailsShipControl controller = SailsShipControl.getOrCreate(ship, world);
+                SailsShipControl controller = SailsShipControl.getOrCreate((LoadedServerShip) ship, world);
 
-                controller.numHelms++;
+                if (this instanceof HelmBlock) {
+                    controller.numHelms++;
+                }
 
                 //if the ship's direction is opposite the helm (helm faces backwards), set it to its opposite
                 if (Objects.equals(controller.shipDirection, state.getValue(FACING))) {
                     controller.shipDirection = controller.shipDirection.getOpposite();
                 }
-            } //TODO add else for template placing (see corresponding spot in SailBlock)
+            } else { //ship is being loaded from template
+                ship = VSGameUtilsKt.getShipManagingPos((ServerLevel) world, pos);
+                if (ship instanceof LoadedServerShip) {
+                    SailsShipControl controller = SailsShipControl.getOrCreate((LoadedServerShip) ship, world);
+                    if (this instanceof HelmBlock) {
+                        controller.numHelms++;
+                    }
+                    //if the ship's direction is opposite the helm (helm faces backwards), set it to its opposite
+                    if (Objects.equals(controller.shipDirection, state.getValue(FACING))) {
+                        controller.shipDirection = controller.shipDirection.getOpposite();
+                    }
+                }
+            }
         }
     }
 
@@ -170,7 +185,7 @@ public abstract class BaseHelmBlock extends BaseEntityBlock {
         if (!world.isClientSide) {
             if (VSGameUtilsKt.isBlockInShipyard(world, pos)) {
                 LoadedServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerLevel) world, pos);
-                if (ship != null) {
+                if (ship != null && this instanceof HelmBlock) {
                     SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
                     assert controller != null;
                     controller.numHelms--;
