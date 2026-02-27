@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "functional",
+  "key": {
+    "S": {
+      "item": "minecraft:cherry_slab"
+    },
+    "R": {
+      "item": "vs_sails:rope"
+    }
+  },
+  "pattern": [
+    " S ",
+    "SRS"
+  ],
+  "result": {
+    "item": "vs_sails:cherry_helm"
+  },
+  "show_notification": true
+}

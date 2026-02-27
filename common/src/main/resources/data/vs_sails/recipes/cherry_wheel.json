@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "functional",
+  "key": {
+    "I": {
+      "item": "minecraft:copper_ingot"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    },
+    "X": {
+      "item": "minecraft:mangrove_planks"
+    }
+  },
+  "pattern": [
+    "SXS",
+    "XIX",
+    "SXS"
+  ],
+  "result": {
+    "item": "vs_sails:cherry_helm_wheel"
+  },
+  "show_notification": true
+}
