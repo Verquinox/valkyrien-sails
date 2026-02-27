@@ -10,6 +10,7 @@ import dev.architectury.event.events.common.TickEvent;
 import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.platform.Platform;
 import dev.architectury.registry.CreativeTabRegistry;
+import dev.architectury.registry.ReloadListenerRegistry;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.core.particles.ParticleType;
@@ -18,6 +19,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.packs.PackType;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
@@ -81,6 +83,8 @@ public class ValkyrienSails {
 
         SailsBlocks.register();
         SailsItems.register();
+
+        ReloadListenerRegistry.register(PackType.SERVER_DATA, WindDataReloadListener.INSTANCE, new ResourceLocation(MOD_ID, "wind"));
 
         LifecycleEvent.SERVER_STARTED.register(ValkyrienSails::onServerStarted);
         TickEvent.SERVER_LEVEL_PRE.register(ValkyrienSails::onWorldTick);
