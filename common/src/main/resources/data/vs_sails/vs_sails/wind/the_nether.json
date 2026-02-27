@@ -1,0 +1,20 @@
+{
+  "priority": 0,
+  "targets": {
+    "dimensions": ["minecraft:the_nether"],
+    "dimension_tags": []
+  },
+  "wind": {
+    "dimension_multiplier": 0.3,
+    "direction": {
+      "type": "DEFAULT"
+    },
+    "fixed_direction": 0,
+    "effects": {
+      "weather": false,
+      "day_night": false,
+      "moon_phase": false,
+      "random_variation": true
+    }
+  }
+}
