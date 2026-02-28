@@ -118,7 +118,12 @@ public class ValkyrienSailsFabric implements ModInitializer {
                         SailsBlocks.BIRCH_HELM.get(),
                         SailsBlocks.JUNGLE_HELM.get(),
                         SailsBlocks.DARK_OAK_HELM.get(),
-                        SailsBlocks.ACACIA_HELM.get()).build()
+                        SailsBlocks.ACACIA_HELM.get(),
+                        SailsBlocks.MANGROVE_HELM.get(),
+                        SailsBlocks.CHERRY_HELM.get(),
+                        SailsBlocks.CRIMSON_HELM.get(),
+                        SailsBlocks.WARPED_HELM.get(),
+                        SailsBlocks.BAMBOO_HELM.get()).build()
         );
         ValkyrienSails.HELM_BLOCK_ENTITY = HELM_BLOCK_ENTITY;
 

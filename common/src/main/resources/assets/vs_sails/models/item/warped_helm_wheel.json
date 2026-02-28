@@ -1,0 +1,7 @@
+{
+  "parent": "vs_sails:item/helm_wheel",
+  "textures": {
+    "0": "vs_sails:block/warped_wheel",
+    "particle": "block/warped_planks"
+  }
+}
