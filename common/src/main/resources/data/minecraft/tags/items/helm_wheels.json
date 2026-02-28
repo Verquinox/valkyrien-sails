@@ -7,6 +7,11 @@
     "vs_sails:birch_helm_wheel",
     "vs_sails:jungle_helm_wheel",
     "vs_sails:dark_oak_helm_wheel",
-    "vs_sails:acacia_helm_wheel"
+    "vs_sails:acacia_helm_wheel",
+    "vs_sails:mangrove_helm_wheel",
+    "vs_sails:cherry_helm_wheel",
+    "vs_sails:crimson_helm_wheel",
+    "vs_sails:warped_helm_wheel",
+    "vs_sails:bamboo_helm_wheel"
   ]
 }
