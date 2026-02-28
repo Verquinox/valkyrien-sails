@@ -1,4 +1,4 @@
-package com.quintonc.vs_sails;
+package com.quintonc.vs_sails.wind;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;

@@ -1,10 +1,11 @@
-package com.quintonc.vs_sails;
+package com.quintonc.vs_sails.wind;
 
 import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.quintonc.vs_sails.ValkyrienSails;
 import com.quintonc.vs_sails.compat.Weather2Compat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;

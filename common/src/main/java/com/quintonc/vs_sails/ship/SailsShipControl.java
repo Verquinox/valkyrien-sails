@@ -3,10 +3,8 @@ package com.quintonc.vs_sails.ship;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.quintonc.vs_sails.ServerWindManager;
+import com.quintonc.vs_sails.wind.ServerWindManager;
 import com.quintonc.vs_sails.config.ConfigUtils;
-import kotlin.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.core.Direction;
@@ -19,14 +17,9 @@ import org.slf4j.LoggerFactory;
 import org.valkyrienskies.core.api.ships.*;
 import org.valkyrienskies.core.api.world.PhysLevel;
 import org.valkyrienskies.core.impl.game.ships.PhysShipImpl;
-import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
 import static java.lang.Math.*;
 
-import java.text.DecimalFormat;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
 

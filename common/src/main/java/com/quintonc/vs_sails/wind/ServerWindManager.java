@@ -1,5 +1,6 @@
-package com.quintonc.vs_sails;
+package com.quintonc.vs_sails.wind;
 
+import com.quintonc.vs_sails.ValkyrienSails;
 import com.quintonc.vs_sails.config.ConfigUtils;
 import com.quintonc.vs_sails.networking.PacketHandler;
 import dev.architectury.event.events.common.TickEvent;
@@ -7,7 +8,6 @@ import dev.architectury.networking.NetworkManager;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
@@ -36,16 +36,6 @@ public class ServerWindManager extends WindManager {
     private static int lastPruneServerTick = 0;
     private static final int PRUNE_INTERVAL_TICKS = 300;
 
-    private static final class DimensionWindState {
-        int tickCounter = 0;
-        double timeInfluence = 0.5d;
-        double randomStrengthFactor = 0.25d;
-        double randomDirectionOffset = 0.0d;
-
-        float strength = 0.0f;
-        float direction = 0.0f;
-    }
-
     private static DimensionWindState getOrCreateState(ServerLevel level) {
         return WIND_STATE_BY_DIMENSION.computeIfAbsent(level.dimension(), key -> new DimensionWindState());
     }
@@ -66,12 +56,6 @@ public class ServerWindManager extends WindManager {
 
     private static void clearAllState() {
         WIND_STATE_BY_DIMENSION.clear();
-    }
-
-    private record WindInputs(boolean raining, boolean thundering, long dayTime, int moonPhase) {}
-
-    private static WindInputs readInputs(ServerLevel world) {
-        return new WindInputs( world.isRaining(), world.isThundering(), world.getDayTime(), world.getMoonPhase());
     }
 
     //private static final float minWindSpeed = Float.parseFloat(ConfigUtils.config.getOrDefault("min-wind-speed","0.2"));
@@ -116,88 +100,13 @@ public class ServerWindManager extends WindManager {
     }
 
     private static void updateWind(ServerLevel world, WindRuleWind rule, DimensionWindState state) {
-        WindInputs in = readInputs(world);
+        WindComputationContext ctx = new WindComputationContext(world, rule, state, random);
 
-        double computedStrength = 0.0d;
-        double computedDirection = 0.0d;
+        runEffectPipeline(ctx);
 
-        if (rule.dimensionMultiplier() > 0.0d) {
-            double timeInfluence = state.timeInfluence;
-            double randomStrengthFactor = state.randomStrengthFactor;
-            double randomDirectionOffset = state.randomDirectionOffset;
-
-            if (rule.effects().randomStrengthVariation()) {
-                if (random.nextBoolean()) {
-                    timeInfluence = min(timeInfluence + (abs(timeInfluence) * 0.125d) + 0.01d, 1.0d);
-                } else {
-                    timeInfluence = max(timeInfluence - (abs(timeInfluence) * 0.125d) - 0.01d, -1.0d);
-                }
-                randomStrengthFactor = min(max(randomStrengthFactor + (random.nextDouble() - 0.5d) * (1.0d - randomStrengthFactor), 0.0d), 0.99d);
-            } else {
-                timeInfluence = 0.5d;
-                randomStrengthFactor = 0.25d;
-            }
-
-            if (rule.effects().randomDirectionVariation()) {
-                randomDirectionOffset = min(
-                        max(randomDirectionOffset + (random.nextDouble() - 0.5d) * 24.0d, -120.0d),
-                        120.0d
-                );
-            } else {
-                randomDirectionOffset = 0.0d;
-            }
-
-            if (rule.effects().weather() && (in.raining() || in.thundering())) {
-                timeInfluence = 0.0d;
-            }
-
-            state.timeInfluence = timeInfluence;
-            state.randomStrengthFactor = randomStrengthFactor;
-            state.randomDirectionOffset = randomDirectionOffset;
-
-            double timeFactor = rule.effects().dayNight()
-                    ? sin(((double) in.dayTime() / 12000.0d) * Math.PI)
-                    : 1.0d;
-
-            computedStrength = copySign(
-                    (pow(abs(timeFactor), 0.44d) * timeInfluence + abs(randomStrengthFactor) * (1.0d - timeInfluence)),
-                    timeFactor
-            );
-
-            if (rule.effects().weather()) {
-                if (in.thundering()) {
-                    computedStrength *= 2.0d;
-                } else if (in.raining()) {
-                    computedStrength *= 1.5d;
-                }
-            }
-
-            computedStrength /= 2.0d;
-            computedStrength *= rule.dimensionMultiplier();
-
-            if (rule.direction().type() == WindType.FIXED) {
-                computedDirection = rule.fixedDirection();
-            } else if (rule.direction().type() == WindType.DEFAULT) {
-                if (rule.effects().moonPhase()) {
-                    computedDirection = DIRECTIONS.get(in.moonPhase());
-                }
-                computedDirection += 12.0d * computedStrength;
-                computedDirection += 12.0d;
-                computedDirection += randomDirectionOffset;
-                computedDirection = normalizeDegrees(computedDirection);
-            } else if (rule.direction().type() == WindType.RADIAL) {
-                computedDirection = normalizeDegrees(randomDirectionOffset);
-            }
-        } else {
-            state.timeInfluence = 0.5d;
-            state.randomStrengthFactor = 0.25d;
-            state.randomDirectionOffset = 0.0d;
-        }
-
-        state.strength = (float) computedStrength;
-        state.direction = (float) computedDirection;
+        ctx.flushToState();
         setWindForLevel(world, state.strength, state.direction);
-        sendWindPackets(world, rule, state.strength,state.direction);
+        sendWindPackets(world, rule, state.strength, state.direction);
 
         if (Boolean.parseBoolean(ConfigUtils.config.getOrDefault("enable-aerodynamic-wind", "true"))) {
             for (LoadedServerShip ship : VSGameUtilsKt.getShipObjectWorld(world).getLoadedShips()) {
@@ -209,12 +118,89 @@ public class ServerWindManager extends WindManager {
                     );
                     double effectiveDirection = resolveDirectionForPosition(rule, shipPos, state.direction);
                     ship.getDragController().setWindDirection(
-                            new Vector3d(0, 0, -1).rotateY(Math.toRadians(effectiveDirection)),
+                            new Vector3d(0,0,-1).rotateY(Math.toRadians(effectiveDirection)),
                             ValkyrienSails.MOD_ID
                     );
                     ship.getDragController().setWindSpeed((float) state.strength, ValkyrienSails.MOD_ID);
                 }
             }
+        }
+    }
+
+    private static void runEffectPipeline(WindComputationContext ctx) {
+        computeWindLegacy(ctx);
+    }
+
+    private static void computeWindLegacy(WindComputationContext ctx) {
+        if (ctx.rule.dimensionMultiplier() > 0.0d) {
+            if (ctx.rule.effects().randomStrengthVariation()) {
+                if (ctx.random.nextBoolean()) {
+                    ctx.timeInfluence = min(ctx.timeInfluence + (abs(ctx.timeInfluence) * 0.125d) + 0.01d, 1.0d);
+                } else {
+                    ctx.timeInfluence = max(ctx.timeInfluence - (abs(ctx.timeInfluence) * 0.125d) - 0.01d, -1.0d);
+                }
+                ctx.randomStrengthFactor = min(
+                        max(ctx.randomStrengthFactor + (ctx.random.nextDouble() - 0.5d) * (1.0d - ctx.randomStrengthFactor), 0.0d),
+                        0.99d
+                );
+            } else {
+                ctx.timeInfluence = 0.5d;
+                ctx.randomStrengthFactor = 0.25d;
+            }
+
+            if (ctx.rule.effects().randomDirectionVariation()) {
+                ctx.randomDirectionOffset = min(
+                        max(ctx.randomDirectionOffset + (ctx.random.nextDouble() - 0.5d) * 24.0d, -120.0d),
+                        120.0d
+                );
+            } else {
+                ctx.randomDirectionOffset = 0.0d;
+            }
+
+            if (ctx.rule.effects().weather() && (ctx.inputs.raining() || ctx.inputs.thundering())) {
+                ctx.timeInfluence = 0.0d;
+            }
+
+            double timeFactor = ctx.rule.effects().dayNight()
+                    ? sin(((double) ctx.inputs.dayTime() / 12000.0d) * Math.PI)
+                    : 1.0d;
+
+            ctx.strength = copySign(
+                    (pow(abs(timeFactor), 0.44d) * ctx.timeInfluence
+                        + abs(ctx.randomStrengthFactor) * (1.0d - ctx.timeInfluence)),
+                    timeFactor
+            );
+
+            if (ctx.rule.effects().weather()) {
+                if (ctx.inputs.thundering()) {
+                    ctx.strength *= 2.0d;
+                } else if (ctx.inputs.raining()) {
+                    ctx.strength *= 1.5d;
+                }
+            }
+
+            ctx.strength /= 2.0d;
+            ctx.strength *= ctx.rule.dimensionMultiplier();
+
+            if (ctx.rule.direction().type() == WindType.FIXED) {
+                ctx.direction = ctx.rule.fixedDirection();
+            } else if (ctx.rule.direction().type() == WindType.DEFAULT) {
+                if (ctx.rule.effects().moonPhase()) {
+                    ctx.direction = DIRECTIONS.get(ctx.inputs.moonPhase());
+                }
+                ctx.direction += 12.0d * ctx.strength;
+                ctx.direction += 12.0d;
+                ctx.direction += ctx.randomDirectionOffset;
+                ctx.direction = normalizeDegrees(ctx.direction);
+            } else if (ctx.rule.direction().type() == WindType.RADIAL) {
+                ctx.direction = normalizeDegrees(ctx.randomDirectionOffset);
+            }
+        } else {
+            ctx.timeInfluence = 0.5d;
+            ctx.randomStrengthFactor = 0.25d;
+            ctx.randomDirectionOffset = 0.0d;
+            ctx.strength = 0.0d;
+            ctx.direction = 0.0d;
         }
     }
 

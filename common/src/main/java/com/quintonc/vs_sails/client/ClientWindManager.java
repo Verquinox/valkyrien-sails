@@ -1,6 +1,6 @@
 package com.quintonc.vs_sails.client;
 
-import com.quintonc.vs_sails.WindManager;
+import com.quintonc.vs_sails.wind.WindManager;
 
 public class ClientWindManager extends WindManager {
 

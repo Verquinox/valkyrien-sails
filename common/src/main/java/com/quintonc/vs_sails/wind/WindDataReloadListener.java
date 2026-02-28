@@ -1,8 +1,9 @@
-package com.quintonc.vs_sails;
+package com.quintonc.vs_sails.wind;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import com.quintonc.vs_sails.ValkyrienSails;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
