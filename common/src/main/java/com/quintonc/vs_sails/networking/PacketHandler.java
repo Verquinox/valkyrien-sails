@@ -61,9 +61,9 @@ public class PacketHandler {
             float str = buf.readFloat();
             float dir = buf.readFloat();
             context.queue(() -> {
-
-                ClientWindManager.windStrength = str;
-                ClientWindManager.windDirection = dir;
+                if (context.getPlayer() != null && context.getPlayer().level() != null) {
+                    ClientWindManager.setWindForLevel(context.getPlayer().level(), str, dir);
+                }
             });
 
         });

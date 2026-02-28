@@ -10,11 +10,13 @@
       "type": "DEFAULT"
     },
     "fixed_direction": 0,
+    "wind_interval": 50,
     "effects": {
       "weather": false,
       "day_night": false,
       "moon_phase": false,
-      "random_variation": true
+      "random_strength_variation": true,
+      "random_direction_variation": true
     }
   }
 }

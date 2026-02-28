@@ -10,11 +10,13 @@
       "type": "RADIAL"
     },
     "fixed_direction": 0,
+    "wind_interval": 30,
     "effects": {
       "weather": false,
       "day_night": false,
       "moon_phase": false,
-      "random_variation": false
+      "random_strength_variation": false,
+      "random_direction_variation": false
     }
   }
 }

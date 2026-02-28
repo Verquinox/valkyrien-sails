@@ -8,6 +8,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.quintonc.vs_sails.compat.Weather2Compat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -15,13 +16,15 @@ import net.minecraft.world.phys.Vec3;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class WindManager {
-    public static float windDirection;
-    public static float windStrength;
     protected static float windGustiness;
     protected static float windShear;
+    private static final Map<ResourceLocation, Float> WIND_STRENGTH_BY_DIMENSION = new ConcurrentHashMap<>();
+    private static final Map<ResourceLocation, Float> WIND_DIRECTION_BY_DIMENSION = new ConcurrentHashMap<>();
     
     public enum WindType {
         DEFAULT,
@@ -44,8 +47,14 @@ public class WindManager {
     }
 
     public record WindDirectionSpec(WindType type) {}
-    public record WindRuleEffects(boolean weather, boolean dayNight, boolean moonPhase, boolean randomVariation) {}
-    public record WindRuleWind(double dimensionMultiplier, WindDirectionSpec direction, double fixedDirection, WindRuleEffects effects) {}
+    public record WindRuleEffects(
+            boolean weather,
+            boolean dayNight,
+            boolean moonPhase,
+            boolean randomStrengthVariation,
+            boolean randomDirectionVariation
+    ) {}
+    public record WindRuleWind(double dimensionMultiplier, WindDirectionSpec direction, double fixedDirection, int windInterval, WindRuleEffects effects) {}
     public record WindRuleTargets(List<String> dimensions, List<String> dimensionTags) {}
     public record WindRuleData(int priority, WindRuleTargets targets, WindRuleWind wind) {}
 
@@ -74,9 +83,16 @@ public class WindManager {
                     Codec.BOOL.fieldOf("weather").forGetter(effects -> effects.weather()),
                     Codec.BOOL.fieldOf("day_night").forGetter(effects -> effects.dayNight()),
                     Codec.BOOL.fieldOf("moon_phase").forGetter(effects -> effects.moonPhase()),
-                    Codec.BOOL.fieldOf("random_variation").forGetter(effects -> effects.randomVariation())
-            ).apply(instance, (weather, dayNight, moonPhase, randomVariation) ->
-                    new WindRuleEffects(weather, dayNight, moonPhase, randomVariation)
+                    Codec.BOOL.fieldOf("random_strength_variation").forGetter(effects -> effects.randomStrengthVariation()),
+                    Codec.BOOL.fieldOf("random_direction_variation").forGetter(effects -> effects.randomDirectionVariation())
+            ).apply(instance, (weather, dayNight, moonPhase, randomStrengthVariation, randomDirectionVariation) ->
+                    new WindRuleEffects(
+                            weather,
+                            dayNight,
+                            moonPhase,
+                            randomStrengthVariation,
+                            randomDirectionVariation
+                    )
             )
     );
 
@@ -85,9 +101,10 @@ public class WindManager {
                     Codec.DOUBLE.fieldOf("dimension_multiplier").forGetter(wind -> wind.dimensionMultiplier()),
                     WIND_DIRECTION_CODEC.fieldOf("direction").forGetter(wind -> wind.direction()),
                     Codec.DOUBLE.fieldOf("fixed_direction").forGetter(wind -> wind.fixedDirection()),
+                    Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("wind_interval", 300).forGetter(wind -> wind.windInterval()),
                     WIND_EFFECTS_CODEC.fieldOf("effects").forGetter(wind -> wind.effects())
-            ).apply(instance, (dimensionMultiplier, direction, fixedDirection, effects) ->
-                    new WindRuleWind(dimensionMultiplier, direction, fixedDirection, effects)
+            ).apply(instance, (dimensionMultiplier, direction, fixedDirection, windInterval, effects) ->
+                    new WindRuleWind(dimensionMultiplier, direction, fixedDirection, windInterval, effects)
             )
     ).comapFlatMap(WindManager::validateWind, wind -> wind);
 
@@ -114,24 +131,56 @@ public class WindManager {
         return WIND_RULE_CODEC.parse(JsonOps.INSTANCE, json);
     }
 
+    public static WindRuleData sanitizeLoadedRule(
+            ResourceLocation sourceId,
+            WindRuleData rule,
+            Set<ResourceLocation> knownDimensionIds
+    ) {
+        for (String dimensionId : rule.targets().dimensions()) {
+            ResourceLocation parsedId = ResourceLocation.tryParse(dimensionId);
+            if (parsedId != null && !knownDimensionIds.contains(parsedId)) {
+                ValkyrienSails.LOGGER.warn(
+                        "Wind rule '{}' targets unknown dimension id '{}'; keeping rule target as-is",
+                        sourceId,
+                        dimensionId
+                );
+            }
+        }
+        return rule;
+    }
+
+    public static void setWindForLevel(Level world, float strength, float direction) {
+        if (world != null) {
+            ResourceLocation id = world.dimension().location();
+            WIND_STRENGTH_BY_DIMENSION.put(id, strength);
+            WIND_DIRECTION_BY_DIMENSION.put(id, direction);
+        }
+    }
+
+    public static void clearWindData() {
+        WIND_STRENGTH_BY_DIMENSION.clear();
+        WIND_DIRECTION_BY_DIMENSION.clear();
+    }
+
     private static DataResult<WindRuleWind> validateWind(WindRuleWind wind) {
-        if (!Double.isFinite(wind.dimensionMultiplier()) || wind.dimensionMultiplier() < 0.0d) {
-            return DataResult.error(() -> "'dimension_multiplier' must be a finite number >= 0");
+        if (!Double.isFinite(wind.dimensionMultiplier())) {
+            return DataResult.error(() -> "'dimension_multiplier' must be a finite number");
         }
         if (!Double.isFinite(wind.fixedDirection())) {
             return DataResult.error(() -> "'fixed_direction' must be a finite number");
         }
 
-        double normalized = normalizeDegrees(wind.fixedDirection());
+        double clampedMultiplier = Math.max(0.0d, wind.dimensionMultiplier());
+        int clampedWindInterval = Math.max(1, wind.windInterval());
 
-        if (wind.direction().type() != WindType.FIXED && Double.compare(normalized, 0.0d) != 0) {
-            return DataResult.error(() -> "'fixed_direction' must be 0 when direction.type is not FIXED");
-        }
+        double normalized = normalizeDegrees(wind.fixedDirection());
+        double sanitizedFixedDirection = wind.direction().type() == WindType.FIXED ? normalized : 0.0d;
 
         return DataResult.success(new WindRuleWind(
-                wind.dimensionMultiplier(),
+                clampedMultiplier,
                 wind.direction(),
-                wind.direction().type() == WindType.FIXED ? normalized : 0.0d,
+                sanitizedFixedDirection,
+                clampedWindInterval,
                 wind.effects()
         ));
     }
@@ -165,13 +214,37 @@ public class WindManager {
         if (ValkyrienSails.weather2 && world != null) {
             return (float) Weather2Compat.getWindDirection(world, pos);
         }
-        return windDirection;
+        if (world instanceof ServerLevel serverLevel) {
+            WindRuleWind rule = WindRuleRegistry.getWind(serverLevel);
+            if (rule.direction().type() == WindType.FIXED) {
+                return (float) rule.fixedDirection();
+            }
+            if (rule.direction().type() == WindType.RADIAL && pos != null) {
+                float offset = ServerWindManager.getCachedDirection((serverLevel));
+                return (float) normalizeDegrees(Math.toDegrees(Math.atan2(pos.z, pos.x)) + offset);
+            }
+            return ServerWindManager.getCachedDirection(serverLevel);
+        }
+
+        if (world != null) {
+            return WIND_DIRECTION_BY_DIMENSION.getOrDefault(world.dimension().location(), 0.0f);
+        }
+
+        return 0.0f;
     }
 
     public static float getWindStrength(Level world, BlockPos pos) {
         if (ValkyrienSails.weather2 && world != null) {
             return (float) Weather2Compat.getWindStrength(world, pos);
         }
-        return windStrength;
+        if (world instanceof ServerLevel serverLevel) {
+            return ServerWindManager.getCachedStrength(serverLevel);
+        }
+
+        if (world != null) {
+            return WIND_STRENGTH_BY_DIMENSION.getOrDefault(world.dimension().location(), 0.0f);
+        }
+
+        return 0.0f;
     }
 }

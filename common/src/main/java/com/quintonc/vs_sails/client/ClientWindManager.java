@@ -7,8 +7,7 @@ public class ClientWindManager extends WindManager {
 
     public static void InitializeWind() {
 
-        windStrength = 0;
-        windDirection = 0;
+        clearWindData();
         windGustiness = 0.125f;
         windShear = 10;
 
