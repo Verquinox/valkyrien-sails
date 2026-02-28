@@ -1,5 +1,6 @@
 package com.quintonc.vs_sails.networking;
 
+import com.quintonc.vs_sails.client.ClientWindManager;
 import dev.architectury.networking.NetworkManager;
 import net.minecraft.network.FriendlyByteBuf;
 
@@ -9,16 +10,15 @@ public class WindDataPacket {
     public final float windStrength;
     public final float windDirection;
 
-    public WindDataPacket(FriendlyByteBuf buf) {
-        // Decode data into a message
-        this(buf.readFloat(), buf.readFloat());
-    }
-
     public WindDataPacket(float windStrength, float windDirection) {
         // Message creation
         this.windStrength = windStrength;
         this.windDirection = windDirection;
 
+    }
+
+    public static WindDataPacket decode(FriendlyByteBuf buf) {
+        return new WindDataPacket(buf.readFloat(), buf.readFloat());
     }
 
     public void encode(FriendlyByteBuf buf) {
@@ -27,8 +27,12 @@ public class WindDataPacket {
         buf.writeFloat(windDirection);
     }
 
-    public void apply(Supplier<NetworkManager.PacketContext> contextSupplier) {
+    public void apply(NetworkManager.PacketContext context) {
         // On receive
-
+        context.queue(() -> {
+            if (context.getPlayer() != null && context.getPlayer().level() != null) {
+                ClientWindManager.setWindForLevel(context.getPlayer().level(), windStrength, windDirection);
+            }
+        });
     }
 }
