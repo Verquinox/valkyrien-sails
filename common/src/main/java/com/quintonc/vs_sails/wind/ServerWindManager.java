@@ -3,15 +3,16 @@ package com.quintonc.vs_sails.wind;
 import com.quintonc.vs_sails.ValkyrienSails;
 import com.quintonc.vs_sails.config.ConfigUtils;
 import com.quintonc.vs_sails.networking.PacketHandler;
+import com.quintonc.vs_sails.networking.WindDataPacket;
 import com.quintonc.vs_sails.wind.contributors.*;
 import dev.architectury.event.events.common.TickEvent;
 import dev.architectury.networking.NetworkManager;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3d;
@@ -67,7 +68,6 @@ public class ServerWindManager extends WindManager {
 
     public static void InitializeWind() {
         clearAllState();
-        windGustiness = 0.125f; //between 0 and 1: 1 is
         lastPruneServerTick = 0;
         random = new Random();
 
@@ -77,19 +77,30 @@ public class ServerWindManager extends WindManager {
         }
     }
 
+    public static float getWindDirectionAtPosition(ServerLevel level, Vec3 pos) {
+        DimensionWindState state = getStateIfPresent(level);
+        if (state == null) return 0.0f;
+
+        return (float) resolveDirectionForPosition(
+                state.windType,
+                state.baseDirection,
+                pos,
+                state.direction
+        );
+    }
+
     public static float getCachedStrength(ServerLevel level) {
         DimensionWindState state = getStateIfPresent(level);
         return state != null ? state.strength : 0.0f;
     }
 
-    public static float getCachedDirection(ServerLevel level) {
-        DimensionWindState state = getStateIfPresent(level);
-        return state != null ? state.direction : 0.0f;
-    }
-
     private static void onWorldTick(ServerLevel world) {
         DimensionWindState state = getOrCreateState(world);
         WindRuleWind rule = WindRuleRegistry.getWind(world);
+
+        state.windType = rule.direction().type();
+        state.baseDirection = rule.baseDirection();
+
         tryPruneStaleState(world);
 
         if (state.tickCounter >= rule.windInterval() - 1) {
@@ -106,8 +117,11 @@ public class ServerWindManager extends WindManager {
         runEffectPipeline(ctx);
 
         ctx.flushToState();
-        setWindForLevel(world, state.strength, state.direction);
-        sendWindPackets(world, rule, state.strength, state.direction);
+
+        boolean windEnabled = rule.dimensionMultiplier() > 0.0d && rule.direction().type() != WindType.NO_WIND;
+
+        setWindForDimension(world.dimension().location(), state.strength, state.direction, state.windType, windEnabled);
+        sendWindPackets(world, state.windType, state.strength, state.direction, windEnabled);
 
         if (Boolean.parseBoolean(ConfigUtils.config.getOrDefault("enable-aerodynamic-wind", "true"))) {
             for (LoadedServerShip ship : VSGameUtilsKt.getShipObjectWorld(world).getLoadedShips()) {
@@ -117,7 +131,7 @@ public class ServerWindManager extends WindManager {
                             ship.getTransform().getPositionInWorld().y(),
                             ship.getTransform().getPositionInWorld().z()
                     );
-                    double effectiveDirection = resolveDirectionForPosition(rule, shipPos, state.direction);
+                    double effectiveDirection = resolveDirectionForPosition(state.windType, state.baseDirection, shipPos, state.direction);
                     ship.getDragController().setWindDirection(
                             new Vector3d(0,0,-1).rotateY(Math.toRadians(effectiveDirection)),
                             ValkyrienSails.MOD_ID
@@ -129,7 +143,7 @@ public class ServerWindManager extends WindManager {
     }
 
     private static void runEffectPipeline(WindComputationContext ctx) {
-        if (ctx.dimensionMultiplier() <= 0.0d) {
+        if (ctx.rule().direction().type() == WindType.NO_WIND || ctx.dimensionMultiplier() <= 0.0d) {
             ctx.setNoWind();
             return;
         }
@@ -173,27 +187,23 @@ public class ServerWindManager extends WindManager {
         WIND_STATE_BY_DIMENSION.keySet().removeIf(key -> world.getServer().getLevel(key) == null);
     }
 
-    private static void sendWindPackets(ServerLevel world, WindRuleWind rule, float strength, float defaultDirection) {
+    private static void sendWindPackets(ServerLevel world, WindType windType, float strength, float defaultDirection, boolean windEnabled) {
+        ResourceLocation dimensionId = world.dimension().location();
         for (ServerPlayer player : world.players()) {
-            double effectiveDirection = resolveDirectionForPosition(rule, player.position(), defaultDirection);
+            WindDataPacket packet = new WindDataPacket(dimensionId, windType, strength, defaultDirection, windEnabled);
             FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-            buf.writeFloat(strength);
-            buf.writeFloat((float) effectiveDirection);
+            packet.encode(buf);
+
             NetworkManager.sendToPlayer(player, PacketHandler.WIND_DATA_PACKET, buf);
         }
     }
 
-    private static double resolveDirectionForPosition(WindRuleWind rule, Vec3 position, double defaultDirection) {
-        if (rule.direction().type() == WindType.FIXED) {
-            return rule.fixedDirection();
-        }
-        if (rule.direction().type() == WindType.RADIAL) {
+    private static double resolveDirectionForPosition(WindType windType, double baseDirection, Vec3 position, double defaultDirection) {
+        if (windType == WindType.NO_WIND) return 0.0d;
+        if (windType == WindType.FIXED) return baseDirection;
+        if (windType == WindType.RADIAL && position != null) {
             return normalizeDegrees(Math.toDegrees(Math.atan2(position.z, position.x)) + defaultDirection);
         }
         return defaultDirection;
-    }
-
-    private static double normalizeDegrees(double degrees) {
-        return Mth.positiveModulo((float) degrees, 360.0f);
     }
 }

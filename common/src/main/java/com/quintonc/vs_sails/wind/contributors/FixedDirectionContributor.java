@@ -9,6 +9,6 @@ public final class FixedDirectionContributor implements WindEffectContributor {
 
     @Override
     public void apply(WindComputationContext ctx) {
-        ctx.setDirection(ctx.rule().fixedDirection());
+        ctx.setDirection(ctx.rule().baseDirection());
     }
 }

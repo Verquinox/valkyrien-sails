@@ -9,7 +9,7 @@
     "direction": {
       "type": "RADIAL"
     },
-    "fixed_direction": 0,
+    "base_direction": 0,
     "wind_interval": 30,
     "effects": {
       "weather": false,

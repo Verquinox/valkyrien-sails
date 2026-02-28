@@ -9,6 +9,6 @@ public final class RadialDirectionContributor implements WindEffectContributor {
 
     @Override
     public void apply(WindComputationContext ctx) {
-        ctx.setDirection(ctx.randomDirectionOffset());
+        ctx.setDirection(ctx.rule().baseDirection() + ctx.randomDirectionOffset());
     }
 }

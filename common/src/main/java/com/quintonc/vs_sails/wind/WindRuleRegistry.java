@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public final class WindRuleRegistry {
     private static final WindManager.WindRuleWind NO_WIND = new WindManager.WindRuleWind(
             0.0d,
-            new WindManager.WindDirectionSpec(WindManager.WindType.DEFAULT),
+            new WindManager.WindDirectionSpec(WindManager.WindType.NO_WIND),
             0.0d,
             300,
             new WindManager.WindRuleEffects(false, false, false, false, false)

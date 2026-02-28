@@ -9,6 +9,7 @@ public final class DefaultDirectionFromStrengthContributor implements WindEffect
 
     @Override
     public void apply(WindComputationContext ctx) {
+        ctx.addDirection(ctx.rule().baseDirection());
         ctx.addDirection(12.0d * ctx.strength());
         ctx.addDirection(12.0d);
         ctx.addDirection(ctx.randomDirectionOffset());
