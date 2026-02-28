@@ -34,27 +34,31 @@ public class ServerWindManager extends WindManager {
     private static int lastPruneServerTick = 0;
     private static final int PRUNE_INTERVAL_TICKS = 300;
 
-    private static DimensionWindState getOrCreateState(ServerLevel level) {
-        return WIND_STATE_BY_DIMENSION.computeIfAbsent(level.dimension(), key -> new DimensionWindState());
-    }
+    private static final List<WindEffectContributor> WIND_STRENGTH_PIPELINE = List.of(
+            RandomStrengthContributor.INSTANCE,
+            WeatherStrengthPrepContributor.INSTANCE,
+            BaseDayNightStrengthContributor.INSTANCE,
+            WeatherStrengthAmplifierContributor.INSTANCE,
+            StrengthFinalizationContributor.INSTANCE
+    );
 
-    private static DimensionWindState getStateIfPresent(ServerLevel level) {
-        return WIND_STATE_BY_DIMENSION.get(level.dimension());
-    }
-
-    public static float getCachedStrength(ServerLevel level) {
-        DimensionWindState state = getStateIfPresent(level);
-        return state != null ? state.strength : 0.0f;
-    }
-
-    public static float getCachedDirection(ServerLevel level) {
-        DimensionWindState state = getStateIfPresent(level);
-        return state != null ? state.direction : 0.0f;
-    }
-
-    private static void clearAllState() {
-        WIND_STATE_BY_DIMENSION.clear();
-    }
+    private static final Map<WindType, List<WindEffectContributor>> WIND_DIRECTION_PIPELINE = Map.of(
+            WindType.FIXED, List.of(
+                    FixedDirectionContributor.INSTANCE,
+                    DirectionFinalizationContributor.INSTANCE
+            ),
+            WindType.DEFAULT, List.of(
+                    RandomDirectionVariationContributor.INSTANCE,
+                    MoonDirectionContributor.INSTANCE,
+                    DefaultDirectionFromStrengthContributor.INSTANCE,
+                    DirectionFinalizationContributor.INSTANCE
+            ),
+            WindType.RADIAL, List.of(
+                    RandomDirectionVariationContributor.INSTANCE,
+                    RadialDirectionContributor.INSTANCE,
+                    DirectionFinalizationContributor.INSTANCE
+            )
+    );
 
     //private static final float minWindSpeed = Float.parseFloat(ConfigUtils.config.getOrDefault("min-wind-speed","0.2"));
 
@@ -71,6 +75,16 @@ public class ServerWindManager extends WindManager {
             TickEvent.SERVER_LEVEL_PRE.register(ServerWindManager::onWorldTick);
             tickHookRegistered = true;
         }
+    }
+
+    public static float getCachedStrength(ServerLevel level) {
+        DimensionWindState state = getStateIfPresent(level);
+        return state != null ? state.strength : 0.0f;
+    }
+
+    public static float getCachedDirection(ServerLevel level) {
+        DimensionWindState state = getStateIfPresent(level);
+        return state != null ? state.direction : 0.0f;
     }
 
     private static void onWorldTick(ServerLevel world) {
@@ -114,44 +128,19 @@ public class ServerWindManager extends WindManager {
         }
     }
 
-    private static final List<WindEffectContributor> STRENGTH_CONTRIBUTORS = List.of(
-            RandomStrengthContributor.INSTANCE,
-            WeatherStrengthPrepContributor.INSTANCE,
-            BaseDayNightStrengthContributor.INSTANCE,
-            WeatherStrengthAmplifierContributor.INSTANCE
-    );
-
-    private static final List<WindEffectContributor> DEFAULT_DIRECTION_CONTRIBUTORS = List.of(
-            RandomDirectionVariationContributor.INSTANCE,
-            MoonDirectionContributor.INSTANCE,
-            DefaultDirectionFromStrengthContributor.INSTANCE
-    );
-
-    private static final List<WindEffectContributor> RADIAL_DIRECTION_CONTRIBUTORS = List.of(
-            RandomDirectionVariationContributor.INSTANCE,
-            RadialDirectionContributor.INSTANCE
-    );
-
-    private static final List<WindEffectContributor> STRENGTH_FINALIZATION_CONTRIBUTORS = List.of(
-            StrengthFinalizationContributor.INSTANCE
-    );
-
-    private static final List<WindEffectContributor> DIRECTION_FINALIZATION_CONTRIBUTORS = List.of(
-            DirectionFinalizationContributor.INSTANCE
-    );
-
-    private static void applyDirectionContributors(WindComputationContext ctx) {
-        if (ctx.rule().direction().type() == WindType.FIXED) {
-            ctx.setDirection(ctx.rule().fixedDirection());
+    private static void runEffectPipeline(WindComputationContext ctx) {
+        if (ctx.dimensionMultiplier() <= 0.0d) {
+            ctx.setNoWind();
             return;
         }
 
-        if (ctx.rule().direction().type() == WindType.DEFAULT) {
-            applyContributors(DEFAULT_DIRECTION_CONTRIBUTORS, ctx);
-            return;
-        }
+        applyContributors(WIND_STRENGTH_PIPELINE, ctx);
 
-        applyContributors(RADIAL_DIRECTION_CONTRIBUTORS, ctx);
+        List<WindEffectContributor> directionPipeline = WIND_DIRECTION_PIPELINE.getOrDefault(
+                ctx.rule().direction().type(),
+                WIND_DIRECTION_PIPELINE.get(WindType.DEFAULT)
+        );
+        applyContributors(directionPipeline, ctx);
     }
 
     private static void applyContributors(List<WindEffectContributor> contributors, WindComputationContext ctx) {
@@ -160,21 +149,16 @@ public class ServerWindManager extends WindManager {
         }
     }
 
-    private static void runEffectPipeline(WindComputationContext ctx) {
-        computeWindLegacy(ctx);
+    private static DimensionWindState getOrCreateState(ServerLevel level) {
+        return WIND_STATE_BY_DIMENSION.computeIfAbsent(level.dimension(), key -> new DimensionWindState());
     }
 
-    private static void computeWindLegacy(WindComputationContext ctx) {
-        if (ctx.dimensionMultiplier() <= 0.0d) {
-            ctx.setNoWind();
-            return;
-        }
+    private static DimensionWindState getStateIfPresent(ServerLevel level) {
+        return WIND_STATE_BY_DIMENSION.get(level.dimension());
+    }
 
-        applyContributors(STRENGTH_CONTRIBUTORS, ctx);
-        applyContributors(STRENGTH_FINALIZATION_CONTRIBUTORS, ctx);
-
-        applyDirectionContributors(ctx);
-        applyContributors(DIRECTION_FINALIZATION_CONTRIBUTORS, ctx);
+    private static void clearAllState() {
+        WIND_STATE_BY_DIMENSION.clear();
     }
 
     private static void tryPruneStaleState(ServerLevel world) {

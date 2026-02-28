@@ -30,10 +30,6 @@ public final class WindComputationContext {
         this.randomDirectionOffset = state.randomDirectionOffset;
     }
 
-    boolean isFixedDirectionType() {
-        return rule.direction().type() == WindManager.WindType.FIXED;
-    }
-
     public WindManager.WindRuleWind rule() {
         return rule;
     }
