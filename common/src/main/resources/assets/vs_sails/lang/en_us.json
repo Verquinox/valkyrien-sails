@@ -18,6 +18,11 @@
   "block.vs_sails.jungle_helm": "Jungle Helm Base",
   "block.vs_sails.dark_oak_helm": "Dark Oak Helm Base",
   "block.vs_sails.acacia_helm": "Acacia Helm Base",
+  "block.vs_sails.mangrove_helm": "Mangrove Helm Base",
+  "block.vs_sails.cherry_helm": "Cherry Helm Base",
+  "block.vs_sails.crimson_helm": "Crimson Helm Base",
+  "block.vs_sails.warped_helm": "Warped Helm Base",
+  "block.vs_sails.bamboo_helm": "Bamboo Helm Base",
 
   "block.vs_sails.oak_helm_wheel": "Oak Ship's Wheel",
   "block.vs_sails.spruce_helm_wheel": "Spruce Ship's Wheel",
@@ -25,6 +30,11 @@
   "block.vs_sails.jungle_helm_wheel": "Jungle Ship's Wheel",
   "block.vs_sails.dark_oak_helm_wheel": "Dark Oak Ship's Wheel",
   "block.vs_sails.acacia_helm_wheel": "Acacia Ship's Wheel",
+  "block.vs_sails.mangrove_helm_wheel": "Mangrove Ship's Wheel",
+  "block.vs_sails.cherry_helm_wheel": "Cherry Ship's Wheel",
+  "block.vs_sails.crimson_helm_wheel": "Crimson Ship's Wheel",
+  "block.vs_sails.warped_helm_wheel": "Warped Ship's Wheel",
+  "block.vs_sails.bamboo_helm_wheel": "Bamboo Ship's Wheel",
 
   "block.vs_sails.white_sail": "White Sail",
   "block.vs_sails.light_gray_sail": "Light Gray Sail",

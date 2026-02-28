@@ -35,12 +35,17 @@ public class PacketHandler {
             BlockPos pos = buf.readBlockPos();
             //float tps = buf.readFloat();
 
-            BlockEntity be = context.getPlayer().level().getBlockEntity(pos);
-            if (be instanceof BaseHelmBlockEntity blockEntity) {
-                blockEntity.wheelAngle = wheelAngle;
-                blockEntity.renderWheelAngleVel = (float) Minecraft.getInstance().getFps() / 20;
-                //serverTPS = tps;
-            }
+            context.queue(() -> {
+                if (context.getPlayer() == null || context.getPlayer().level() == null) {
+                    return;
+                }
+                BlockEntity be = context.getPlayer().level().getBlockEntity(pos);
+                if (be instanceof BaseHelmBlockEntity blockEntity) {
+                    blockEntity.wheelAngle = wheelAngle;
+                    blockEntity.renderWheelAngleVel = (float) Minecraft.getInstance().getFps() / 20;
+                    //serverTPS = tps;
+                }
+            });
         });
 
         NetworkManager.registerReceiver(NetworkManager.Side.S2C, PacketHandler.WHEEL_PACKET, (buf, context) -> {
@@ -49,10 +54,15 @@ public class PacketHandler {
             ItemStack wheel = buf.readItem();
             BlockPos pos = buf.readBlockPos();
 
-            BlockEntity be = context.getPlayer().level().getBlockEntity(pos);
-            if (be instanceof BaseHelmBlockEntity blockEntity) {
-                blockEntity.setItem(0, wheel);
-            }
+            context.queue(() -> {
+                if (context.getPlayer() == null || context.getPlayer().level() == null) {
+                    return;
+                }
+                BlockEntity be = context.getPlayer().level().getBlockEntity(pos);
+                if (be instanceof BaseHelmBlockEntity blockEntity) {
+                    blockEntity.setItem(0, wheel);
+                }
+            });
         });
 
 

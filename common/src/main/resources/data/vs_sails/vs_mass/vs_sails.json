@@ -36,6 +36,26 @@
     "mass": 480
   },
   {
+    "block": "vs_sails:mangrove_helm",
+    "mass": 480
+  },
+  {
+    "block": "vs_sails:cherry_helm",
+    "mass": 480
+  },
+  {
+    "block": "vs_sails:crimson_helm",
+    "mass": 480
+  },
+  {
+    "block": "vs_sails:warped_helm",
+    "mass": 480
+  },
+  {
+    "block": "vs_sails:bamboo_helm",
+    "mass": 480
+  },
+  {
     "block": "vs_sails:redstone_helm_wheel",
     "mass": 240
   },
@@ -61,6 +81,26 @@
   },
   {
     "block": "vs_sails:acacia_helm_wheel",
+    "mass": 240
+  },
+  {
+    "block": "vs_sails:mangrove_helm_wheel",
+    "mass": 240
+  },
+  {
+    "block": "vs_sails:cherry_helm_wheel",
+    "mass": 240
+  },
+  {
+    "block": "vs_sails:crimson_helm_wheel",
+    "mass": 240
+  },
+  {
+    "block": "vs_sails:warped_helm_wheel",
+    "mass": 240
+  },
+  {
+    "block": "vs_sails:bamboo_helm_wheel",
     "mass": 240
   },
   {
