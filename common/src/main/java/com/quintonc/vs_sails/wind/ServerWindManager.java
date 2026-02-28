@@ -3,6 +3,11 @@ package com.quintonc.vs_sails.wind;
 import com.quintonc.vs_sails.ValkyrienSails;
 import com.quintonc.vs_sails.config.ConfigUtils;
 import com.quintonc.vs_sails.networking.PacketHandler;
+import com.quintonc.vs_sails.wind.contributors.BaseDayNightStrengthContributor;
+import com.quintonc.vs_sails.wind.contributors.RandomStrengthContributor;
+import com.quintonc.vs_sails.wind.contributors.WeatherStrengthAmplifierContributor;
+import com.quintonc.vs_sails.wind.contributors.WeatherStrengthPrepContributor;
+import com.quintonc.vs_sails.wind.contributors.WindEffectContributor;
 import dev.architectury.event.events.common.TickEvent;
 import dev.architectury.networking.NetworkManager;
 import io.netty.buffer.Unpooled;
@@ -127,11 +132,25 @@ public class ServerWindManager extends WindManager {
         }
     }
 
+    private static final List<WindEffectContributor> STRENGTH_CONTRIBUTORS = List.of(
+            RandomStrengthContributor.INSTANCE,
+            WeatherStrengthPrepContributor.INSTANCE,
+            BaseDayNightStrengthContributor.INSTANCE,
+            WeatherStrengthAmplifierContributor.INSTANCE
+    );
+
+    private static void applyContributors(List<WindEffectContributor> contributors, WindComputationContext ctx) {
+        for (WindEffectContributor contributor : contributors) {
+            contributor.apply(ctx);
+        }
+    }
+
     private static void runEffectPipeline(WindComputationContext ctx) {
         computeWindLegacy(ctx);
     }
 
     private static void computeWindLegacy(WindComputationContext ctx) {
+        applyContributors(STRENGTH_CONTRIBUTORS, ctx);
         if (ctx.rule.dimensionMultiplier() > 0.0d) {
             if (ctx.rule.effects().randomStrengthVariation()) {
                 if (ctx.random.nextBoolean()) {

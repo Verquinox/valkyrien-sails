@@ -4,7 +4,7 @@ import net.minecraft.server.level.ServerLevel;
 
 import java.util.Random;
 
-final class WindComputationContext {
+public final class WindComputationContext {
     final ServerLevel world;
     final WindManager.WindRuleWind rule;
     final DimensionWindState state;
@@ -32,6 +32,62 @@ final class WindComputationContext {
 
     boolean isFixedDirectionType() {
         return rule.direction().type() == WindManager.WindType.FIXED;
+    }
+
+    public WindManager.WindRuleWind rule() {
+        return rule;
+    }
+
+    public boolean raining() {
+        return inputs.raining();
+    }
+
+    public boolean thundering() {
+        return inputs.thundering();
+    }
+
+    public long dayTime() {
+        return inputs.dayTime();
+    }
+
+    public Random random() {
+        return random;
+    }
+
+    public double timeInfluence() {
+        return timeInfluence;
+    }
+
+    public void setTimeInfluence(double timeInfluence) {
+        this.timeInfluence = timeInfluence;
+    }
+
+    public double randomStrengthFactor() {
+        return randomStrengthFactor;
+    }
+
+    public void setRandomStrengthFactor(double randomStrengthFactor) {
+        this.randomStrengthFactor = randomStrengthFactor;
+    }
+
+    public double randomDirectionOffset() {
+        return randomDirectionOffset;
+    }
+
+    public void setRandomDirectionOffset(double randomDirectionOffset) {
+        this.randomDirectionOffset = randomDirectionOffset;
+    }
+
+    public double strength() {
+        return strength;
+    }
+
+    public void setStrength(double strength) {
+        this.strength = strength;
+    }
+
+    public void multiplyStrength(double factor) {
+        this.strength *= factor;
     }
 
     void flushToState() {
