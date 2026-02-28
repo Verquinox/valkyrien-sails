@@ -1,11 +1,13 @@
 package com.quintonc.vs_sails;
 
 import com.quintonc.vs_sails.client.ClientWindManager;
+import com.quintonc.vs_sails.wind.WindManager;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.Registry;
@@ -14,7 +16,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.LightLayer;
-import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 
 public class ModSounds {
     private static int windSoundTick = 0;
@@ -34,18 +35,24 @@ public class ModSounds {
 
     @Environment(EnvType.CLIENT)
     public static void windSoundHandler (Minecraft client) {
+        LocalPlayer player = client.player;
+        if (player == null) return;
+
+        ClientLevel level = player.clientLevel;
+
+        if (!WindManager.isWindEnabled(level)) return;
+
         if (windSoundTick == 30) {
 
-            if (client.player != null && !client.isPaused()) { // && client.world.getBiome(client.player.getBlockPos()) == BiomeKeys.DEEP_OCEAN
-                LocalPlayer player = client.player;
+            if (!client.isPaused()) {
+                float windStrengthAbs = Math.abs(ClientWindManager.getWindStrength(level, player.blockPosition()));
                 if (
                         !player.isUnderWater()
-                        && player.clientLevel.dimensionTypeId() == BuiltinDimensionTypes.OVERWORLD
-                        && player.clientLevel.getBrightness(LightLayer.SKY, player.blockPosition()) > 3
-                        && Math.abs(ClientWindManager.getWindStrength(player.clientLevel, player.blockPosition())) > 0.35
+                        && level.getBrightness(LightLayer.SKY, player.blockPosition()) > 3
+                        && windStrengthAbs > 0.35
                 ) {
-                    float windVolume = (player.clientLevel.getBrightness(LightLayer.SKY, player.blockPosition()) * Math.abs(ClientWindManager.getWindStrength(player.clientLevel, player.blockPosition())) / 15 - 0.35f);
-                    player.clientLevel.playLocalSound(player.getX(), player.getY(), player.getZ(), WIND_AMBIENCE.get(), SoundSource.AMBIENT, windVolume, 1.0F, false);
+                    float windVolume = (level.getBrightness(LightLayer.SKY, player.blockPosition()) * windStrengthAbs / 15 - 0.35f);
+                    level.playLocalSound(player.getX(), player.getY(), player.getZ(), WIND_AMBIENCE.get(), SoundSource.AMBIENT, windVolume, 1.0F, false);
                 }
 
 

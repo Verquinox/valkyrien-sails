@@ -8,6 +8,7 @@ import com.quintonc.vs_sails.registration.SailsItems;
 import com.quintonc.vs_sails.ship.SailsShipControl;
 import com.quintonc.vs_sails.wind.ServerWindManager;
 import com.quintonc.vs_sails.wind.WindDataReloadListener;
+import com.quintonc.vs_sails.wind.WindManager;
 import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.event.events.common.TickEvent;
 import dev.architectury.platform.Platform;
@@ -109,9 +110,9 @@ public class ValkyrienSails {
                 }
             });
 
-            if (sailsWind) {
+            if (sailsWind && WindManager.isWindEnabled(world)) {
                 //Spawn wind particles for all players being dragged by ships with a SailsShipControl attachment
-                world.getServer().getPlayerList().getPlayers().forEach(serverPlayerEntity -> {
+                world.players().forEach(serverPlayerEntity -> {
                     if (serverPlayerEntity instanceof IEntityDraggingInformationProvider player) {
                         if (player.getDraggingInformation().getLastShipStoodOn() != null) {
                             long shipId = player.getDraggingInformation().getLastShipStoodOn();
