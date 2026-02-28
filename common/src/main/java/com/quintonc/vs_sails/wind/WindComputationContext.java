@@ -70,6 +70,22 @@ public final class WindComputationContext {
         this.randomStrengthFactor = randomStrengthFactor;
     }
 
+    public int moonPhase() {
+        return inputs.moonPhase();
+    }
+
+    public double direction() {
+        return direction;
+    }
+
+    public void setDirection(double direction) {
+        this.direction = direction;
+    }
+
+    public void addDirection(double delta) {
+        this.direction += delta;
+    }
+
     public double randomDirectionOffset() {
         return randomDirectionOffset;
     }
@@ -88,6 +104,22 @@ public final class WindComputationContext {
 
     public void multiplyStrength(double factor) {
         this.strength *= factor;
+    }
+
+    public double dimensionMultiplier() {
+        return rule.dimensionMultiplier();
+    }
+
+    public void resetVariationState() {
+        setTimeInfluence(0.5d);
+        setRandomStrengthFactor(0.25d);
+        setRandomDirectionOffset(0.0d);
+    }
+
+    public void setNoWind() {
+        resetVariationState();
+        setStrength(0.0d);
+        setDirection(0.0d);
     }
 
     void flushToState() {

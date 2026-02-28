@@ -3,11 +3,7 @@ package com.quintonc.vs_sails.wind;
 import com.quintonc.vs_sails.ValkyrienSails;
 import com.quintonc.vs_sails.config.ConfigUtils;
 import com.quintonc.vs_sails.networking.PacketHandler;
-import com.quintonc.vs_sails.wind.contributors.BaseDayNightStrengthContributor;
-import com.quintonc.vs_sails.wind.contributors.RandomStrengthContributor;
-import com.quintonc.vs_sails.wind.contributors.WeatherStrengthAmplifierContributor;
-import com.quintonc.vs_sails.wind.contributors.WeatherStrengthPrepContributor;
-import com.quintonc.vs_sails.wind.contributors.WindEffectContributor;
+import com.quintonc.vs_sails.wind.contributors.*;
 import dev.architectury.event.events.common.TickEvent;
 import dev.architectury.networking.NetworkManager;
 import io.netty.buffer.Unpooled;
@@ -22,13 +18,10 @@ import org.joml.Vector3d;
 import org.valkyrienskies.core.api.ships.LoadedServerShip;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-
-import static java.lang.Math.*;
 
 
 public class ServerWindManager extends WindManager {
@@ -68,17 +61,6 @@ public class ServerWindManager extends WindManager {
     //private static int gustiness = 10; //fixme finish
     //private static int shear = 10; //fixme finish
 
-    private static final List<Integer> DIRECTIONS = Arrays.asList(
-            225, // south-west
-            90,  // east
-            270, // west
-            0,   // north
-            180, // south
-            315, // north-west
-            45,  // north-east
-            135  // south-east
-    );
-
     public static void InitializeWind() {
         clearAllState();
         windGustiness = 0.125f; //between 0 and 1: 1 is
@@ -94,7 +76,7 @@ public class ServerWindManager extends WindManager {
     private static void onWorldTick(ServerLevel world) {
         DimensionWindState state = getOrCreateState(world);
         WindRuleWind rule = WindRuleRegistry.getWind(world);
-        trypruneStaleState(world);
+        tryPruneStaleState(world);
 
         if (state.tickCounter >= rule.windInterval() - 1) {
             state.tickCounter = 0;
@@ -126,7 +108,7 @@ public class ServerWindManager extends WindManager {
                             new Vector3d(0,0,-1).rotateY(Math.toRadians(effectiveDirection)),
                             ValkyrienSails.MOD_ID
                     );
-                    ship.getDragController().setWindSpeed((float) state.strength, ValkyrienSails.MOD_ID);
+                    ship.getDragController().setWindSpeed(state.strength, ValkyrienSails.MOD_ID);
                 }
             }
         }
@@ -139,6 +121,39 @@ public class ServerWindManager extends WindManager {
             WeatherStrengthAmplifierContributor.INSTANCE
     );
 
+    private static final List<WindEffectContributor> DEFAULT_DIRECTION_CONTRIBUTORS = List.of(
+            RandomDirectionVariationContributor.INSTANCE,
+            MoonDirectionContributor.INSTANCE,
+            DefaultDirectionFromStrengthContributor.INSTANCE
+    );
+
+    private static final List<WindEffectContributor> RADIAL_DIRECTION_CONTRIBUTORS = List.of(
+            RandomDirectionVariationContributor.INSTANCE,
+            RadialDirectionContributor.INSTANCE
+    );
+
+    private static final List<WindEffectContributor> STRENGTH_FINALIZATION_CONTRIBUTORS = List.of(
+            StrengthFinalizationContributor.INSTANCE
+    );
+
+    private static final List<WindEffectContributor> DIRECTION_FINALIZATION_CONTRIBUTORS = List.of(
+            DirectionFinalizationContributor.INSTANCE
+    );
+
+    private static void applyDirectionContributors(WindComputationContext ctx) {
+        if (ctx.rule().direction().type() == WindType.FIXED) {
+            ctx.setDirection(ctx.rule().fixedDirection());
+            return;
+        }
+
+        if (ctx.rule().direction().type() == WindType.DEFAULT) {
+            applyContributors(DEFAULT_DIRECTION_CONTRIBUTORS, ctx);
+            return;
+        }
+
+        applyContributors(RADIAL_DIRECTION_CONTRIBUTORS, ctx);
+    }
+
     private static void applyContributors(List<WindEffectContributor> contributors, WindComputationContext ctx) {
         for (WindEffectContributor contributor : contributors) {
             contributor.apply(ctx);
@@ -150,80 +165,19 @@ public class ServerWindManager extends WindManager {
     }
 
     private static void computeWindLegacy(WindComputationContext ctx) {
-        applyContributors(STRENGTH_CONTRIBUTORS, ctx);
-        if (ctx.rule.dimensionMultiplier() > 0.0d) {
-            if (ctx.rule.effects().randomStrengthVariation()) {
-                if (ctx.random.nextBoolean()) {
-                    ctx.timeInfluence = min(ctx.timeInfluence + (abs(ctx.timeInfluence) * 0.125d) + 0.01d, 1.0d);
-                } else {
-                    ctx.timeInfluence = max(ctx.timeInfluence - (abs(ctx.timeInfluence) * 0.125d) - 0.01d, -1.0d);
-                }
-                ctx.randomStrengthFactor = min(
-                        max(ctx.randomStrengthFactor + (ctx.random.nextDouble() - 0.5d) * (1.0d - ctx.randomStrengthFactor), 0.0d),
-                        0.99d
-                );
-            } else {
-                ctx.timeInfluence = 0.5d;
-                ctx.randomStrengthFactor = 0.25d;
-            }
-
-            if (ctx.rule.effects().randomDirectionVariation()) {
-                ctx.randomDirectionOffset = min(
-                        max(ctx.randomDirectionOffset + (ctx.random.nextDouble() - 0.5d) * 24.0d, -120.0d),
-                        120.0d
-                );
-            } else {
-                ctx.randomDirectionOffset = 0.0d;
-            }
-
-            if (ctx.rule.effects().weather() && (ctx.inputs.raining() || ctx.inputs.thundering())) {
-                ctx.timeInfluence = 0.0d;
-            }
-
-            double timeFactor = ctx.rule.effects().dayNight()
-                    ? sin(((double) ctx.inputs.dayTime() / 12000.0d) * Math.PI)
-                    : 1.0d;
-
-            ctx.strength = copySign(
-                    (pow(abs(timeFactor), 0.44d) * ctx.timeInfluence
-                        + abs(ctx.randomStrengthFactor) * (1.0d - ctx.timeInfluence)),
-                    timeFactor
-            );
-
-            if (ctx.rule.effects().weather()) {
-                if (ctx.inputs.thundering()) {
-                    ctx.strength *= 2.0d;
-                } else if (ctx.inputs.raining()) {
-                    ctx.strength *= 1.5d;
-                }
-            }
-
-            ctx.strength /= 2.0d;
-            ctx.strength *= ctx.rule.dimensionMultiplier();
-
-            if (ctx.rule.direction().type() == WindType.FIXED) {
-                ctx.direction = ctx.rule.fixedDirection();
-            } else if (ctx.rule.direction().type() == WindType.DEFAULT) {
-                if (ctx.rule.effects().moonPhase()) {
-                    ctx.direction = DIRECTIONS.get(ctx.inputs.moonPhase());
-                }
-                ctx.direction += 12.0d * ctx.strength;
-                ctx.direction += 12.0d;
-                ctx.direction += ctx.randomDirectionOffset;
-                ctx.direction = normalizeDegrees(ctx.direction);
-            } else if (ctx.rule.direction().type() == WindType.RADIAL) {
-                ctx.direction = normalizeDegrees(ctx.randomDirectionOffset);
-            }
-        } else {
-            ctx.timeInfluence = 0.5d;
-            ctx.randomStrengthFactor = 0.25d;
-            ctx.randomDirectionOffset = 0.0d;
-            ctx.strength = 0.0d;
-            ctx.direction = 0.0d;
+        if (ctx.dimensionMultiplier() <= 0.0d) {
+            ctx.setNoWind();
+            return;
         }
+
+        applyContributors(STRENGTH_CONTRIBUTORS, ctx);
+        applyContributors(STRENGTH_FINALIZATION_CONTRIBUTORS, ctx);
+
+        applyDirectionContributors(ctx);
+        applyContributors(DIRECTION_FINALIZATION_CONTRIBUTORS, ctx);
     }
 
-    private static void trypruneStaleState(ServerLevel world) {
+    private static void tryPruneStaleState(ServerLevel world) {
         int serverTick = world.getServer().getTickCount(); // or equivalent in your mappings
         if (serverTick - lastPruneServerTick >= PRUNE_INTERVAL_TICKS) {
             pruneStaleState(world);
