@@ -27,9 +27,9 @@ public class WindParticle extends TextureSheetParticle {
         this.x = x;
         this.y = y;
         this.z = z;
-        this.xd = 0;
-        this.yd = 0;
-        this.zd = 0;
+        this.xd = xd;
+        this.yd = yd;
+        this.zd = zd;
         this.quadSize = 0.25f;
         this.lifetime = 20;
         this.alpha = 0;

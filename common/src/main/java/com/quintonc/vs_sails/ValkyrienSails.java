@@ -124,8 +124,27 @@ public class ValkyrienSails {
                                     if (controller.numSails > 0) {
                                         if (player.getDraggingInformation().getTicksSinceStoodOnShip() < 100) {
                                             Vector3dc shipPos = ship.getTransform().getPositionInWorld(); //fixme make sure this is the world pos of the ship
-                                            double windDir = Math.toRadians(ServerWindManager.getWindDirection(world, new Vec3(shipPos.x(), shipPos.y(), shipPos.z()))+180);
-                                            world.sendParticles(serverPlayerEntity, ValkyrienSails.WIND_PARTICLE, false, serverPlayerEntity.getX()+15*Math.sin(windDir), serverPlayerEntity.getY()+25, serverPlayerEntity.getZ()+15*Math.sin(windDir), 10, 20, 10, 20, 0);
+                                            double windDir = Math.toRadians(ServerWindManager.getWindDirection(world, new Vec3(shipPos.x(), shipPos.y(), shipPos.z())) + 180);
+                                            Vector3dc shipVelocity = ship.getVelocity();
+                                            double particleX = serverPlayerEntity.getX() + 15 * Math.sin(windDir);
+                                            double particleY = serverPlayerEntity.getY() + 25;
+                                            double particleZ = serverPlayerEntity.getZ() + 15 * Math.sin(windDir);
+
+                                            for (int i = 0; i < 10; i++) {
+                                                world.sendParticles(
+                                                        serverPlayerEntity,
+                                                        ValkyrienSails.WIND_PARTICLE,
+                                                        false,
+                                                        particleX + (world.random.nextDouble() - 0.5D) * 40.0D,
+                                                        particleY + (world.random.nextDouble() - 0.5D) * 20.0D,
+                                                        particleZ + (world.random.nextDouble() - 0.5D) * 40.0D,
+                                                        0,
+                                                        shipVelocity.x(),
+                                                        shipVelocity.y(),
+                                                        shipVelocity.z(),
+                                                        1.0D
+                                                );
+                                            }
                                         }
                                     }
                                 }

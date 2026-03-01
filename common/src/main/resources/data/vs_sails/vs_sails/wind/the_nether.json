@@ -5,7 +5,7 @@
     "dimension_tags": []
   },
   "wind": {
-    "dimension_multiplier": 0.3,
+    "dimension_multiplier": 0.8,
     "direction": {
       "type": "DEFAULT"
     },
