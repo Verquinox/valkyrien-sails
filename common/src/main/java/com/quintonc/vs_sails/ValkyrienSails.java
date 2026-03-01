@@ -40,6 +40,7 @@ public class ValkyrienSails {
     public static final Logger LOGGER = LoggerFactory.getLogger("vs_sails_common");
     private static int tickCount = 0;
     private static final int refreshRate = 4;
+    private static final int PARTICLES_PER_TICK = 3;
     public static boolean weather2 = Platform.isModLoaded("weather2");
     public static boolean sailsWind = false;
     public static final double EULERS_NUMBER = 2.71828182846;
@@ -116,7 +117,7 @@ public class ValkyrienSails {
             return;
         }
 
-        int particleSpawnsThisTick = getInterpolatedParticleSpawnsPerTick(world);
+        int particleSpawnsThisTick = PARTICLES_PER_TICK;
 
         world.players().forEach(serverPlayerEntity -> {
             if (serverPlayerEntity instanceof IEntityDraggingInformationProvider player) {
@@ -155,17 +156,6 @@ public class ValkyrienSails {
                 }
             }
         });
-    }
-
-    private static int getInterpolatedParticleSpawnsPerTick(ServerLevel world) {
-        final int legacyParticlesPerBurst = 10;
-        final int legacyCycleTicks = refreshRate + 1;
-
-        int base = legacyParticlesPerBurst / legacyCycleTicks;
-        int remainder = legacyParticlesPerBurst % legacyCycleTicks;
-
-        int cycleStep = (int) Math.floorMod(world.getGameTime(), legacyCycleTicks);
-        return base + (cycleStep < remainder ? 1 : 0);
     }
 
     private static Vec3 project(Vec3 vec1, Vec3 vec2) {

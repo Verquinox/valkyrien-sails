@@ -5,7 +5,7 @@
     "dimension_tags": []
   },
   "wind": {
-    "dimension_multiplier": 1.3,
+    "dimension_multiplier": 1.1,
     "direction": {
       "type": "RADIAL"
     },

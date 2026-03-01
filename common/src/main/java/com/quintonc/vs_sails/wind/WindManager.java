@@ -158,6 +158,14 @@ public class WindManager {
         WIND_ENABLED_BY_DIMENSION.clear();
     }
 
+    public static void clearWindDataForDimension(ResourceLocation dimensionId){
+        if (dimensionId == null) return;
+        WIND_STRENGTH_BY_DIMENSION.remove(dimensionId);
+        WIND_DIRECTION_BY_DIMENSION.remove(dimensionId);
+        WIND_TYPE_BY_DIMENSION.remove(dimensionId);
+        WIND_ENABLED_BY_DIMENSION.remove(dimensionId);
+    }
+
     private static DataResult<WindRuleWind> validateWind(WindRuleWind wind) {
         if (!Double.isFinite(wind.dimensionMultiplier())) {
             return DataResult.error(() -> "'dimension_multiplier' must be a finite number");
@@ -236,11 +244,7 @@ public class WindManager {
             WindType windType = WIND_TYPE_BY_DIMENSION.getOrDefault(dimensionId, WindType.DEFAULT);
 
             float baseDirection = WIND_DIRECTION_BY_DIMENSION.getOrDefault(dimensionId, 0.0f);
-            if (windType == WindType.NO_WIND) return 0.0f;
-            if (windType == WindType.RADIAL && pos != null) {
-                return (float) normalizeDegrees(Math.toDegrees(Math.atan2(pos.z, pos.x)) + baseDirection);
-            }
-            return baseDirection;
+            return (float) resolveDirectionForPosition(windType, baseDirection, pos, baseDirection);
         }
 
         return 0.0f;
@@ -259,5 +263,14 @@ public class WindManager {
         }
 
         return 0.0f;
+    }
+
+    static double resolveDirectionForPosition(WindType windType, double baseDirection, Vec3 position, double defaultDirection) {
+        if (windType == WindType.NO_WIND) return 0.0d;
+        if (windType == WindType.FIXED) return baseDirection;
+        if (windType == WindType.RADIAL && position != null) {
+            return normalizeDegrees(Math.toDegrees(Math.atan2(position.z, position.x)) + defaultDirection);
+        }
+        return defaultDirection;
     }
 }

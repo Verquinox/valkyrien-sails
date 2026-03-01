@@ -19,10 +19,7 @@ import org.joml.Vector3d;
 import org.valkyrienskies.core.api.ships.LoadedServerShip;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 
 public class ServerWindManager extends WindManager {
@@ -68,6 +65,7 @@ public class ServerWindManager extends WindManager {
 
     public static void InitializeWind() {
         clearAllState();
+        clearWindData();
         lastPruneServerTick = 0;
         random = new Random();
 
@@ -190,7 +188,14 @@ public class ServerWindManager extends WindManager {
     }
 
     private static void pruneStaleState(ServerLevel world) {
-        WIND_STATE_BY_DIMENSION.keySet().removeIf(key -> world.getServer().getLevel(key) == null);
+        Iterator<ResourceKey<Level>> it = WIND_STATE_BY_DIMENSION.keySet().iterator();
+        while (it.hasNext()) {
+            ResourceKey<Level> key = it.next();
+            if (world.getServer().getLevel(key) == null) {
+                it.remove();
+                clearWindDataForDimension(key.location());
+            }
+        }
     }
 
     private static void sendWindPackets(ServerLevel world, WindType windType, float strength, float defaultDirection, boolean windEnabled) {
@@ -202,14 +207,5 @@ public class ServerWindManager extends WindManager {
 
             NetworkManager.sendToPlayer(player, PacketHandler.WIND_DATA_PACKET, buf);
         }
-    }
-
-    private static double resolveDirectionForPosition(WindType windType, double baseDirection, Vec3 position, double defaultDirection) {
-        if (windType == WindType.NO_WIND) return 0.0d;
-        if (windType == WindType.FIXED) return baseDirection;
-        if (windType == WindType.RADIAL && position != null) {
-            return normalizeDegrees(Math.toDegrees(Math.atan2(position.z, position.x)) + defaultDirection);
-        }
-        return defaultDirection;
     }
 }

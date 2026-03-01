@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.asm.mixin.Unique;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
+import org.valkyrienskies.mod.common.util.EntityDraggingInformation;
 import org.valkyrienskies.mod.common.util.IEntityDraggingInformationProvider;
 
 public class WindParticle extends TextureSheetParticle {
@@ -60,8 +61,12 @@ public class WindParticle extends TextureSheetParticle {
     public void tick() {
         super.tick();
         applyDraggedShipTransformCompensation();
-        this.xd = modifyDx(this.xd);
-        this.zd = modifyDz(this.zd);
+
+        Vec3 oldParticlePos = new Vec3(this.x, this.y, this.z);
+        Vec3 windEffect = calculateWindEffect(oldParticlePos);
+        this.xd = modifyD(this.xd, windEffect.x);
+        this.zd = modifyD(this.zd, windEffect.z);
+
         applyOscillation();
         fade();
     }
@@ -123,12 +128,13 @@ public class WindParticle extends TextureSheetParticle {
         if (minecraft.player == null || minecraft.player.level() != this.level) {
             return null;
         }
+
         if (!(minecraft.player instanceof IEntityDraggingInformationProvider draggingPlayer)) {
             return null;
         }
 
-        var draggingInfo = draggingPlayer.getDraggingInformation();
-        if (draggingInfo == null || !draggingInfo.isEntityBeingDraggedByAShip()) {
+        EntityDraggingInformation draggingInfo = draggingPlayer.getDraggingInformation();
+        if (!draggingInfo.isEntityBeingDraggedByAShip()) {
             return null;
         }
         return draggingInfo.getLastShipStoodOn();
@@ -152,36 +158,17 @@ public class WindParticle extends TextureSheetParticle {
         }
     }
 
-    private double modifyDx(double dx) {
-        //String simpleName = this.getClass().getSimpleName();
-//		System.out.println(simpleName);
-
-//        if (this.world.getLightLevel(LightType.SKY, new BlockPos((int) this.x, (int) this.y, (int) this.z)) == 0 || this.y < 40) {
-//            return dx;
-//        }
-
-        Vec3 oldParticlePos = new Vec3(this.x, this.y, this.z); //fixme might not need this (same with ParticleMixin)
-        Vec3 windEffect = calculateWindEffect(oldParticlePos);
-        Vec3 particlePos = new Vec3(this.x, this.y, this.z);
-        Vec3 windDirection = new Vec3(Math.cos(Math.toRadians(ClientWindManager.getWindDirection(this.level, particlePos))), 0, Math.sin(Math.toRadians(ClientWindManager.getWindDirection(this.level, particlePos))));
-
-        double windInfluenceFactor = getWindInfluenceFactor(particlePos, windDirection);
-        return dx + windEffect.x * windInfluenceFactor;
-    }
-
-    private double modifyDz(double dz) {
+    private double modifyD(double d, double axis) {
 
 //        if (this.world.getLightLevel(LightType.SKY, new BlockPos((int) this.x, (int) this.y, (int) this.z)) == 0 || this.y < 40) {
 //            return dz;
 //        }
 
-        Vec3 oldParticlePos = new Vec3(this.x, this.y, this.z); //fixme might not need this (same with ParticleMixin)
-        Vec3 windEffect = calculateWindEffect(oldParticlePos);
         Vec3 particlePos = new Vec3(this.x, this.y, this.z);
         Vec3 windDirection = new Vec3(Math.cos(Math.toRadians(ClientWindManager.getWindDirection(this.level, particlePos))), 0, Math.sin(Math.toRadians(ClientWindManager.getWindDirection(this.level, particlePos))));
 
         double windInfluenceFactor = getWindInfluenceFactor(particlePos, windDirection);
-        return dz + windEffect.z * windInfluenceFactor;
+        return d + axis * windInfluenceFactor;
     }
 
     private double getWindInfluenceFactor(Vec3 particlePosition, Vec3 windDirection) {
@@ -208,7 +195,7 @@ public class WindParticle extends TextureSheetParticle {
 
     @Unique
     private Vec3 calculateWindEffect(Vec3 particlePos) {
-        double windEffectiveness = 1.2d;
+        double windEffectiveness = 2;
         BlockPos pos = new BlockPos((int) this.x, (int) this.y, (int) this.z);
 
         double angleRadians = Math.toRadians(ClientWindManager.getWindDirection(this.level, particlePos));
