@@ -1,7 +1,6 @@
 package com.quintonc.vs_sails.networking;
 
 import com.quintonc.vs_sails.blocks.entity.BaseHelmBlockEntity;
-import com.quintonc.vs_sails.client.ClientWindManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -25,7 +24,6 @@ public class PacketHandler {
 
         CHANNEL.register(WheelAngleMessage.class, WheelAngleMessage::encode, WheelAngleMessage::new, WheelAngleMessage::apply);
         CHANNEL.register(WheelMessage.class, WheelMessage::encode, WheelMessage::new, WheelMessage::apply);
-        CHANNEL.register(WindDataPacket.class, WindDataPacket::encode, WindDataPacket::new, WindDataPacket::apply);
 
         NetworkManager.registerReceiver(NetworkManager.Side.S2C, PacketHandler.WHEEL_ANGLE_PACKET, (buf, context) -> {
             //Player player = context.getPlayer();
@@ -35,7 +33,7 @@ public class PacketHandler {
             //float tps = buf.readFloat();
 
             context.queue(() -> {
-                if (context.getPlayer() == null || context.getPlayer().level() == null) {
+                if (context.getPlayer() == null) {
                     return;
                 }
                 BlockEntity be = context.getPlayer().level().getBlockEntity(pos);
@@ -54,7 +52,7 @@ public class PacketHandler {
             BlockPos pos = buf.readBlockPos();
 
             context.queue(() -> {
-                if (context.getPlayer() == null || context.getPlayer().level() == null) {
+                if (context.getPlayer() == null) {
                     return;
                 }
                 BlockEntity be = context.getPlayer().level().getBlockEntity(pos);
@@ -65,16 +63,7 @@ public class PacketHandler {
         });
 
 
-        NetworkManager.registerReceiver(NetworkManager.Side.S2C, PacketHandler.WIND_DATA_PACKET, (buf, context) -> {
-            // Logic
-            float str = buf.readFloat();
-            float dir = buf.readFloat();
-            context.queue(() -> {
-                ClientWindManager.windStrength = str;
-                ClientWindManager.windDirection = dir;
-            });
-
-        });
+        NetworkManager.registerReceiver(NetworkManager.Side.S2C, PacketHandler.WIND_DATA_PACKET, (buf, context) -> WindDataPacket.decode(buf).apply(context));
 
     }
 

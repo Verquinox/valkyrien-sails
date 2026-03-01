@@ -1,9 +1,9 @@
 package com.quintonc.vs_sails;
 
 import com.quintonc.vs_sails.blocks.entity.renderer.HelmBlockEntityRenderer;
+import com.quintonc.vs_sails.client.ClientWindManager;
 import com.quintonc.vs_sails.networking.PacketHandler;
 import dev.architectury.event.events.client.ClientTickEvent;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 
 public class ValkyrienSailsClient {
@@ -28,6 +28,8 @@ public class ValkyrienSailsClient {
             ClientTickEvent.CLIENT_POST.register(ModSounds::windSoundHandler);
         }
 
+        ClientTickEvent.CLIENT_POST.register(ClientWindManager::handleClientTick);
 
     }
+
 }

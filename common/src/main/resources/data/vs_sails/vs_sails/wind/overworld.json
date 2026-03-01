@@ -1,0 +1,22 @@
+{
+  "priority": 0,
+  "targets": {
+    "dimensions": ["minecraft:overworld"],
+    "dimension_tags": []
+  },
+  "wind": {
+    "dimension_multiplier": 1.0,
+    "direction": {
+      "type": "DEFAULT"
+    },
+    "base_direction": 0,
+    "wind_interval": 300,
+    "effects": {
+      "weather": 1,
+      "day_night": 1,
+      "moon_phase": 1,
+      "random_strength_variation": 1,
+      "random_direction_variation": 1
+    }
+  }
+}

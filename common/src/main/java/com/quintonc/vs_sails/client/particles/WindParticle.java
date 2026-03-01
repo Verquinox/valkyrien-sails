@@ -1,6 +1,7 @@
 package com.quintonc.vs_sails.client.particles;
 
 import com.quintonc.vs_sails.client.ClientWindManager;
+import net.minecraft.client.Minecraft;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.world.level.block.state.BlockState;
@@ -12,13 +13,23 @@ import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3d;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.asm.mixin.Unique;
+import org.valkyrienskies.mod.common.VSGameUtilsKt;
+import org.valkyrienskies.mod.common.util.EntityDraggingInformation;
+import org.valkyrienskies.mod.common.util.IEntityDraggingInformationProvider;
 
 public class WindParticle extends TextureSheetParticle {
     public static final Logger LOGGER = LoggerFactory.getLogger("wind_particle");
+    private final float baseQuadSize;
+    private final double oscillationPhase;
+    private final double oscillationAmplitude;
+    @Nullable
+    private final Long boundShipId;
+    private double lastOscillationOffset;
 
     protected WindParticle(ClientLevel world, double x, double y, double z, SpriteSet spriteSet, double xd, double yd, double zd) {
         super(world, x, y, z, xd, yd, zd);
@@ -27,12 +38,17 @@ public class WindParticle extends TextureSheetParticle {
         this.x = x;
         this.y = y;
         this.z = z;
-        this.xd = 0;
-        this.yd = 0;
-        this.zd = 0;
-        this.quadSize = 0.25f;
+        this.xd = xd;
+        this.yd = yd;
+        this.zd = zd;
+        this.baseQuadSize = 0.20f;
+        this.quadSize = baseQuadSize;
         this.lifetime = 20;
         this.alpha = 0;
+        this.oscillationPhase = this.random.nextDouble() * Math.PI * 2.0d;
+        this.oscillationAmplitude = this.random.nextDouble() * 0.8d;
+        this.boundShipId = resolveBoundShipId();
+        this.lastOscillationOffset = 0.0d;
         this.setSpriteFromAge(spriteSet);
 
         this.rCol = 1f;
@@ -44,16 +60,84 @@ public class WindParticle extends TextureSheetParticle {
     @Override
     public void tick() {
         super.tick();
-        this.xd = modifyDx(this.xd);
-        this.zd = modifyDz(this.zd);
+        applyDraggedShipTransformCompensation();
+
+        Vec3 oldParticlePos = new Vec3(this.x, this.y, this.z);
+        Vec3 windEffect = calculateWindEffect(oldParticlePos);
+        this.xd = modifyD(this.xd, windEffect.x);
+        this.zd = modifyD(this.zd, windEffect.z);
+
+        applyOscillation();
         fade();
     }
 
     private void fade() {
         double windStrength = ClientWindManager.getWindStrength(this.level, new BlockPos((int)this.x, (int)this.y, (int)this.z));
+        float fadeEnvelope = (float) Math.sin((Math.PI * age) / lifetime);
         //int lightLevel = this.world.getLightLevel(LightType.SKY, new BlockPos((int) this.x, (int) this.y, (int) this.z));
         //todo how would I get the viewing player to make the particles fade out when they get close to the player?
-        this.alpha = (float)(Math.abs(windStrength)*0.75*Math.sin((Math.PI*age)/lifetime));
+        this.alpha = (float)(Math.abs(windStrength) * 0.75d * fadeEnvelope);
+        this.quadSize = baseQuadSize * (0.25f + 0.75f * fadeEnvelope);
+    }
+
+    private void applyOscillation() {
+        Vec3 particlePos = new Vec3(this.x, this.y, this.z);
+        double directionRadians = Math.toRadians(ClientWindManager.getWindDirection(this.level, particlePos));
+        double oscillation = Math.sin((age * 0.45d) + oscillationPhase) * oscillationAmplitude;
+        double delta = oscillation - lastOscillationOffset;
+        lastOscillationOffset = oscillation;
+
+        double perpendicularX = -Math.sin(directionRadians);
+        double perpendicularZ = Math.cos(directionRadians);
+        this.setPos(this.x + (perpendicularX * delta), this.y, this.z + (perpendicularZ * delta));
+    }
+
+    private void applyDraggedShipTransformCompensation() {
+        if (boundShipId == null) {
+            return;
+        }
+        var ship = VSGameUtilsKt.getShipObjectWorld(this.level).getLoadedShips().getById(boundShipId);
+        if (ship == null) {
+            return;
+        }
+
+        Vector3d particlePos = new Vector3d(this.x, this.y, this.z);
+        Vector3d previousShipSpacePos = ship.getPrevTickTransform()
+                .getWorldToShip()
+                .transformPosition(new Vector3d(particlePos));
+        Vector3d idealWorldPos = ship.getTransform()
+                .getShipToWorld()
+                .transformPosition(previousShipSpacePos);
+
+        double compensationX = idealWorldPos.x - particlePos.x;
+        double compensationY = idealWorldPos.y - particlePos.y;
+        double compensationZ = idealWorldPos.z - particlePos.z;
+        if (!Double.isFinite(compensationX) || !Double.isFinite(compensationY) || !Double.isFinite(compensationZ)) {
+            return;
+        }
+
+        this.setPos(this.x + compensationX, this.y + compensationY, this.z + compensationZ);
+        this.xo += compensationX;
+        this.yo += compensationY;
+        this.zo += compensationZ;
+    }
+
+    @Nullable
+    private Long resolveBoundShipId() {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.player == null || minecraft.player.level() != this.level) {
+            return null;
+        }
+
+        if (!(minecraft.player instanceof IEntityDraggingInformationProvider draggingPlayer)) {
+            return null;
+        }
+
+        EntityDraggingInformation draggingInfo = draggingPlayer.getDraggingInformation();
+        if (!draggingInfo.isEntityBeingDraggedByAShip()) {
+            return null;
+        }
+        return draggingInfo.getLastShipStoodOn();
     }
 
     @Override
@@ -74,36 +158,17 @@ public class WindParticle extends TextureSheetParticle {
         }
     }
 
-    private double modifyDx(double dx) {
-        //String simpleName = this.getClass().getSimpleName();
-//		System.out.println(simpleName);
-
-//        if (this.world.getLightLevel(LightType.SKY, new BlockPos((int) this.x, (int) this.y, (int) this.z)) == 0 || this.y < 40) {
-//            return dx;
-//        }
-
-        Vec3 oldParticlePos = new Vec3(this.x, this.y, this.z); //fixme might not need this (same with ParticleMixin)
-        Vec3 windEffect = calculateWindEffect(oldParticlePos);
-        Vec3 particlePos = new Vec3(this.x, this.y, this.z);
-        Vec3 windDirection = new Vec3(Math.cos(Math.toRadians(ClientWindManager.getWindDirection(this.level, particlePos))), 0, Math.sin(Math.toRadians(ClientWindManager.getWindDirection(this.level, particlePos))));
-
-        double windInfluenceFactor = getWindInfluenceFactor(particlePos, windDirection);
-        return dx + windEffect.x * windInfluenceFactor;
-    }
-
-    private double modifyDz(double dz) {
+    private double modifyD(double d, double axis) {
 
 //        if (this.world.getLightLevel(LightType.SKY, new BlockPos((int) this.x, (int) this.y, (int) this.z)) == 0 || this.y < 40) {
 //            return dz;
 //        }
 
-        Vec3 oldParticlePos = new Vec3(this.x, this.y, this.z); //fixme might not need this (same with ParticleMixin)
-        Vec3 windEffect = calculateWindEffect(oldParticlePos);
         Vec3 particlePos = new Vec3(this.x, this.y, this.z);
         Vec3 windDirection = new Vec3(Math.cos(Math.toRadians(ClientWindManager.getWindDirection(this.level, particlePos))), 0, Math.sin(Math.toRadians(ClientWindManager.getWindDirection(this.level, particlePos))));
 
         double windInfluenceFactor = getWindInfluenceFactor(particlePos, windDirection);
-        return dz + windEffect.z * windInfluenceFactor;
+        return d + axis * windInfluenceFactor;
     }
 
     private double getWindInfluenceFactor(Vec3 particlePosition, Vec3 windDirection) {
