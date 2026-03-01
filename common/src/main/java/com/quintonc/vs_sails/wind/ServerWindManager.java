@@ -117,6 +117,12 @@ public class ServerWindManager extends WindManager {
         runEffectPipeline(ctx);
 
         ctx.flushToState();
+        ValkyrienSails.LOGGER.info(
+                "Wind update dim={} strength={} modifier={}",
+                world.dimension().location(),
+                state.strength,
+                rule.dimensionMultiplier()
+        );
 
         boolean windEnabled = rule.dimensionMultiplier() > 0.0d && rule.direction().type() != WindType.NO_WIND;
 
