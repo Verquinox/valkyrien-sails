@@ -2,6 +2,9 @@ package com.quintonc.vs_sails.wind.contributors;
 
 import com.quintonc.vs_sails.wind.WindComputationContext;
 
+import static net.minecraft.util.Mth.positiveModulo;
+import static net.minecraft.util.Mth.wrapDegrees;
+
 public final class MoonDirectionContributor implements WindEffectContributor {
     public static final MoonDirectionContributor INSTANCE = new MoonDirectionContributor();
 
@@ -20,8 +23,13 @@ public final class MoonDirectionContributor implements WindEffectContributor {
 
     @Override
     public void apply(WindComputationContext ctx) {
-        if (ctx.rule().effects().moonPhase()) {
-            ctx.setDirection(DIRECTIONS[ctx.moonPhase()]);
-        }
+        double influence = ctx.rule().effects().moonPhase();
+        if (influence <= 0.0d) return;
+
+        double target = DIRECTIONS[ctx.moonPhase()];
+        double current = ctx.direction();
+        double delta = wrapDegrees((float) (target - current));
+        double blended = current + delta * influence;
+        ctx.setDirection(positiveModulo((float) blended, 360.0f));
     }
 }

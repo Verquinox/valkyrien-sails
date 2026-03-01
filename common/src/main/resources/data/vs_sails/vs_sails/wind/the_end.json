@@ -12,11 +12,11 @@
     "base_direction": 0,
     "wind_interval": 30,
     "effects": {
-      "weather": false,
-      "day_night": false,
-      "moon_phase": false,
-      "random_strength_variation": false,
-      "random_direction_variation": false
+      "weather": 0,
+      "day_night": 0,
+      "moon_phase": 0,
+      "random_strength_variation": 0.6,
+      "random_direction_variation": 0
     }
   }
 }

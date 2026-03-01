@@ -14,9 +14,10 @@ public final class BaseDayNightStrengthContributor implements WindEffectContribu
 
     @Override
     public void apply(WindComputationContext ctx) {
-        double timeFactor = ctx.rule().effects().dayNight()
-                ? sin(((double) ctx.dayTime() / 12000.0d) * Math.PI)
-                : 1.0d;
+        double influence = ctx.rule().effects().dayNight();
+        double full = sin(((double) ctx.dayTime() / 12000.0d) * Math.PI);
+        double neutral = 1.0d;
+        double timeFactor = neutral + (full - neutral) * influence;
 
         ctx.setStrength(copySign(
                 (pow(abs(timeFactor), 0.44d) * ctx.timeInfluence()

@@ -12,14 +12,14 @@ public final class RandomDirectionVariationContributor implements WindEffectCont
 
     @Override
     public void apply(WindComputationContext ctx) {
-        if (!ctx.rule().effects().randomDirectionVariation()) {
+        double influence = ctx.rule().effects().randomDirectionVariation();
+        if (influence <= 0.0d) {
             ctx.setRandomDirectionOffset(0.0d);
             return;
         }
 
-        ctx.setRandomDirectionOffset(min(
-                max(ctx.randomDirectionOffset() + (ctx.random().nextDouble() - 0.5d) * 24.0d, -120.0d),
-                120.0d
-        ));
+        double delta = (ctx.random().nextDouble() - 0.5d) * 24.0d * influence;
+        double limit = 120.0d * influence;
+        ctx.setRandomDirectionOffset(max(-limit, Math.min(limit, ctx.randomDirectionOffset() + delta)));
     }
 }

@@ -50,11 +50,11 @@ public class WindManager {
 
     public record WindDirectionSpec(WindType type) {}
     public record WindRuleEffects(
-            boolean weather,
-            boolean dayNight,
-            boolean moonPhase,
-            boolean randomStrengthVariation,
-            boolean randomDirectionVariation
+            double weather,
+            double dayNight,
+            double moonPhase,
+            double randomStrengthVariation,
+            double randomDirectionVariation
     ) {}
     public record WindRuleWind(double dimensionMultiplier, WindDirectionSpec direction, double baseDirection, int windInterval, WindRuleEffects effects) {}
     public record WindRuleTargets(List<String> dimensions, List<String> dimensionTags) {}
@@ -93,11 +93,11 @@ public class WindManager {
 
     public static final Codec<WindRuleEffects> WIND_EFFECTS_CODEC = RecordCodecBuilder.create(
             (RecordCodecBuilder.Instance<WindRuleEffects> instance) -> instance.group(
-                    Codec.BOOL.fieldOf("weather").forGetter(WindRuleEffects::weather),
-                    Codec.BOOL.fieldOf("day_night").forGetter(WindRuleEffects::dayNight),
-                    Codec.BOOL.fieldOf("moon_phase").forGetter(WindRuleEffects::moonPhase),
-                    Codec.BOOL.fieldOf("random_strength_variation").forGetter(WindRuleEffects::randomStrengthVariation),
-                    Codec.BOOL.fieldOf("random_direction_variation").forGetter(WindRuleEffects::randomDirectionVariation)
+                    Codec.doubleRange(0.0d, 10.0d).fieldOf("weather").forGetter(WindRuleEffects::weather),
+                    Codec.doubleRange(0.0d, 10.0d).fieldOf("day_night").forGetter(WindRuleEffects::dayNight),
+                    Codec.doubleRange(0.0d, 10.0d).fieldOf("moon_phase").forGetter(WindRuleEffects::moonPhase),
+                    Codec.doubleRange(0.0d, 10.0d).fieldOf("random_strength_variation").forGetter(WindRuleEffects::randomStrengthVariation),
+                    Codec.doubleRange(0.0d, 10.0d).fieldOf("random_direction_variation").forGetter(WindRuleEffects::randomDirectionVariation)
             ).apply(instance, WindRuleEffects::new
             )
     );

@@ -22,7 +22,7 @@ public final class WindRuleRegistry {
             new WindManager.WindDirectionSpec(WindManager.WindType.NO_WIND),
             0.0d,
             300,
-            new WindManager.WindRuleEffects(false, false, false, false, false)
+            new WindManager.WindRuleEffects(0.0d, 0.0d, 0.0d, 0.0d, 0.0d)
     );
 
     private static volatile List<ResolvedRule> RULES = List.of();

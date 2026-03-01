@@ -9,14 +9,14 @@ public final class WeatherStrengthAmplifierContributor implements WindEffectCont
 
     @Override
     public void apply(WindComputationContext ctx) {
-        if (!ctx.rule().effects().weather()) {
+        if (ctx.rule().effects().weather() <= 0.0d) {
             return;
         }
 
-        if (ctx.thundering()) {
-            ctx.multiplyStrength(2.0d);
-        } else if (ctx.raining()) {
-            ctx.multiplyStrength(1.5d);
-        }
+        double influence = ctx.rule().effects().weather();
+        double fullMultiplier = ctx.thundering() ? 2.0d : (ctx.raining() ? 1.5d : 1.0d);
+        double multiplier = 1.0d + (fullMultiplier - 1.0d) * influence;
+
+        ctx.multiplyStrength(multiplier);
     }
 }
