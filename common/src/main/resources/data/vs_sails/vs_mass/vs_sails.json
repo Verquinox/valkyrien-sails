@@ -172,6 +172,74 @@
     "mass": 0.01
   },
   {
+    "block": "vs_sails:magma_sail_block",
+    "mass": 0.05
+  },
+  {
+    "block": "vs_sails:white_magma_sail",
+    "mass": 0.05
+  },
+  {
+    "block": "vs_sails:light_gray_magma_sail",
+    "mass": 0.05
+  },
+  {
+    "block": "vs_sails:gray_magma_sail",
+    "mass": 0.05
+  },
+  {
+    "block": "vs_sails:black_magma_sail",
+    "mass": 0.05
+  },
+  {
+    "block": "vs_sails:brown_magma_sail",
+    "mass": 0.05
+  },
+  {
+    "block": "vs_sails:red_magma_sail",
+    "mass": 0.05
+  },
+  {
+    "block": "vs_sails:orange_magma_sail",
+    "mass": 0.05
+  },
+  {
+    "block": "vs_sails:yellow_magma_sail",
+    "mass": 0.05
+  },
+  {
+    "block": "vs_sails:lime_magma_sail",
+    "mass": 0.05
+  },
+  {
+    "block": "vs_sails:green_magma_sail",
+    "mass": 0.05
+  },
+  {
+    "block": "vs_sails:cyan_magma_sail",
+    "mass": 0.05
+  },
+  {
+    "block": "vs_sails:light_blue_magma_sail",
+    "mass": 0.05
+  },
+  {
+    "block": "vs_sails:blue_magma_sail",
+    "mass": 0.05
+  },
+  {
+    "block": "vs_sails:purple_magma_sail",
+    "mass": 0.05
+  },
+  {
+    "block": "vs_sails:magenta_magma_sail",
+    "mass": 0.05
+  },
+  {
+    "block": "vs_sails:pink_magma_sail",
+    "mass": 0.05
+  },
+  {
     "block": "vs_sails:rigging_block",
     "mass": 10.0
   },
