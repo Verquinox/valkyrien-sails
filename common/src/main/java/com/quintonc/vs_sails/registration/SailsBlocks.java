@@ -38,6 +38,24 @@ public class SailsBlocks {
     public static RegistrySupplier<SailBlock> MAGENTA_SAIL;
     public static RegistrySupplier<SailBlock> PINK_SAIL;
 
+    public static RegistrySupplier<SailBlock> MAGMA_SAIL_BLOCK;
+    public static RegistrySupplier<SailBlock> WHITE_MAGMA_SAIL;
+    public static RegistrySupplier<SailBlock> LIGHT_GRAY_MAGMA_SAIL;
+    public static RegistrySupplier<SailBlock> GRAY_MAGMA_SAIL;
+    public static RegistrySupplier<SailBlock> BLACK_MAGMA_SAIL;
+    public static RegistrySupplier<SailBlock> BROWN_MAGMA_SAIL;
+    public static RegistrySupplier<SailBlock> RED_MAGMA_SAIL;
+    public static RegistrySupplier<SailBlock> ORANGE_MAGMA_SAIL;
+    public static RegistrySupplier<SailBlock> YELLOW_MAGMA_SAIL;
+    public static RegistrySupplier<SailBlock> LIME_MAGMA_SAIL;
+    public static RegistrySupplier<SailBlock> GREEN_MAGMA_SAIL;
+    public static RegistrySupplier<SailBlock> CYAN_MAGMA_SAIL;
+    public static RegistrySupplier<SailBlock> LIGHT_BLUE_MAGMA_SAIL;
+    public static RegistrySupplier<SailBlock> BLUE_MAGMA_SAIL;
+    public static RegistrySupplier<SailBlock> PURPLE_MAGMA_SAIL;
+    public static RegistrySupplier<SailBlock> MAGENTA_MAGMA_SAIL;
+    public static RegistrySupplier<SailBlock> PINK_MAGMA_SAIL;
+
     //public static RegistrySupplier<FurledSailBlock> FURLED_SAIL_BLOCK;
 
     public static RegistrySupplier<HelmBlock> OAK_HELM;
@@ -96,23 +114,41 @@ public class SailsBlocks {
     public static RegistrySupplier<BuoyBlock> PINK_BUOY;
 
     public static void register() {
-        SAIL_BLOCK = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "sail_block"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
-        WHITE_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "white_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
-        LIGHT_GRAY_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "light_gray_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.LIGHT_GRAY_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
-        GRAY_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "gray_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.GRAY_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
-        BLACK_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "black_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.BLACK_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
-        BROWN_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "brown_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.BROWN_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
-        RED_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "red_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.RED_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
-        ORANGE_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "orange_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.ORANGE_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
-        YELLOW_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "yellow_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
-        LIME_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "lime_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
-        GREEN_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "green_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
-        CYAN_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "cyan_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion().ignitedByLava().isValidSpawn(SailsBlocks::never)));
-        LIGHT_BLUE_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "light_blue_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
-        BLUE_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "blue_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
-        PURPLE_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "purple_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
-        MAGENTA_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "magenta_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
-        PINK_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "pink_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
+        SAIL_BLOCK = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "sail_block"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion().ignitedByLava().isValidSpawn(SailsBlocks::never)));
+        WHITE_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "white_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion().ignitedByLava().isValidSpawn(SailsBlocks::never)));
+        LIGHT_GRAY_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "light_gray_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.LIGHT_GRAY_WOOL).noOcclusion().ignitedByLava().isValidSpawn(SailsBlocks::never)));
+        GRAY_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "gray_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.GRAY_WOOL).noOcclusion().ignitedByLava().isValidSpawn(SailsBlocks::never)));
+        BLACK_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "black_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.BLACK_WOOL).noOcclusion().ignitedByLava().isValidSpawn(SailsBlocks::never)));
+        BROWN_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "brown_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.BROWN_WOOL).noOcclusion().ignitedByLava().isValidSpawn(SailsBlocks::never)));
+        RED_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "red_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.RED_WOOL).noOcclusion().ignitedByLava().isValidSpawn(SailsBlocks::never)));
+        ORANGE_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "orange_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.ORANGE_WOOL).noOcclusion().ignitedByLava().isValidSpawn(SailsBlocks::never)));
+        YELLOW_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "yellow_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.YELLOW_WOOL).noOcclusion().ignitedByLava().isValidSpawn(SailsBlocks::never)));
+        LIME_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "lime_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.LIME_WOOL).noOcclusion().ignitedByLava().isValidSpawn(SailsBlocks::never)));
+        GREEN_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "green_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.GREEN_WOOL).noOcclusion().ignitedByLava().isValidSpawn(SailsBlocks::never)));
+        CYAN_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "cyan_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.CYAN_WOOL).noOcclusion().ignitedByLava().isValidSpawn(SailsBlocks::never)));
+        LIGHT_BLUE_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "light_blue_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.LIGHT_BLUE_WOOL).ignitedByLava().noOcclusion().isValidSpawn(SailsBlocks::never)));
+        BLUE_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "blue_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.BLUE_WOOL).noOcclusion().ignitedByLava().isValidSpawn(SailsBlocks::never)));
+        PURPLE_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "purple_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.PURPLE_WOOL).noOcclusion().ignitedByLava().isValidSpawn(SailsBlocks::never)));
+        MAGENTA_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "magenta_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.MAGENTA_WOOL).noOcclusion().ignitedByLava().isValidSpawn(SailsBlocks::never)));
+        PINK_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "pink_sail"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.PINK_WOOL).noOcclusion().ignitedByLava().isValidSpawn(SailsBlocks::never)));
+
+        MAGMA_SAIL_BLOCK = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "magma_sail_block"), () -> new MagmaSailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
+        WHITE_MAGMA_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "white_magma_sail"), () -> new MagmaSailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
+        LIGHT_GRAY_MAGMA_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "light_gray_magma_sail"), () -> new MagmaSailBlock(BlockBehaviour.Properties.copy(Blocks.LIGHT_GRAY_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
+        GRAY_MAGMA_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "gray_magma_sail"), () -> new MagmaSailBlock(BlockBehaviour.Properties.copy(Blocks.GRAY_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
+        BLACK_MAGMA_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "black_magma_sail"), () -> new MagmaSailBlock(BlockBehaviour.Properties.copy(Blocks.BLACK_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
+        BROWN_MAGMA_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "brown_magma_sail"), () -> new MagmaSailBlock(BlockBehaviour.Properties.copy(Blocks.BROWN_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
+        RED_MAGMA_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "red_magma_sail"), () -> new MagmaSailBlock(BlockBehaviour.Properties.copy(Blocks.RED_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
+        ORANGE_MAGMA_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "orange_magma_sail"), () -> new MagmaSailBlock(BlockBehaviour.Properties.copy(Blocks.ORANGE_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
+        YELLOW_MAGMA_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "yellow_magma_sail"), () -> new MagmaSailBlock(BlockBehaviour.Properties.copy(Blocks.YELLOW_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
+        LIME_MAGMA_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "lime_magma_sail"), () -> new MagmaSailBlock(BlockBehaviour.Properties.copy(Blocks.LIME_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
+        GREEN_MAGMA_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "green_magma_sail"), () -> new MagmaSailBlock(BlockBehaviour.Properties.copy(Blocks.GREEN_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
+        CYAN_MAGMA_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "cyan_magma_sail"), () -> new MagmaSailBlock(BlockBehaviour.Properties.copy(Blocks.CYAN_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
+        LIGHT_BLUE_MAGMA_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "light_blue_magma_sail"), () -> new MagmaSailBlock(BlockBehaviour.Properties.copy(Blocks.LIGHT_BLUE_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
+        BLUE_MAGMA_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "blue_magma_sail"), () -> new MagmaSailBlock(BlockBehaviour.Properties.copy(Blocks.BLUE_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
+        PURPLE_MAGMA_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "purple_magma_sail"), () -> new MagmaSailBlock(BlockBehaviour.Properties.copy(Blocks.PURPLE_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
+        MAGENTA_MAGMA_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "magenta_magma_sail"), () -> new MagmaSailBlock(BlockBehaviour.Properties.copy(Blocks.MAGENTA_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
+        PINK_MAGMA_SAIL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "pink_magma_sail"), () -> new MagmaSailBlock(BlockBehaviour.Properties.copy(Blocks.PINK_WOOL).noOcclusion().isValidSpawn(SailsBlocks::never)));
 
         OAK_HELM = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "oak_helm"), () -> new HelmBlock(BlockBehaviour.Properties.copy(Blocks.OAK_PLANKS).noOcclusion()));
         SPRUCE_HELM = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "spruce_helm"), () -> new HelmBlock(BlockBehaviour.Properties.copy(Blocks.SPRUCE_PLANKS).noOcclusion()));
@@ -189,6 +225,24 @@ public class SailsBlocks {
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "purple_sail"), () -> new BlockItem(PURPLE_SAIL.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "magenta_sail"), () -> new BlockItem(MAGENTA_SAIL.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "pink_sail"), () -> new BlockItem(PINK_SAIL.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
+
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "magma_sail_block"), () -> new BlockItem(MAGMA_SAIL_BLOCK.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "white_magma_sail"), () -> new BlockItem(WHITE_MAGMA_SAIL.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "light_gray_magma_sail"), () -> new BlockItem(LIGHT_GRAY_MAGMA_SAIL.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "gray_magma_sail"), () -> new BlockItem(GRAY_MAGMA_SAIL.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "black_magma_sail"), () -> new BlockItem(BLACK_MAGMA_SAIL.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "brown_magma_sail"), () -> new BlockItem(BROWN_MAGMA_SAIL.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "red_magma_sail"), () -> new BlockItem(RED_MAGMA_SAIL.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "orange_magma_sail"), () -> new BlockItem(ORANGE_MAGMA_SAIL.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "yellow_magma_sail"), () -> new BlockItem(YELLOW_MAGMA_SAIL.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "lime_magma_sail"), () -> new BlockItem(LIME_MAGMA_SAIL.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "green_magma_sail"), () -> new BlockItem(GREEN_MAGMA_SAIL.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "cyan_magma_sail"), () -> new BlockItem(CYAN_MAGMA_SAIL.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "light_blue_magma_sail"), () -> new BlockItem(LIGHT_BLUE_MAGMA_SAIL.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "blue_magma_sail"), () -> new BlockItem(BLUE_MAGMA_SAIL.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "purple_magma_sail"), () -> new BlockItem(PURPLE_MAGMA_SAIL.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "magenta_magma_sail"), () -> new BlockItem(MAGENTA_MAGMA_SAIL.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "pink_magma_sail"), () -> new BlockItem(PINK_MAGMA_SAIL.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
 
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "oak_helm"), () -> new BlockItem(OAK_HELM.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "spruce_helm"), () -> new BlockItem(SPRUCE_HELM.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));

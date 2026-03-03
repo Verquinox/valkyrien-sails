@@ -1,0 +1,7 @@
+{
+  "parent": "vs_sails:item/magma_sail_block",
+  "textures": {
+    "0": "vs_sails:block/sails/gray_magma_sail",
+    "particle": "vs_sails:block/sails/gray_magma_sail"
+  }
+}
