@@ -1,0 +1,8 @@
+{
+  "parent": "vs_sails:item/wind_flag/pattern_base",
+  "textures": {
+    "pole": "vs_sails:block/wind_flag_pole",
+    "flag": "vs_sails:block/wind_flag/purple_wind_flag",
+    "overlay": "vs_sails:block/wind_flag/overlays/globe_pattern"
+  }
+}

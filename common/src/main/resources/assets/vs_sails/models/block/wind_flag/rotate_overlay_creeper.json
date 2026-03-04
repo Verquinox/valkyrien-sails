@@ -1,0 +1,6 @@
+{
+  "parent": "vs_sails:block/wind_flag/rotate_overlay_base",
+  "textures": {
+    "overlay": "vs_sails:block/wind_flag/overlays/creeper_pattern"
+  }
+}
