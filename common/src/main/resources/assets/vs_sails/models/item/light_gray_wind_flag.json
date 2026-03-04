@@ -6,27 +6,27 @@
   },
   "overrides": [
     {
-      "predicate": {"vs_sails:pattern": 0.16666667, "vs_sails:pattern_inv": 0.8333333},
+      "predicate": {"vs_sails:banner_pattern_skull": 1.0},
       "model": "vs_sails:item/wind_flag/pattern_skull_light_gray_wind_flag"
     },
     {
-      "predicate": {"vs_sails:pattern": 0.33333334, "vs_sails:pattern_inv": 0.6666667},
+      "predicate": {"vs_sails:banner_pattern_creeper": 1.0},
       "model": "vs_sails:item/wind_flag/pattern_creeper_light_gray_wind_flag"
     },
     {
-      "predicate": {"vs_sails:pattern": 0.5, "vs_sails:pattern_inv": 0.5},
+      "predicate": {"vs_sails:banner_pattern_flower": 1.0},
       "model": "vs_sails:item/wind_flag/pattern_flower_light_gray_wind_flag"
     },
     {
-      "predicate": {"vs_sails:pattern": 0.6666667, "vs_sails:pattern_inv": 0.33333334},
+      "predicate": {"vs_sails:banner_pattern_mojang": 1.0},
       "model": "vs_sails:item/wind_flag/pattern_mojang_light_gray_wind_flag"
     },
     {
-      "predicate": {"vs_sails:pattern": 0.8333333, "vs_sails:pattern_inv": 0.16666667},
+      "predicate": {"vs_sails:banner_pattern_globe": 1.0},
       "model": "vs_sails:item/wind_flag/pattern_globe_light_gray_wind_flag"
     },
     {
-      "predicate": {"vs_sails:pattern": 1.0, "vs_sails:pattern_inv": 0.0},
+      "predicate": {"vs_sails:banner_pattern_piglin": 1.0},
       "model": "vs_sails:item/wind_flag/pattern_piglin_light_gray_wind_flag"
     }
   ]
