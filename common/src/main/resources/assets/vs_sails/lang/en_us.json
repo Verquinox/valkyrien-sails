@@ -105,6 +105,7 @@
   "block.vs_sails.white_wind_flag": "White Wind Flag",
   "block.vs_sails.yellow_wind_flag": "Yellow Wind Flag",
   "item.vs_sails.wind_flag.jolly_roger": "Black Wind Flag",
+  "item.vs_sails.wind_flag.rainbow": "Rainbow",
   "item.vs_sails.wind_flag.patterned_name": "%s %s",
 
   "category.sails_main": "Valkyrien Sails",

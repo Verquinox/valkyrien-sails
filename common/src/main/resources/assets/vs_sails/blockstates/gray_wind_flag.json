@@ -21,7 +21,8 @@
     {
       "when": {
         "half": "lower",
-        "flag_group": "true"
+        "flag_group": "true",
+        "overlay_only": "false"
       },
       "apply": {
         "model": "vs_sails:block/wind_flag/rotate_gray_wind_flag"
@@ -31,6 +32,7 @@
       "when": {
         "half": "lower",
         "flag_group": "true",
+        "overlay_only": "true",
         "pattern": "1"
       },
       "apply": {
@@ -41,6 +43,7 @@
       "when": {
         "half": "lower",
         "flag_group": "true",
+        "overlay_only": "true",
         "pattern": "2"
       },
       "apply": {
@@ -51,6 +54,7 @@
       "when": {
         "half": "lower",
         "flag_group": "true",
+        "overlay_only": "true",
         "pattern": "3"
       },
       "apply": {
@@ -61,6 +65,7 @@
       "when": {
         "half": "lower",
         "flag_group": "true",
+        "overlay_only": "true",
         "pattern": "4"
       },
       "apply": {
@@ -71,6 +76,7 @@
       "when": {
         "half": "lower",
         "flag_group": "true",
+        "overlay_only": "true",
         "pattern": "5"
       },
       "apply": {
@@ -81,6 +87,7 @@
       "when": {
         "half": "lower",
         "flag_group": "true",
+        "overlay_only": "true",
         "pattern": "6"
       },
       "apply": {
