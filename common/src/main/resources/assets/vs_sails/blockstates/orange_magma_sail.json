@@ -1,0 +1,29 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "vs_sails:block/sails/orange_magma_sail"
+      },
+      "when": {
+        "set": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "vs_sails:block/sails/orange_magma_sail"
+      },
+      "when": {
+        "set": "false",
+        "invisible": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "vs_sails:block/sail_invis"
+      },
+      "when": {
+        "invisible": "true"
+      }
+    }
+  ]
+}

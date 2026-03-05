@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "#W#",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "vs_sails:light_blue_sail"
+    },
+    "W": {
+      "item": "minecraft:magma_cream"
+    }
+  },
+  "result": {
+    "item": "vs_sails:light_blue_magma_sail",
+    "count": 8
+  }
+}
