@@ -2,9 +2,11 @@ package com.quintonc.vs_sails;
 
 import com.quintonc.vs_sails.blocks.entity.HelmBlockEntity;
 import com.quintonc.vs_sails.blocks.entity.RedstoneHelmBlockEntity;
+import com.quintonc.vs_sails.blocks.entity.WindFlagBlockEntity;
 import com.quintonc.vs_sails.config.ConfigUtils;
 import com.quintonc.vs_sails.registration.SailsBlocks;
 import com.quintonc.vs_sails.registration.SailsItems;
+import com.quintonc.vs_sails.registration.SailsRecipes;
 import com.quintonc.vs_sails.ship.SailsShipControl;
 import dev.architectury.event.events.common.TickEvent;
 import dev.architectury.event.events.common.LifecycleEvent;
@@ -53,6 +55,7 @@ public class ValkyrienSails {
     //Block Entities
     public static BlockEntityType<HelmBlockEntity> HELM_BLOCK_ENTITY;
     public static BlockEntityType<RedstoneHelmBlockEntity> REDSTONE_HELM_BLOCK_ENTITY;
+    public static BlockEntityType<WindFlagBlockEntity> WIND_FLAG_BLOCK_ENTITY;
 
     public static RegistrySupplier<CreativeModeTab> SAILS_MAIN;
     public static RegistrySupplier<CreativeModeTab> SAILS_COLORS;
@@ -81,6 +84,7 @@ public class ValkyrienSails {
 
         SailsBlocks.register();
         SailsItems.register();
+        SailsRecipes.register();
 
         LifecycleEvent.SERVER_STARTED.register(ValkyrienSails::onServerStarted);
         TickEvent.SERVER_LEVEL_PRE.register(ValkyrienSails::onWorldTick);
