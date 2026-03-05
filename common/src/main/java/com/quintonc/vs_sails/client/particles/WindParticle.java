@@ -1,7 +1,6 @@
 package com.quintonc.vs_sails.client.particles;
 
 import com.quintonc.vs_sails.client.ClientWindManager;
-import net.minecraft.client.Minecraft;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.world.level.block.state.BlockState;
@@ -13,22 +12,16 @@ import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Vector3d;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.asm.mixin.Unique;
-import org.valkyrienskies.mod.common.VSGameUtilsKt;
-import org.valkyrienskies.mod.common.util.EntityDraggingInformation;
-import org.valkyrienskies.mod.common.util.IEntityDraggingInformationProvider;
 
 public class WindParticle extends TextureSheetParticle {
     public static final Logger LOGGER = LoggerFactory.getLogger("wind_particle");
     private final float baseQuadSize;
     private final double oscillationPhase;
     private final double oscillationAmplitude;
-    @Nullable
-    private final Long boundShipId;
     private double lastOscillationOffset;
 
     protected WindParticle(ClientLevel world, double x, double y, double z, SpriteSet spriteSet, double xd, double yd, double zd) {
@@ -47,7 +40,6 @@ public class WindParticle extends TextureSheetParticle {
         this.alpha = 0;
         this.oscillationPhase = this.random.nextDouble() * Math.PI * 2.0d;
         this.oscillationAmplitude = this.random.nextDouble() * 0.8d;
-        this.boundShipId = resolveBoundShipId();
         this.lastOscillationOffset = 0.0d;
         this.setSpriteFromAge(spriteSet);
 
@@ -60,7 +52,6 @@ public class WindParticle extends TextureSheetParticle {
     @Override
     public void tick() {
         super.tick();
-        applyDraggedShipTransformCompensation();
 
         Vec3 oldParticlePos = new Vec3(this.x, this.y, this.z);
         Vec3 windEffect = calculateWindEffect(oldParticlePos);
@@ -90,54 +81,6 @@ public class WindParticle extends TextureSheetParticle {
         double perpendicularX = -Math.sin(directionRadians);
         double perpendicularZ = Math.cos(directionRadians);
         this.setPos(this.x + (perpendicularX * delta), this.y, this.z + (perpendicularZ * delta));
-    }
-
-    private void applyDraggedShipTransformCompensation() {
-        if (boundShipId == null) {
-            return;
-        }
-        var ship = VSGameUtilsKt.getShipObjectWorld(this.level).getLoadedShips().getById(boundShipId);
-        if (ship == null) {
-            return;
-        }
-
-        Vector3d particlePos = new Vector3d(this.x, this.y, this.z);
-        Vector3d previousShipSpacePos = ship.getPrevTickTransform()
-                .getWorldToShip()
-                .transformPosition(new Vector3d(particlePos));
-        Vector3d idealWorldPos = ship.getTransform()
-                .getShipToWorld()
-                .transformPosition(previousShipSpacePos);
-
-        double compensationX = idealWorldPos.x - particlePos.x;
-        double compensationY = idealWorldPos.y - particlePos.y;
-        double compensationZ = idealWorldPos.z - particlePos.z;
-        if (!Double.isFinite(compensationX) || !Double.isFinite(compensationY) || !Double.isFinite(compensationZ)) {
-            return;
-        }
-
-        this.setPos(this.x + compensationX, this.y + compensationY, this.z + compensationZ);
-        this.xo += compensationX;
-        this.yo += compensationY;
-        this.zo += compensationZ;
-    }
-
-    @Nullable
-    private Long resolveBoundShipId() {
-        Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.player == null || minecraft.player.level() != this.level) {
-            return null;
-        }
-
-        if (!(minecraft.player instanceof IEntityDraggingInformationProvider draggingPlayer)) {
-            return null;
-        }
-
-        EntityDraggingInformation draggingInfo = draggingPlayer.getDraggingInformation();
-        if (!draggingInfo.isEntityBeingDraggedByAShip()) {
-            return null;
-        }
-        return draggingInfo.getLastShipStoodOn();
     }
 
     @Override
