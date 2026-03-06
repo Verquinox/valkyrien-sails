@@ -1,6 +1,7 @@
 package com.quintonc.vs_sails.client.particles;
 
 import com.quintonc.vs_sails.client.ClientWindManager;
+import com.quintonc.vs_sails.wind.ServerWindManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.world.level.block.state.BlockState;
@@ -39,7 +40,7 @@ public class WindParticle extends TextureSheetParticle {
         this.lifetime = 20;
         this.alpha = 0;
         this.oscillationPhase = this.random.nextDouble() * Math.PI * 2.0d;
-        this.oscillationAmplitude = this.random.nextDouble() * 0.8d;
+        this.oscillationAmplitude = this.random.nextDouble() * ServerWindManager.getWindStrength(world, new BlockPos((int)x, (int)y, (int)z));
         this.lastOscillationOffset = 0.0d;
         this.setSpriteFromAge(spriteSet);
 
