@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "#W#",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "vs_sails:rigging_block"
+    },
+    "W": {
+      "item": "minecraft:magma_cream"
+    }
+  },
+  "result": {
+    "item": "vs_sails:magma_rigging_block",
+    "count": 8
+  }
+}
