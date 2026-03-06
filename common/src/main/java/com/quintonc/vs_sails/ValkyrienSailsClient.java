@@ -7,6 +7,8 @@ import com.quintonc.vs_sails.client.ClientWindManager;
 import com.quintonc.vs_sails.networking.PacketHandler;
 import com.quintonc.vs_sails.registration.SailsBlocks;
 import dev.architectury.event.events.client.ClientTickEvent;
+import dev.architectury.registry.client.rendering.BlockEntityRendererRegistry;
+import dev.architectury.registry.item.ItemPropertiesRegistry;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
@@ -23,9 +25,6 @@ public class ValkyrienSailsClient {
     //private static KeyBinding testKeyBinding;
 
     public static void clientInit() {
-        BlockEntityRenderers.register(ValkyrienSails.HELM_BLOCK_ENTITY, HelmBlockEntityRenderer::new);
-        BlockEntityRenderers.register(ValkyrienSails.REDSTONE_HELM_BLOCK_ENTITY, HelmBlockEntityRenderer::new);
-        BlockEntityRenderers.register(ValkyrienSails.WIND_FLAG_BLOCK_ENTITY, WindFlagBlockEntityRenderer::new);
         registerWindFlagItemProperties();
 
         //System.out.println("Client init");
@@ -84,7 +83,7 @@ public class ValkyrienSailsClient {
     }
 
     private static void registerPatternProperty(Item windFlagItem, ResourceLocation propertyId, int patternId) {
-        ItemProperties.register(
+        ItemPropertiesRegistry.register(
                 windFlagItem,
                 propertyId,
                 (stack, level, entity, seed) -> WindFlagBlock.getItemPatternMatchProperty(stack, patternId)

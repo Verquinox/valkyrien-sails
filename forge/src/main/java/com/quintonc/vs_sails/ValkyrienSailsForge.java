@@ -5,6 +5,7 @@ import com.quintonc.vs_sails.blocks.entity.RedstoneHelmBlockEntity;
 import com.quintonc.vs_sails.blocks.entity.WindFlagBlockEntity;
 import com.quintonc.vs_sails.blocks.WindFlagBlock;
 import com.quintonc.vs_sails.blocks.entity.renderer.HelmBlockEntityRenderer;
+import com.quintonc.vs_sails.blocks.entity.renderer.WindFlagBlockEntityRenderer;
 import com.quintonc.vs_sails.client.particles.WindParticle;
 import com.quintonc.vs_sails.registration.SailsBlocks;
 import com.quintonc.vs_sails.wind.WindDataReloadListener;
@@ -137,6 +138,7 @@ public class ValkyrienSailsForge {
             event.enqueueWork(() -> {
                 BlockEntityRenderers.register(ValkyrienSails.HELM_BLOCK_ENTITY, HelmBlockEntityRenderer::new);
                 BlockEntityRenderers.register(ValkyrienSails.REDSTONE_HELM_BLOCK_ENTITY, HelmBlockEntityRenderer::new);
+                BlockEntityRenderers.register(ValkyrienSails.WIND_FLAG_BLOCK_ENTITY, WindFlagBlockEntityRenderer::new);
             });
             ValkyrienSailsClient.clientInit();
             event.enqueueWork(() -> {
