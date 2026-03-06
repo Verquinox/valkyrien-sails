@@ -6,10 +6,12 @@
   "block.vs_sails.redstone_helm_block": "Redstone Ship's Helm",
   "block.vs_sails.redstone_helm_wheel": "Old Redstone Ship's Wheel",
   "block.vs_sails.rigging_block": "Rigging",
+  "block.vs_sails.magma_rigging_block": "Magma Rigging",
   "block.vs_sails.ballast_block": "Ballast Block",
   "block.vs_sails.magic_ballast_block": "Magic Ballast Block",
   "block.vs_sails.buoy_block": "Buoy Block",
   "block.vs_sails.rope_block": "Rope",
+  "block.vs_sails.magma_rope_block": "Magma Rope",
   "item.vs_sails.dedication_bottle": "Dedication Bottle",
   "sounds.vs_sails.wind_ambience": "Wind blows",
 

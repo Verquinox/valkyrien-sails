@@ -40,6 +40,7 @@ public class ValkyrienSailsFabric implements ModInitializer {
 
         FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.SAIL_BLOCK.get(), 5, 20);
         FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.ROPE_BLOCK.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.RIGGING_BLOCK.get(), 5, 20);
         FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.BUOY_BLOCK.get(), 5, 20);
 
         //Yes, I know this is disgusting

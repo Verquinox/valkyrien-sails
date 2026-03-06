@@ -4,15 +4,15 @@ import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.RandomSource;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class MagmaSailBlock extends SailBlock {
-    public MagmaSailBlock(Properties settings) {
-        super(settings);
+public class MagmaRopeBlock extends RopeBlock {
+    public MagmaRopeBlock(Properties properties) {
+        super(properties);
     }
 
     @Override
@@ -48,8 +48,6 @@ public class MagmaSailBlock extends SailBlock {
             return;
         }
 
-        //Sketchy "LOD" check - not sure if it's actually better than just running the particles
-        //Only renders particles in the first 20% of render distance
         double maxAnimationDistance = minecraft.options.getEffectiveRenderDistance() * 16.0D * 0.20D;
         var cameraEntity = minecraft.getCameraEntity();
         if (cameraEntity != null && cameraEntity.distanceToSqr(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D) > maxAnimationDistance * maxAnimationDistance) {

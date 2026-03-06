@@ -3,6 +3,7 @@
   "values": [
     "vs_sails:helm_block",
     "vs_sails:rigging_block",
+    "vs_sails:magma_rigging_block",
     "vs_sails:helm_wheel",
     "vs_sails:oak_helm",
     "vs_sails:spruce_helm",

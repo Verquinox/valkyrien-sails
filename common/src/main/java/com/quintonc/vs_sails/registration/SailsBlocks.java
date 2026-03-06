@@ -5,6 +5,7 @@ import com.quintonc.vs_sails.blocks.*;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
@@ -83,12 +84,14 @@ public class SailsBlocks {
     public static RegistrySupplier<HelmWheel> BAMBOO_HELM_WHEEL;
 
     public static RegistrySupplier<RopeBlock> ROPE_BLOCK;
+    public static RegistrySupplier<RopeBlock> MAGMA_ROPE_BLOCK;
 
     public static RegistrySupplier<HelmBlock> HELM_BLOCK;
     public static RegistrySupplier<HelmWheel> HELM_WHEEL;
     public static RegistrySupplier<RedstoneHelmBlock> REDSTONE_HELM_BLOCK;
     public static RegistrySupplier<HelmWheel> REDSTONE_HELM_WHEEL;
     public static RegistrySupplier<RiggingBlock> RIGGING_BLOCK;
+    public static RegistrySupplier<RiggingBlock> MAGMA_RIGGING_BLOCK;
     public static RegistrySupplier<BallastBlock> BALLAST_BLOCK;
     public static RegistrySupplier<MagicBallastBlock> MAGIC_BALLAST_BLOCK;
 
@@ -172,12 +175,14 @@ public class SailsBlocks {
         BAMBOO_HELM_WHEEL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "bamboo_helm_wheel"), () -> new HelmWheel(BlockBehaviour.Properties.copy(Blocks.BAMBOO_PLANKS).noOcclusion()));
 
         ROPE_BLOCK = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "rope_block"), () -> new RopeBlock(BlockBehaviour.Properties.copy(Blocks.BROWN_WOOL).noOcclusion().explosionResistance(0.0f).instabreak()));
+        MAGMA_ROPE_BLOCK = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "magma_rope_block"), () -> new MagmaRopeBlock(BlockBehaviour.Properties.copy(Blocks.BROWN_WOOL).noOcclusion().explosionResistance(0.0f).instabreak()));
 
         HELM_BLOCK = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "helm_block"), () -> new HelmBlock(BlockBehaviour.Properties.copy(Blocks.SPRUCE_PLANKS).noOcclusion()));
         HELM_WHEEL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "helm_wheel"), () -> new HelmWheel(BlockBehaviour.Properties.copy(Blocks.SPRUCE_PLANKS).noOcclusion()));
         REDSTONE_HELM_BLOCK = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "redstone_helm_block"), () -> new RedstoneHelmBlock(BlockBehaviour.Properties.copy(Blocks.SPRUCE_PLANKS).noOcclusion()));
         REDSTONE_HELM_WHEEL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "redstone_helm_wheel"), () -> new HelmWheel(BlockBehaviour.Properties.copy(Blocks.SPRUCE_PLANKS).noOcclusion()));
         RIGGING_BLOCK = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "rigging_block"), () -> new RiggingBlock(BlockBehaviour.Properties.copy(Blocks.DARK_OAK_FENCE)));
+        MAGMA_RIGGING_BLOCK = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "magma_rigging_block"), () -> new MagmaRiggingBlock(BlockBehaviour.Properties.copy(Blocks.DARK_OAK_FENCE)));
         BALLAST_BLOCK = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "ballast_block"), () -> new BallastBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).explosionResistance(0.0f)));
         MAGIC_BALLAST_BLOCK = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "magic_ballast_block"), () -> new MagicBallastBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).explosionResistance(0.0f)));
 
@@ -263,12 +268,14 @@ public class SailsBlocks {
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "bamboo_helm_wheel"), () -> new BlockItem(BAMBOO_HELM_WHEEL.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
 
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "rope"), () -> new BlockItem(ROPE_BLOCK.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "magma_rope"), () -> new BlockItem(MAGMA_ROPE_BLOCK.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
 
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "helm_block"), () -> new BlockItem(HELM_BLOCK.get(), new Item.Properties()));
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "helm_wheel"), () -> new BlockItem(HELM_WHEEL.get(), new Item.Properties()));
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "redstone_helm_block"), () -> new BlockItem(REDSTONE_HELM_BLOCK.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "redstone_helm_wheel"), () -> new BlockItem(REDSTONE_HELM_WHEEL.get(), new Item.Properties()));
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "rigging_block"), () -> new BlockItem(RIGGING_BLOCK.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "magma_rigging_block"), () -> new BlockItem(MAGMA_RIGGING_BLOCK.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "ballast_block"), () -> new BlockItem(BALLAST_BLOCK.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "magic_ballast_block"), () -> new BlockItem(MAGIC_BALLAST_BLOCK.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
 
@@ -290,6 +297,62 @@ public class SailsBlocks {
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "magenta_buoy"), () -> new BlockItem(MAGENTA_BUOY.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "pink_buoy"), () -> new BlockItem(PINK_BUOY.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
 
+    }
+
+    public static Block getMagmaSailBlock(Block block) {
+        ResourceLocation blockId = BuiltInRegistries.BLOCK.getKey(block);
+        if (!ValkyrienSails.MOD_ID.equals(blockId.getNamespace())) {
+            return null;
+        }
+
+        return switch (blockId.getPath()) {
+            case "sail_block" -> MAGMA_SAIL_BLOCK.get();
+            case "white_sail" -> WHITE_MAGMA_SAIL.get();
+            case "light_gray_sail" -> LIGHT_GRAY_MAGMA_SAIL.get();
+            case "gray_sail" -> GRAY_MAGMA_SAIL.get();
+            case "black_sail" -> BLACK_MAGMA_SAIL.get();
+            case "brown_sail" -> BROWN_MAGMA_SAIL.get();
+            case "red_sail" -> RED_MAGMA_SAIL.get();
+            case "orange_sail" -> ORANGE_MAGMA_SAIL.get();
+            case "yellow_sail" -> YELLOW_MAGMA_SAIL.get();
+            case "lime_sail" -> LIME_MAGMA_SAIL.get();
+            case "green_sail" -> GREEN_MAGMA_SAIL.get();
+            case "cyan_sail" -> CYAN_MAGMA_SAIL.get();
+            case "light_blue_sail" -> LIGHT_BLUE_MAGMA_SAIL.get();
+            case "blue_sail" -> BLUE_MAGMA_SAIL.get();
+            case "purple_sail" -> PURPLE_MAGMA_SAIL.get();
+            case "magenta_sail" -> MAGENTA_MAGMA_SAIL.get();
+            case "pink_sail" -> PINK_MAGMA_SAIL.get();
+            default -> null;
+        };
+    }
+
+    public static Block getRegularSailBlock(Block block) {
+        ResourceLocation blockId = BuiltInRegistries.BLOCK.getKey(block);
+        if (!ValkyrienSails.MOD_ID.equals(blockId.getNamespace())) {
+            return null;
+        }
+
+        return switch (blockId.getPath()) {
+            case "magma_sail_block" -> SAIL_BLOCK.get();
+            case "white_magma_sail" -> WHITE_SAIL.get();
+            case "light_gray_magma_sail" -> LIGHT_GRAY_SAIL.get();
+            case "gray_magma_sail" -> GRAY_SAIL.get();
+            case "black_magma_sail" -> BLACK_SAIL.get();
+            case "brown_magma_sail" -> BROWN_SAIL.get();
+            case "red_magma_sail" -> RED_SAIL.get();
+            case "orange_magma_sail" -> ORANGE_SAIL.get();
+            case "yellow_magma_sail" -> YELLOW_SAIL.get();
+            case "lime_magma_sail" -> LIME_SAIL.get();
+            case "green_magma_sail" -> GREEN_SAIL.get();
+            case "cyan_magma_sail" -> CYAN_SAIL.get();
+            case "light_blue_magma_sail" -> LIGHT_BLUE_SAIL.get();
+            case "blue_magma_sail" -> BLUE_SAIL.get();
+            case "purple_magma_sail" -> PURPLE_SAIL.get();
+            case "magenta_magma_sail" -> MAGENTA_SAIL.get();
+            case "pink_magma_sail" -> PINK_SAIL.get();
+            default -> null;
+        };
     }
 
     private static Boolean never(BlockState state, BlockGetter blockGetter, BlockPos pos, EntityType<?> entity) {
