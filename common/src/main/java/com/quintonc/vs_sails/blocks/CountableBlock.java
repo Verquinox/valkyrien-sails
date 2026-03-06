@@ -1,6 +1,9 @@
 package com.quintonc.vs_sails.blocks;
 
 import com.quintonc.vs_sails.ship.SailsShipControl;
+import kotlin.Pair;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
@@ -13,12 +16,28 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
+import org.valkyrienskies.core.api.VsCoreApi;
+import org.valkyrienskies.core.api.event.EventConsumer;
+import org.valkyrienskies.core.api.event.RegisteredListener;
 import org.valkyrienskies.core.api.ships.LoadedServerShip;
 import org.valkyrienskies.core.api.ships.ServerShip;
+import org.valkyrienskies.core.impl.program.VSCoreInternal;
+import org.valkyrienskies.core.internal.world.VsiServerShipWorld;
+import org.valkyrienskies.mod.api.VsApi;
+import org.valkyrienskies.mod.common.IShipObjectWorldProvider;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
+import org.valkyrienskies.mod.common.ValkyrienSkiesMod;
+import org.valkyrienskies.mod.common.assembly.ICopyableBlock;
+import org.valkyrienskies.mod.common.entity.handling.VSEntityHandler;
 
-public abstract class CountableBlock extends Block {
-    public CountableBlock(BlockBehaviour.Properties settings) {
+import java.util.List;
+import java.util.Map;
+
+public abstract class CountableBlock extends Block implements ICopyableBlock {
+    public CountableBlock(Properties settings) {
         super(settings);
     }
 
@@ -65,6 +84,27 @@ public abstract class CountableBlock extends Block {
     abstract void removeFromShip(SailsShipControl controller);
 
     abstract void sendMessage(Player player, SailsShipControl controller);
+
+    @Override
+    public @Nullable CompoundTag onCopy(@NotNull ServerLevel serverLevel, @NotNull BlockPos blockPos, @NotNull BlockState blockState, @Nullable BlockEntity blockEntity, @NotNull List<? extends ServerShip> list, @NotNull Map<Long, ? extends Vector3d> map) {
+        return null;
+    }
+
+    @Override
+    public @Nullable CompoundTag onPaste(@NotNull ServerLevel serverLevel, @NotNull BlockPos blockPos, @NotNull BlockState blockState, @NotNull Map<Long, Long> map, @NotNull Map<Long, ? extends Pair<? extends Vector3d, ? extends Vector3d>> map1, @Nullable CompoundTag compoundTag) {
+        ServerShip serverShip = VSGameUtilsKt.getShipManagingPos(serverLevel, blockPos);
+        if (serverShip == null) {
+            return null;
+        }
+
+        ValkyrienSkiesMod.getApi().getShipLoadEvent().on((shipLoadEvent, handler) -> {
+            LoadedServerShip ship = shipLoadEvent.getShip();
+            SailsShipControl controller = SailsShipControl.getOrCreate(ship, serverLevel);
+            addToShip(controller);
+            handler.unregister();
+        });
+        return null;
+    }
 
     @SuppressWarnings({"deprecation","UnstableApiUsage"})
     public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean moved) {

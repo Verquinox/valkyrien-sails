@@ -2,7 +2,9 @@ package com.quintonc.vs_sails.blocks;
 
 import com.quintonc.vs_sails.registration.SailsBlocks;
 import com.quintonc.vs_sails.ship.SailsShipControl;
+import kotlin.Pair;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -18,6 +20,7 @@ import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.level.block.state.BlockState;
@@ -31,13 +34,21 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.valkyrienskies.core.api.ships.LoadedServerShip;
 import org.valkyrienskies.core.api.ships.ServerShip;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
+import org.valkyrienskies.mod.common.ValkyrienSkiesMod;
+import org.valkyrienskies.mod.common.assembly.ICopyableBlock;
 
-public class SailBlock extends Block {
+import java.util.List;
+import java.util.Map;
+
+public class SailBlock extends Block implements ICopyableBlock {
 
     public static final BooleanProperty SET = BooleanProperty.create("set");
     public static final BooleanProperty INVISIBLE = BooleanProperty.create("invisible");
@@ -81,32 +92,7 @@ public class SailBlock extends Block {
                     }
                 }
             }
-
         }
-//        else {
-//            //LOGGER.info("sail is not set!");
-//            BlockState savedState = state;
-//
-//            StateUpdater updater = new StateUpdater(state);
-//            updater.updateStateForDir(world.getBlockState(pos.above()), UP);
-//            updater.updateStateForDir(world.getBlockState(pos.below()), DOWN);
-//            updater.updateStateForDir(world.getBlockState(pos.north()), NORTH);
-//            updater.updateStateForDir(world.getBlockState(pos.south()), SOUTH);
-//            updater.updateStateForDir(world.getBlockState(pos.east()), EAST);
-//            updater.updateStateForDir(world.getBlockState(pos.west()), WEST);
-//
-//            state = updater.state;
-//
-//            if (updater.invisCounter > 3) {
-//                //LOGGER.info("invis set to true!");
-//                state = state.setValue(INVISIBLE, true);
-//            } else {
-//                state = state.setValue(INVISIBLE, false);
-//            }
-//            if (savedState != state) {
-//                world.setBlock(pos, state, 10);
-//            }
-//        }
     }
 
     @SuppressWarnings("deprecation")
@@ -502,31 +488,25 @@ public class SailBlock extends Block {
         builder.add(INVISIBLE);
     }
 
-//    private static class StateUpdater {
-//        BlockState state;
-//        int invisCounter = 0;
-//
-//        public StateUpdater(BlockState state) {
-//            this.state = state;
-//        }
-//
-//        public void updateStateForDir(BlockState neighborState, BooleanProperty direction) {
-//            //LOGGER.info("state update called");
-//            if (!neighborState.isAir()) {
-//                if (neighborState.getBlock() instanceof SailBlock) {
-//                    invisCounter++;
-//                    //LOGGER.info("invis="+invisCounter);
-//                    if (neighborState.getValue(INVISIBLE)) {
-//                        state = state.setValue(direction, false);
-//                    } else {
-//                        state = state.setValue(direction, true);
-//                    }
-//                } else {
-//                    state = state.setValue(direction, true);
-//                }
-//            } else {
-//                state = state.setValue(direction, false);
-//            }
-//        }
-//    }
+    @Override
+    public @Nullable CompoundTag onCopy(@NotNull ServerLevel serverLevel, @NotNull BlockPos blockPos, @NotNull BlockState blockState, @Nullable BlockEntity blockEntity, @NotNull List<? extends ServerShip> list, @NotNull Map<Long, ? extends Vector3d> map) {
+        return null;
+    }
+
+    @Override
+    public @Nullable CompoundTag onPaste(@NotNull ServerLevel serverLevel, @NotNull BlockPos blockPos, @NotNull BlockState blockState, @NotNull Map<Long, Long> map, @NotNull Map<Long, ? extends Pair<? extends Vector3d, ? extends Vector3d>> map1, @Nullable CompoundTag compoundTag) {
+        ServerShip serverShip = VSGameUtilsKt.getShipManagingPos(serverLevel, blockPos);
+        if (serverShip == null) {
+            return null;
+        }
+
+        ValkyrienSkiesMod.getApi().getShipLoadEvent().on((shipLoadEvent, handler) -> {
+            LoadedServerShip ship = shipLoadEvent.getShip();
+            SailsShipControl controller = SailsShipControl.getOrCreate(ship, serverLevel);
+            addSailToShip(serverLevel, blockPos, controller);
+            handler.unregister();
+        });
+        return null;
+    }
+
 }
