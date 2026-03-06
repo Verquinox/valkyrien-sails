@@ -2,7 +2,7 @@ package com.quintonc.vs_sails.blocks.entity.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import com.quintonc.vs_sails.WindManager;
+import com.quintonc.vs_sails.wind.WindManager;
 import com.quintonc.vs_sails.blocks.WindFlagBlock;
 import com.quintonc.vs_sails.blocks.entity.WindFlagBlockEntity;
 import net.minecraft.client.renderer.LightTexture;
@@ -16,6 +16,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3d;
+import org.valkyrienskies.core.api.ships.ClientShip;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
 public class WindFlagBlockEntityRenderer implements BlockEntityRenderer<WindFlagBlockEntity> {
@@ -71,8 +72,8 @@ public class WindFlagBlockEntityRenderer implements BlockEntityRenderer<WindFlag
         Vector3d localWindDirection = worldWindYawToDirection(effectiveWorldWindYaw, scratchWindDirection);
 
         var ship = VSGameUtilsKt.getLoadedShipManagingPos(level, blockPos);
-        if (ship != null) {
-            ship.getRenderTransform().getWorldToShip().transformDirection(localWindDirection);
+        if (ship instanceof ClientShip clientShip) {
+            clientShip.getRenderTransform().getWorldToShip().transformDirection(localWindDirection);
         }
 
         float targetYawDegrees = Mth.wrapDegrees(toModelYawDegrees(localWindDirection));
