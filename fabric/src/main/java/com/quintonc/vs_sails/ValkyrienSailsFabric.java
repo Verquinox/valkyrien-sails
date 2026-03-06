@@ -4,6 +4,7 @@ import com.quintonc.vs_sails.blocks.entity.HelmBlockEntity;
 import com.quintonc.vs_sails.blocks.entity.RedstoneHelmBlockEntity;
 import com.quintonc.vs_sails.items.SailWand;
 import com.quintonc.vs_sails.registration.SailsBlocks;
+import com.quintonc.vs_sails.wind.WindDataReloadListener;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -37,6 +38,14 @@ public class ValkyrienSailsFabric implements ModInitializer {
     public void onInitialize() {
 
         ValkyrienSails.init();
+
+        ServerLifecycleEvents.END_DATA_PACK_RELOAD.register(((server, resourceManager, success) -> {
+            if (success) {
+                WindDataReloadListener.loadFromServer(server);
+            } else {
+                ValkyrienSails.LOGGER.warn("Datapack reload failed!");
+            }
+        }));
 
         FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.SAIL_BLOCK.get(), 5, 20);
         FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.ROPE_BLOCK.get(), 5, 20);

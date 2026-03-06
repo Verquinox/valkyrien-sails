@@ -6,8 +6,11 @@ import com.quintonc.vs_sails.config.ConfigUtils;
 import com.quintonc.vs_sails.registration.SailsBlocks;
 import com.quintonc.vs_sails.registration.SailsItems;
 import com.quintonc.vs_sails.ship.SailsShipControl;
-import dev.architectury.event.events.common.TickEvent;
+import com.quintonc.vs_sails.wind.ServerWindManager;
+import com.quintonc.vs_sails.wind.WindDataReloadListener;
+import com.quintonc.vs_sails.wind.WindManager;
 import dev.architectury.event.events.common.LifecycleEvent;
+import dev.architectury.event.events.common.TickEvent;
 import dev.architectury.platform.Platform;
 import dev.architectury.registry.CreativeTabRegistry;
 import dev.architectury.registry.registries.DeferredRegister;
@@ -27,7 +30,6 @@ import org.joml.Vector3dc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.valkyrienskies.core.api.ships.LoadedServerShip;
-import org.valkyrienskies.core.api.ships.ServerShip;
 import org.valkyrienskies.mod.api.ValkyrienSkies;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 import org.valkyrienskies.mod.common.util.IEntityDraggingInformationProvider;
@@ -39,6 +41,7 @@ public class ValkyrienSails {
     public static final Logger LOGGER = LoggerFactory.getLogger("vs_sails_common");
     private static int tickCount = 0;
     private static final int refreshRate = 4;
+    private static final int PARTICLES_PER_TICK = 3;
     public static boolean weather2 = Platform.isModLoaded("weather2");
     public static boolean sailsWind = false;
     public static final double EULERS_NUMBER = 2.71828182846;
@@ -89,14 +92,14 @@ public class ValkyrienSails {
         LOGGER.info("Sailing time.");
     }
 
-    public static void InitializeVSWind(ServerLevel world) {
+    public static void InitializeVSWind() {
         LOGGER.info("The wind is blowing.");
         sailsWind = Boolean.parseBoolean(ConfigUtils.config.getOrDefault("wind-shows-no-sails","true")); //fixme unfinished
     }
 
     @SuppressWarnings("UnstableApiUsage")
     public static void onWorldTick(ServerLevel world) {
-        if(tickCount == refreshRate) {
+        if (tickCount == refreshRate) {
             tickCount = 0;
 
             VSGameUtilsKt.getShipObjectWorld(world).getLoadedShips().forEach(ship -> {
@@ -110,7 +113,7 @@ public class ValkyrienSails {
 
             if (sailsWind) {
                 //Spawn wind particles for all players being dragged by ships with a SailsShipControl attachment
-                world.getServer().getPlayerList().getPlayers().forEach(serverPlayerEntity -> {
+                world.players().forEach(serverPlayerEntity -> {
                     if (serverPlayerEntity instanceof IEntityDraggingInformationProvider player) {
                         if (player.getDraggingInformation().getLastShipStoodOn() != null) {
                             long shipId = player.getDraggingInformation().getLastShipStoodOn();
@@ -132,7 +135,6 @@ public class ValkyrienSails {
                     }
                 });
             }
-
         } else {
             tickCount++;
         }
@@ -143,9 +145,10 @@ public class ValkyrienSails {
     }
 
     public static void onServerStarted(MinecraftServer server) {
+        WindDataReloadListener.loadFromServer(server);
         if (Boolean.parseBoolean(ConfigUtils.config.getOrDefault("enable-wind","true"))) {
-            ServerWindManager.InitializeWind(server.overworld());
-            ValkyrienSails.InitializeVSWind(server.overworld());
+            ServerWindManager.InitializeWind();
+            ValkyrienSails.InitializeVSWind();
         }
     }
 }

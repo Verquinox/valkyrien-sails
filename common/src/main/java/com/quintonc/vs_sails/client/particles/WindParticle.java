@@ -19,6 +19,10 @@ import org.spongepowered.asm.mixin.Unique;
 
 public class WindParticle extends TextureSheetParticle {
     public static final Logger LOGGER = LoggerFactory.getLogger("wind_particle");
+    private final float baseQuadSize;
+    private final double oscillationPhase;
+    private final double oscillationAmplitude;
+    private double lastOscillationOffset;
 
     protected WindParticle(ClientLevel world, double x, double y, double z, SpriteSet spriteSet, double xd, double yd, double zd) {
         super(world, x, y, z, xd, yd, zd);
@@ -27,12 +31,16 @@ public class WindParticle extends TextureSheetParticle {
         this.x = x;
         this.y = y;
         this.z = z;
-        this.xd = 0;
-        this.yd = 0;
-        this.zd = 0;
-        this.quadSize = 0.25f;
+        this.xd = xd;
+        this.yd = yd;
+        this.zd = zd;
+        this.baseQuadSize = 0.20f;
+        this.quadSize = baseQuadSize;
         this.lifetime = 20;
         this.alpha = 0;
+        this.oscillationPhase = this.random.nextDouble() * Math.PI * 2.0d;
+        this.oscillationAmplitude = this.random.nextDouble() * 0.8d;
+        this.lastOscillationOffset = 0.0d;
         this.setSpriteFromAge(spriteSet);
 
         this.rCol = 1f;
@@ -44,16 +52,35 @@ public class WindParticle extends TextureSheetParticle {
     @Override
     public void tick() {
         super.tick();
-        this.xd = modifyDx(this.xd);
-        this.zd = modifyDz(this.zd);
+
+        Vec3 oldParticlePos = new Vec3(this.x, this.y, this.z);
+        Vec3 windEffect = calculateWindEffect(oldParticlePos);
+        this.xd = modifyD(this.xd, windEffect.x);
+        this.zd = modifyD(this.zd, windEffect.z);
+
+        applyOscillation();
         fade();
     }
 
     private void fade() {
         double windStrength = ClientWindManager.getWindStrength(this.level, new BlockPos((int)this.x, (int)this.y, (int)this.z));
+        float fadeEnvelope = (float) Math.sin((Math.PI * age) / lifetime);
         //int lightLevel = this.world.getLightLevel(LightType.SKY, new BlockPos((int) this.x, (int) this.y, (int) this.z));
         //todo how would I get the viewing player to make the particles fade out when they get close to the player?
-        this.alpha = (float)(Math.abs(windStrength)*0.75*Math.sin((Math.PI*age)/lifetime));
+        this.alpha = (float)(Math.abs(windStrength) * 0.75d * fadeEnvelope);
+        this.quadSize = baseQuadSize * (0.25f + 0.75f * fadeEnvelope);
+    }
+
+    private void applyOscillation() {
+        Vec3 particlePos = new Vec3(this.x, this.y, this.z);
+        double directionRadians = Math.toRadians(ClientWindManager.getWindDirection(this.level, particlePos));
+        double oscillation = Math.sin((age * 0.45d) + oscillationPhase) * oscillationAmplitude;
+        double delta = oscillation - lastOscillationOffset;
+        lastOscillationOffset = oscillation;
+
+        double perpendicularX = -Math.sin(directionRadians);
+        double perpendicularZ = Math.cos(directionRadians);
+        this.setPos(this.x + (perpendicularX * delta), this.y, this.z + (perpendicularZ * delta));
     }
 
     @Override
@@ -74,36 +101,17 @@ public class WindParticle extends TextureSheetParticle {
         }
     }
 
-    private double modifyDx(double dx) {
-        //String simpleName = this.getClass().getSimpleName();
-//		System.out.println(simpleName);
-
-//        if (this.world.getLightLevel(LightType.SKY, new BlockPos((int) this.x, (int) this.y, (int) this.z)) == 0 || this.y < 40) {
-//            return dx;
-//        }
-
-        Vec3 oldParticlePos = new Vec3(this.x, this.y, this.z); //fixme might not need this (same with ParticleMixin)
-        Vec3 windEffect = calculateWindEffect(oldParticlePos);
-        Vec3 particlePos = new Vec3(this.x, this.y, this.z);
-        Vec3 windDirection = new Vec3(Math.cos(Math.toRadians(ClientWindManager.getWindDirection(this.level, particlePos))), 0, Math.sin(Math.toRadians(ClientWindManager.getWindDirection(this.level, particlePos))));
-
-        double windInfluenceFactor = getWindInfluenceFactor(particlePos, windDirection);
-        return dx + windEffect.x * windInfluenceFactor;
-    }
-
-    private double modifyDz(double dz) {
+    private double modifyD(double d, double axis) {
 
 //        if (this.world.getLightLevel(LightType.SKY, new BlockPos((int) this.x, (int) this.y, (int) this.z)) == 0 || this.y < 40) {
 //            return dz;
 //        }
 
-        Vec3 oldParticlePos = new Vec3(this.x, this.y, this.z); //fixme might not need this (same with ParticleMixin)
-        Vec3 windEffect = calculateWindEffect(oldParticlePos);
         Vec3 particlePos = new Vec3(this.x, this.y, this.z);
         Vec3 windDirection = new Vec3(Math.cos(Math.toRadians(ClientWindManager.getWindDirection(this.level, particlePos))), 0, Math.sin(Math.toRadians(ClientWindManager.getWindDirection(this.level, particlePos))));
 
         double windInfluenceFactor = getWindInfluenceFactor(particlePos, windDirection);
-        return dz + windEffect.z * windInfluenceFactor;
+        return d + axis * windInfluenceFactor;
     }
 
     private double getWindInfluenceFactor(Vec3 particlePosition, Vec3 windDirection) {
