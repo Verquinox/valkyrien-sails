@@ -2,9 +2,9 @@ package com.quintonc.vs_sails.blocks.entity.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import com.quintonc.vs_sails.wind.WindManager;
 import com.quintonc.vs_sails.blocks.WindFlagBlock;
 import com.quintonc.vs_sails.blocks.entity.WindFlagBlockEntity;
+import com.quintonc.vs_sails.wind.WindManager;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
@@ -49,22 +49,19 @@ public class WindFlagBlockEntityRenderer implements BlockEntityRenderer<WindFlag
             return;
         }
 
-        BlockPos blockPos = entity.getBlockPos();
-        Vec3 shipBlockCenter = Vec3.atCenterOf(blockPos);
-        Vec3 worldBlockCenter = VSGameUtilsKt.toWorldCoordinates(level, shipBlockCenter);
         BlockState sourceState = entity.getBlockState();
         if (sourceState.getValue(WindFlagBlock.FURLED)) {
             return;
         }
+
+        BlockPos blockPos = entity.getBlockPos();
+        Vec3 shipBlockCenter = Vec3.atCenterOf(blockPos);
+        Vec3 worldBlockCenter = VSGameUtilsKt.toWorldCoordinates(level, shipBlockCenter);
         BlockState baseState = sourceState
                 .setValue(WindFlagBlock.FLAG_GROUP, true)
                 .setValue(WindFlagBlock.OVERLAY_ONLY, false)
                 .setValue(WindFlagBlock.PATTERN, 0);
-        BlockState overlayState = sourceState
-                .setValue(WindFlagBlock.FLAG_GROUP, true)
-                .setValue(WindFlagBlock.OVERLAY_ONLY, true);
         boolean hasOverlay = sourceState.getValue(WindFlagBlock.PATTERN) != 0;
-        int overlayLight = sourceState.getValue(WindFlagBlock.EMISSIVE) ? LightTexture.FULL_BRIGHT : packedLight;
 
         scratchWorldBlockCenterPos.set(Mth.floor(worldBlockCenter.x), Mth.floor(worldBlockCenter.y), Mth.floor(worldBlockCenter.z));
         float worldWindYaw = WindManager.getWindDirection(level, worldBlockCenter);
@@ -74,23 +71,26 @@ public class WindFlagBlockEntityRenderer implements BlockEntityRenderer<WindFlag
         if (windStrength < 0.0f) {
             effectiveWorldWindYaw = Mth.wrapDegrees(effectiveWorldWindYaw + 180.0f);
         }
-        Vector3d localWindDirection = worldWindYawToDirection(effectiveWorldWindYaw, scratchWindDirection);
-
+        float targetYawDegrees = effectiveWorldWindYaw;
         var ship = VSGameUtilsKt.getLoadedShipManagingPos(level, blockPos);
         if (ship instanceof ClientShip clientShip) {
+            Vector3d localWindDirection = worldWindYawToDirection(effectiveWorldWindYaw, scratchWindDirection);
             clientShip.getRenderTransform().getWorldToShip().transformDirection(localWindDirection);
+            targetYawDegrees = toModelYawDegrees(localWindDirection);
         }
 
-        float targetYawDegrees = Mth.wrapDegrees(toModelYawDegrees(localWindDirection));
-        targetYawDegrees =
-                Mth.wrapDegrees(targetYawDegrees + getSwayDegrees(level, partialTick, entity, windStrength));
         float renderTimeSeconds = (level.getGameTime() + partialTick) / 20.0f;
+        targetYawDegrees = Mth.wrapDegrees(targetYawDegrees + getSwayDegrees(renderTimeSeconds, entity, windStrength));
         float yawDegrees = entity.updateYawSpring(targetYawDegrees, renderTimeSeconds);
 
         poseStack.pushPose();
         poseStack.rotateAround(Axis.YP.rotationDegrees(-yawDegrees), FLAG_PIVOT_X, FLAG_PIVOT_Y, FLAG_PIVOT_Z);
         blockRenderDispatcher.renderSingleBlock(baseState, poseStack, bufferSource, packedLight, packedOverlay);
         if (hasOverlay) {
+            BlockState overlayState = sourceState
+                    .setValue(WindFlagBlock.FLAG_GROUP, true)
+                    .setValue(WindFlagBlock.OVERLAY_ONLY, true);
+            int overlayLight = sourceState.getValue(WindFlagBlock.EMISSIVE) ? LightTexture.FULL_BRIGHT : packedLight;
             blockRenderDispatcher.renderSingleBlock(overlayState, poseStack, bufferSource, overlayLight, packedOverlay);
         }
         poseStack.popPose();
@@ -124,17 +124,16 @@ public class WindFlagBlockEntityRenderer implements BlockEntityRenderer<WindFlag
         return Mth.wrapDegrees((float) Math.toDegrees(Math.atan2(dirZ, dirX)));
     }
 
-    private static float getSwayDegrees(Level level, float partialTick, WindFlagBlockEntity entity, float windStrength) {
+    private static float getSwayDegrees(float renderTimeSeconds, WindFlagBlockEntity entity, float windStrength) {
         float normalizedWindStrength = Mth.clamp(Math.abs(windStrength), 0.0f, 1.0f);
         float swayAmplitudeDegrees =
                 Mth.lerp(normalizedWindStrength, SWAY_AMPLITUDE_MAX_DEGREES, SWAY_AMPLITUDE_MIN_DEGREES);
         float swayFrequencyHz =
                 Mth.lerp(normalizedWindStrength, SWAY_FREQUENCY_MIN_HZ, SWAY_FREQUENCY_MAX_HZ);
 
-        float timeSeconds = (level.getGameTime() + partialTick) / 20.0f;
         float angularFrequency = swayFrequencyHz * (float) (Math.PI * 2.0);
         float phase = entity.getSwayPhaseOffsetRadians();
-        return swayAmplitudeDegrees * Mth.sin(angularFrequency * timeSeconds + phase);
+        return swayAmplitudeDegrees * Mth.sin(angularFrequency * renderTimeSeconds + phase);
     }
 
 }
