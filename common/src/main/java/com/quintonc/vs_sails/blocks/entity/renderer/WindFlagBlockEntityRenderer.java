@@ -20,11 +20,10 @@ import org.valkyrienskies.core.api.ships.ClientShip;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
 public class WindFlagBlockEntityRenderer implements BlockEntityRenderer<WindFlagBlockEntity> {
-    private static final float GROUP_PIVOT_X = 8.0f / 16.0f;
-    private static final float GROUP_PIVOT_Y = 26.0f / 16.0f;
-    private static final float GROUP_PIVOT_Z = 8.0f / 16.0f;
-    private static final float MODEL_FORWARD_X = 1.0f;
-    private static final float MODEL_FORWARD_Z = 0.0f;
+    private static final float FLAG_PIVOT_X = 0.5f; //8.0f / 16.0f;
+    private static final float FLAG_PIVOT_Y = 1.625f; //26.0f / 16.0f;
+    private static final float FLAG_PIVOT_Z = 0.5f; //8.0f / 16.0f;
+
     private static final float SWAY_AMPLITUDE_MAX_DEGREES = 6.0f;
     private static final float SWAY_AMPLITUDE_MIN_DEGREES = 1.25f;
     private static final float SWAY_FREQUENCY_MIN_HZ = 0.35f;
@@ -38,6 +37,11 @@ public class WindFlagBlockEntityRenderer implements BlockEntityRenderer<WindFlag
         this.blockRenderDispatcher = context.getBlockRenderDispatcher();
     }
 
+    //Principle:
+    //The only element the block entity renders is the actual flag
+    //We render the base color once, then we render the overlay
+    //with applied customization values
+    //We do this with blockstate properties. Is there a more efficient solution? Maybe, but this works.
     @Override
     public void render(WindFlagBlockEntity entity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
         Level level = entity.getLevel();
@@ -66,6 +70,7 @@ public class WindFlagBlockEntityRenderer implements BlockEntityRenderer<WindFlag
         float worldWindYaw = WindManager.getWindDirection(level, worldBlockCenter);
         float windStrength = WindManager.getWindStrength(level, scratchWorldBlockCenterPos);
         float effectiveWorldWindYaw = worldWindYaw;
+        //negative wind strength is still possible, so this is still necessary
         if (windStrength < 0.0f) {
             effectiveWorldWindYaw = Mth.wrapDegrees(effectiveWorldWindYaw + 180.0f);
         }
@@ -83,7 +88,7 @@ public class WindFlagBlockEntityRenderer implements BlockEntityRenderer<WindFlag
         float yawDegrees = entity.updateYawSpring(targetYawDegrees, renderTimeSeconds);
 
         poseStack.pushPose();
-        poseStack.rotateAround(Axis.YP.rotationDegrees(-yawDegrees), GROUP_PIVOT_X, GROUP_PIVOT_Y, GROUP_PIVOT_Z);
+        poseStack.rotateAround(Axis.YP.rotationDegrees(-yawDegrees), FLAG_PIVOT_X, FLAG_PIVOT_Y, FLAG_PIVOT_Z);
         blockRenderDispatcher.renderSingleBlock(baseState, poseStack, bufferSource, packedLight, packedOverlay);
         if (hasOverlay) {
             blockRenderDispatcher.renderSingleBlock(overlayState, poseStack, bufferSource, overlayLight, packedOverlay);
@@ -91,6 +96,9 @@ public class WindFlagBlockEntityRenderer implements BlockEntityRenderer<WindFlag
         poseStack.popPose();
     }
 
+    //Technically, this is not good for performance.
+    //The value of having distant flag visibility (i.e. identifying approaching ships)
+    //supercedes the minimal perf benefit of a custom LOD solution.
     @Override
     public int getViewDistance() {
         return 320;
@@ -113,9 +121,7 @@ public class WindFlagBlockEntityRenderer implements BlockEntityRenderer<WindFlag
         double dirX = localWindDirection.x / horizontalLength;
         double dirZ = localWindDirection.z / horizontalLength;
 
-        double crossY = MODEL_FORWARD_X * dirZ - MODEL_FORWARD_Z * dirX;
-        double dot = MODEL_FORWARD_X * dirX + MODEL_FORWARD_Z * dirZ;
-        return Mth.wrapDegrees((float) Math.toDegrees(Math.atan2(crossY, dot)));
+        return Mth.wrapDegrees((float) Math.toDegrees(Math.atan2(dirZ, dirX)));
     }
 
     private static float getSwayDegrees(Level level, float partialTick, WindFlagBlockEntity entity, float windStrength) {
