@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.valkyrienskies.core.api.ships.LoadedServerShip;
 import org.valkyrienskies.mod.api.SeatedControllingPlayer;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
+import org.valkyrienskies.core.api.ships.Wing;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.sqrt;
@@ -92,10 +93,20 @@ public class HelmBlockEntity extends BaseHelmBlockEntity {
 
                         //rudder force to be applied to rudder hinge point
                         double rudderForce;
-                        if (Boolean.parseBoolean(ConfigUtils.config.getOrDefault("realistic-rudder","true"))) {
-                            rudderForce = (2 * Math.PI * rudderAngle) * 998 / 6 * sqrt(mass) * Math.pow(vel, 2) * rudderSize;
+
+                        SailsShipControl shipForceApplier = ship.getAttachment(SailsShipControl.class);
+
+                        double fluidDensity = shipForceApplier.waterAmount;
+                        if (fluidDensity < 0.001) {
+                            fluidDensity = 124.0;
                         } else {
-                            rudderForce = (2 * Math.PI * rudderAngle) * 998 * sqrt(mass) * rudderSize;
+                            fluidDensity = 998.0;
+                        }
+
+                        if (Boolean.parseBoolean(ConfigUtils.config.getOrDefault("realistic-rudder","true"))) {
+                            rudderForce = (2 * Math.PI * rudderAngle) * fluidDensity / 6 * sqrt(mass) * Math.pow(vel, 2) * rudderSize;
+                        } else {
+                            rudderForce = (2 * Math.PI * rudderAngle) * fluidDensity * sqrt(mass) * rudderSize;
                         }
 
                         Vector3d turnvector = new Vector3d(rudderForce+mass, 0, 0);
@@ -104,7 +115,6 @@ public class HelmBlockEntity extends BaseHelmBlockEntity {
 
                         //LOGGER.info("VEL:"+vel);
 
-                        SailsShipControl shipForceApplier = ship.getAttachment(SailsShipControl.class);
                         if (shipForceApplier != null) {
                             //todo replace with a method in SailsShipControl that takes in a rudder angle and updates a field that is used for force application
                             shipForceApplier.applyRotDependentForceToPos(turnvector, loc.sub(ship.getTransform().getPositionInShip()));

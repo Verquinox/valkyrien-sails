@@ -83,6 +83,8 @@ public final class SailsShipControl implements ShipPhysicsListener, ServerTickLi
     public int numBuoys = 0;
     public int numHelms = 0;
 
+    public volatile double waterAmount = 0.0;
+
     public int boundx = 1;
     public int boundz = 1;
 
@@ -200,7 +202,7 @@ public final class SailsShipControl implements ShipPhysicsListener, ServerTickLi
                 keelForce = new Vector3d(0,0,force.z()*4);
             }
 
-            if (numSails > 0) physShip.applyRotDependentForce(keelForce);
+            if (numHelms > 0) physShip.applyRotDependentForce(keelForce);
 
         if (numMagicBallast > 0) {
             Vector3d shipUp = new Vector3d(0.0, 1.0, 0.0);
@@ -343,6 +345,8 @@ public final class SailsShipControl implements ShipPhysicsListener, ServerTickLi
 //            physShip1.setStatic(toBeStatic);
 //            toBeStaticUpdated = false;
 //        }
+        waterAmount = physShip1.getLiquidOverlap();
+
     }
 
     public void applyInvariantForce (Vector3dc force) {
