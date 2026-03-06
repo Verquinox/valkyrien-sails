@@ -1,6 +1,7 @@
 package com.quintonc.vs_sails;
 
 import com.quintonc.vs_sails.blocks.entity.renderer.HelmBlockEntityRenderer;
+import com.quintonc.vs_sails.client.ClientWindManager;
 import com.quintonc.vs_sails.networking.PacketHandler;
 import dev.architectury.event.events.client.ClientTickEvent;
 import dev.architectury.registry.client.rendering.BlockEntityRendererRegistry;
@@ -25,6 +26,8 @@ public class ValkyrienSailsClient {
             ClientTickEvent.CLIENT_POST.register(ModSounds::windSoundHandler);
         }
 
+        ClientTickEvent.CLIENT_POST.register(ClientWindManager::handleClientTick);
 
     }
+
 }

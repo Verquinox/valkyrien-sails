@@ -1,0 +1,22 @@
+{
+  "priority": 0,
+  "targets": {
+    "dimensions": ["minecraft:the_end"],
+    "dimension_tags": []
+  },
+  "wind": {
+    "dimension_multiplier": 1.1,
+    "direction": {
+      "type": "RADIAL"
+    },
+    "base_direction": 0,
+    "wind_interval": 30,
+    "effects": {
+      "weather": 0,
+      "day_night": 0,
+      "moon_phase": 0,
+      "random_strength_variation": 0.6,
+      "random_direction_variation": 0
+    }
+  }
+}

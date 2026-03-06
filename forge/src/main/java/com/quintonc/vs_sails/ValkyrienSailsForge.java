@@ -5,10 +5,12 @@ import com.quintonc.vs_sails.blocks.entity.RedstoneHelmBlockEntity;
 import com.quintonc.vs_sails.blocks.entity.renderer.HelmBlockEntityRenderer;
 import com.quintonc.vs_sails.client.particles.WindParticle;
 import com.quintonc.vs_sails.registration.SailsBlocks;
+import com.quintonc.vs_sails.wind.WindDataReloadListener;
 import dev.architectury.platform.forge.EventBuses;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
+import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 import net.minecraft.core.particles.ParticleType;
@@ -91,6 +93,13 @@ public class ValkyrienSailsForge {
 
         PARTICLE_TYPES.register(eventBus);
 
+    }
+
+    @SubscribeEvent
+    public void onDatapackSync(OnDatapackSyncEvent event) {
+        if (event.getPlayer() == null) {
+            WindDataReloadListener.loadFromServer(event.getPlayerList().getServer());
+        }
     }
 
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
