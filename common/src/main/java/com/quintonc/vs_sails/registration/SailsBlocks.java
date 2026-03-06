@@ -2,9 +2,11 @@ package com.quintonc.vs_sails.registration;
 
 import com.quintonc.vs_sails.ValkyrienSails;
 import com.quintonc.vs_sails.blocks.*;
+import com.quintonc.vs_sails.items.WindFlagItem;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
@@ -13,6 +15,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -83,12 +86,14 @@ public class SailsBlocks {
     public static RegistrySupplier<HelmWheel> BAMBOO_HELM_WHEEL;
 
     public static RegistrySupplier<RopeBlock> ROPE_BLOCK;
+    public static RegistrySupplier<RopeBlock> MAGMA_ROPE_BLOCK;
 
     public static RegistrySupplier<HelmBlock> HELM_BLOCK;
     public static RegistrySupplier<HelmWheel> HELM_WHEEL;
     public static RegistrySupplier<RedstoneHelmBlock> REDSTONE_HELM_BLOCK;
     public static RegistrySupplier<HelmWheel> REDSTONE_HELM_WHEEL;
     public static RegistrySupplier<RiggingBlock> RIGGING_BLOCK;
+    public static RegistrySupplier<RiggingBlock> MAGMA_RIGGING_BLOCK;
     public static RegistrySupplier<BallastBlock> BALLAST_BLOCK;
     public static RegistrySupplier<MagicBallastBlock> MAGIC_BALLAST_BLOCK;
 
@@ -112,6 +117,23 @@ public class SailsBlocks {
     public static RegistrySupplier<BuoyBlock> PURPLE_BUOY;
     public static RegistrySupplier<BuoyBlock> MAGENTA_BUOY;
     public static RegistrySupplier<BuoyBlock> PINK_BUOY;
+    public static RegistrySupplier<WindFlagBlock> WIND_FLAG;
+    public static RegistrySupplier<WindFlagBlock> BLACK_WIND_FLAG;
+    public static RegistrySupplier<WindFlagBlock> BROWN_WIND_FLAG;
+    public static RegistrySupplier<WindFlagBlock> CYAN_WIND_FLAG;
+    public static RegistrySupplier<WindFlagBlock> GRAY_WIND_FLAG;
+    public static RegistrySupplier<WindFlagBlock> GREEN_WIND_FLAG;
+    public static RegistrySupplier<WindFlagBlock> LIGHT_BLUE_WIND_FLAG;
+    public static RegistrySupplier<WindFlagBlock> BLUE_WIND_FLAG;
+    public static RegistrySupplier<WindFlagBlock> LIGHT_GRAY_WIND_FLAG;
+    public static RegistrySupplier<WindFlagBlock> LIME_WIND_FLAG;
+    public static RegistrySupplier<WindFlagBlock> MAGENTA_WIND_FLAG;
+    public static RegistrySupplier<WindFlagBlock> ORANGE_WIND_FLAG;
+    public static RegistrySupplier<WindFlagBlock> PINK_WIND_FLAG;
+    public static RegistrySupplier<WindFlagBlock> PURPLE_WIND_FLAG;
+    public static RegistrySupplier<WindFlagBlock> RED_WIND_FLAG;
+    public static RegistrySupplier<WindFlagBlock> WHITE_WIND_FLAG;
+    public static RegistrySupplier<WindFlagBlock> YELLOW_WIND_FLAG;
 
     public static void register() {
         SAIL_BLOCK = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "sail_block"), () -> new SailBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion().ignitedByLava().isValidSpawn(SailsBlocks::never)));
@@ -175,12 +197,14 @@ public class SailsBlocks {
         BAMBOO_HELM_WHEEL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "bamboo_helm_wheel"), () -> new HelmWheel(BlockBehaviour.Properties.copy(Blocks.BAMBOO_PLANKS).noOcclusion()));
 
         ROPE_BLOCK = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "rope_block"), () -> new RopeBlock(BlockBehaviour.Properties.copy(Blocks.BROWN_WOOL).noOcclusion().explosionResistance(0.0f).instabreak()));
+        MAGMA_ROPE_BLOCK = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "magma_rope_block"), () -> new MagmaRopeBlock(BlockBehaviour.Properties.copy(Blocks.BROWN_WOOL).noOcclusion().explosionResistance(0.0f).instabreak()));
 
         HELM_BLOCK = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "helm_block"), () -> new HelmBlock(BlockBehaviour.Properties.copy(Blocks.SPRUCE_PLANKS).noOcclusion()));
         HELM_WHEEL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "helm_wheel"), () -> new HelmWheel(BlockBehaviour.Properties.copy(Blocks.SPRUCE_PLANKS).noOcclusion()));
         REDSTONE_HELM_BLOCK = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "redstone_helm_block"), () -> new RedstoneHelmBlock(BlockBehaviour.Properties.copy(Blocks.SPRUCE_PLANKS).noOcclusion()));
         REDSTONE_HELM_WHEEL = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "redstone_helm_wheel"), () -> new HelmWheel(BlockBehaviour.Properties.copy(Blocks.SPRUCE_PLANKS).noOcclusion()));
         RIGGING_BLOCK = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "rigging_block"), () -> new RiggingBlock(BlockBehaviour.Properties.copy(Blocks.DARK_OAK_FENCE)));
+        MAGMA_RIGGING_BLOCK = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "magma_rigging_block"), () -> new MagmaRiggingBlock(BlockBehaviour.Properties.copy(Blocks.DARK_OAK_FENCE)));
         BALLAST_BLOCK = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "ballast_block"), () -> new BallastBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).explosionResistance(0.0f)));
         MAGIC_BALLAST_BLOCK = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "magic_ballast_block"), () -> new MagicBallastBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).explosionResistance(0.0f)));
 
@@ -204,6 +228,23 @@ public class SailsBlocks {
         PURPLE_BUOY = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "purple_buoy"), () -> new BuoyBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).explosionResistance(0.0f)));
         MAGENTA_BUOY = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "magenta_buoy"), () -> new BuoyBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).explosionResistance(0.0f)));
         PINK_BUOY = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "pink_buoy"), () -> new BuoyBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).explosionResistance(0.0f)));
+        WIND_FLAG = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "wind_flag"), () -> new WindFlagBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion().instabreak().explosionResistance(0.0f).ignitedByLava().pushReaction(PushReaction.DESTROY)));
+        BLACK_WIND_FLAG = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "black_wind_flag"), () -> new WindFlagBlock(BlockBehaviour.Properties.copy(Blocks.BLACK_WOOL).noOcclusion().instabreak().explosionResistance(0.0f).ignitedByLava().pushReaction(PushReaction.DESTROY)));
+        BROWN_WIND_FLAG = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "brown_wind_flag"), () -> new WindFlagBlock(BlockBehaviour.Properties.copy(Blocks.BROWN_WOOL).noOcclusion().instabreak().explosionResistance(0.0f).ignitedByLava().pushReaction(PushReaction.DESTROY)));
+        CYAN_WIND_FLAG = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "cyan_wind_flag"), () -> new WindFlagBlock(BlockBehaviour.Properties.copy(Blocks.CYAN_WOOL).noOcclusion().instabreak().explosionResistance(0.0f).ignitedByLava().pushReaction(PushReaction.DESTROY)));
+        GRAY_WIND_FLAG = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "gray_wind_flag"), () -> new WindFlagBlock(BlockBehaviour.Properties.copy(Blocks.GRAY_WOOL).noOcclusion().instabreak().explosionResistance(0.0f).ignitedByLava().pushReaction(PushReaction.DESTROY)));
+        GREEN_WIND_FLAG = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "green_wind_flag"), () -> new WindFlagBlock(BlockBehaviour.Properties.copy(Blocks.GREEN_WOOL).noOcclusion().instabreak().explosionResistance(0.0f).ignitedByLava().pushReaction(PushReaction.DESTROY)));
+        LIGHT_BLUE_WIND_FLAG = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "light_blue_wind_flag"), () -> new WindFlagBlock(BlockBehaviour.Properties.copy(Blocks.LIGHT_BLUE_WOOL).noOcclusion().instabreak().explosionResistance(0.0f).ignitedByLava().pushReaction(PushReaction.DESTROY)));
+        BLUE_WIND_FLAG = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "blue_wind_flag"), () -> new WindFlagBlock(BlockBehaviour.Properties.copy(Blocks.BLUE_WOOL).noOcclusion().instabreak().explosionResistance(0.0f).ignitedByLava().pushReaction(PushReaction.DESTROY)));
+        LIGHT_GRAY_WIND_FLAG = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "light_gray_wind_flag"), () -> new WindFlagBlock(BlockBehaviour.Properties.copy(Blocks.LIGHT_GRAY_WOOL).noOcclusion().instabreak().explosionResistance(0.0f).ignitedByLava().pushReaction(PushReaction.DESTROY)));
+        LIME_WIND_FLAG = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "lime_wind_flag"), () -> new WindFlagBlock(BlockBehaviour.Properties.copy(Blocks.LIME_WOOL).noOcclusion().instabreak().explosionResistance(0.0f).ignitedByLava().pushReaction(PushReaction.DESTROY)));
+        MAGENTA_WIND_FLAG = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "magenta_wind_flag"), () -> new WindFlagBlock(BlockBehaviour.Properties.copy(Blocks.MAGENTA_WOOL).noOcclusion().instabreak().explosionResistance(0.0f).ignitedByLava().pushReaction(PushReaction.DESTROY)));
+        ORANGE_WIND_FLAG = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "orange_wind_flag"), () -> new WindFlagBlock(BlockBehaviour.Properties.copy(Blocks.ORANGE_WOOL).noOcclusion().instabreak().explosionResistance(0.0f).ignitedByLava().pushReaction(PushReaction.DESTROY)));
+        PINK_WIND_FLAG = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "pink_wind_flag"), () -> new WindFlagBlock(BlockBehaviour.Properties.copy(Blocks.PINK_WOOL).noOcclusion().instabreak().explosionResistance(0.0f).ignitedByLava().pushReaction(PushReaction.DESTROY)));
+        PURPLE_WIND_FLAG = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "purple_wind_flag"), () -> new WindFlagBlock(BlockBehaviour.Properties.copy(Blocks.PURPLE_WOOL).noOcclusion().instabreak().explosionResistance(0.0f).ignitedByLava().pushReaction(PushReaction.DESTROY)));
+        RED_WIND_FLAG = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "red_wind_flag"), () -> new WindFlagBlock(BlockBehaviour.Properties.copy(Blocks.RED_WOOL).noOcclusion().instabreak().explosionResistance(0.0f).ignitedByLava().pushReaction(PushReaction.DESTROY)));
+        WHITE_WIND_FLAG = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "white_wind_flag"), () -> new WindFlagBlock(BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noOcclusion().instabreak().explosionResistance(0.0f).ignitedByLava().pushReaction(PushReaction.DESTROY)));
+        YELLOW_WIND_FLAG = BLOCKS.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "yellow_wind_flag"), () -> new WindFlagBlock(BlockBehaviour.Properties.copy(Blocks.YELLOW_WOOL).noOcclusion().instabreak().explosionResistance(0.0f).ignitedByLava().pushReaction(PushReaction.DESTROY)));
 
         BLOCKS.register();
     }
@@ -269,12 +310,32 @@ public class SailsBlocks {
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "bamboo_helm_wheel"), () -> new BlockItem(BAMBOO_HELM_WHEEL.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
 
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "rope"), () -> new BlockItem(ROPE_BLOCK.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "magma_rope"), () -> new BlockItem(MAGMA_ROPE_BLOCK.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
+
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "wind_flag"), () -> new WindFlagItem(WIND_FLAG.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "black_wind_flag"), () -> new WindFlagItem(BLACK_WIND_FLAG.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "brown_wind_flag"), () -> new WindFlagItem(BROWN_WIND_FLAG.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "cyan_wind_flag"), () -> new WindFlagItem(CYAN_WIND_FLAG.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "gray_wind_flag"), () -> new WindFlagItem(GRAY_WIND_FLAG.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "green_wind_flag"), () -> new WindFlagItem(GREEN_WIND_FLAG.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "light_blue_wind_flag"), () -> new WindFlagItem(LIGHT_BLUE_WIND_FLAG.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "blue_wind_flag"), () -> new WindFlagItem(BLUE_WIND_FLAG.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "light_gray_wind_flag"), () -> new WindFlagItem(LIGHT_GRAY_WIND_FLAG.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "lime_wind_flag"), () -> new WindFlagItem(LIME_WIND_FLAG.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "magenta_wind_flag"), () -> new WindFlagItem(MAGENTA_WIND_FLAG.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "orange_wind_flag"), () -> new WindFlagItem(ORANGE_WIND_FLAG.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "pink_wind_flag"), () -> new WindFlagItem(PINK_WIND_FLAG.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "purple_wind_flag"), () -> new WindFlagItem(PURPLE_WIND_FLAG.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "red_wind_flag"), () -> new WindFlagItem(RED_WIND_FLAG.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "white_wind_flag"), () -> new WindFlagItem(WHITE_WIND_FLAG.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "yellow_wind_flag"), () -> new WindFlagItem(YELLOW_WIND_FLAG.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
 
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "helm_block"), () -> new BlockItem(HELM_BLOCK.get(), new Item.Properties()));
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "helm_wheel"), () -> new BlockItem(HELM_WHEEL.get(), new Item.Properties()));
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "redstone_helm_block"), () -> new BlockItem(REDSTONE_HELM_BLOCK.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "redstone_helm_wheel"), () -> new BlockItem(REDSTONE_HELM_WHEEL.get(), new Item.Properties()));
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "rigging_block"), () -> new BlockItem(RIGGING_BLOCK.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
+        items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "magma_rigging_block"), () -> new BlockItem(MAGMA_RIGGING_BLOCK.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "ballast_block"), () -> new BlockItem(BALLAST_BLOCK.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "magic_ballast_block"), () -> new BlockItem(MAGIC_BALLAST_BLOCK.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_MAIN)));
 
@@ -299,6 +360,62 @@ public class SailsBlocks {
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "magenta_buoy"), () -> new BlockItem(MAGENTA_BUOY.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
         items.register(ResourceLocation.tryBuild(ValkyrienSails.MOD_ID, "pink_buoy"), () -> new BlockItem(PINK_BUOY.get(), new Item.Properties().arch$tab(ValkyrienSails.SAILS_COLORS)));
 
+    }
+
+    public static Block getMagmaSailBlock(Block block) {
+        ResourceLocation blockId = BuiltInRegistries.BLOCK.getKey(block);
+        if (!ValkyrienSails.MOD_ID.equals(blockId.getNamespace())) {
+            return null;
+        }
+
+        return switch (blockId.getPath()) {
+            case "sail_block" -> MAGMA_SAIL_BLOCK.get();
+            case "white_sail" -> WHITE_MAGMA_SAIL.get();
+            case "light_gray_sail" -> LIGHT_GRAY_MAGMA_SAIL.get();
+            case "gray_sail" -> GRAY_MAGMA_SAIL.get();
+            case "black_sail" -> BLACK_MAGMA_SAIL.get();
+            case "brown_sail" -> BROWN_MAGMA_SAIL.get();
+            case "red_sail" -> RED_MAGMA_SAIL.get();
+            case "orange_sail" -> ORANGE_MAGMA_SAIL.get();
+            case "yellow_sail" -> YELLOW_MAGMA_SAIL.get();
+            case "lime_sail" -> LIME_MAGMA_SAIL.get();
+            case "green_sail" -> GREEN_MAGMA_SAIL.get();
+            case "cyan_sail" -> CYAN_MAGMA_SAIL.get();
+            case "light_blue_sail" -> LIGHT_BLUE_MAGMA_SAIL.get();
+            case "blue_sail" -> BLUE_MAGMA_SAIL.get();
+            case "purple_sail" -> PURPLE_MAGMA_SAIL.get();
+            case "magenta_sail" -> MAGENTA_MAGMA_SAIL.get();
+            case "pink_sail" -> PINK_MAGMA_SAIL.get();
+            default -> null;
+        };
+    }
+
+    public static Block getRegularSailBlock(Block block) {
+        ResourceLocation blockId = BuiltInRegistries.BLOCK.getKey(block);
+        if (!ValkyrienSails.MOD_ID.equals(blockId.getNamespace())) {
+            return null;
+        }
+
+        return switch (blockId.getPath()) {
+            case "magma_sail_block" -> SAIL_BLOCK.get();
+            case "white_magma_sail" -> WHITE_SAIL.get();
+            case "light_gray_magma_sail" -> LIGHT_GRAY_SAIL.get();
+            case "gray_magma_sail" -> GRAY_SAIL.get();
+            case "black_magma_sail" -> BLACK_SAIL.get();
+            case "brown_magma_sail" -> BROWN_SAIL.get();
+            case "red_magma_sail" -> RED_SAIL.get();
+            case "orange_magma_sail" -> ORANGE_SAIL.get();
+            case "yellow_magma_sail" -> YELLOW_SAIL.get();
+            case "lime_magma_sail" -> LIME_SAIL.get();
+            case "green_magma_sail" -> GREEN_SAIL.get();
+            case "cyan_magma_sail" -> CYAN_SAIL.get();
+            case "light_blue_magma_sail" -> LIGHT_BLUE_SAIL.get();
+            case "blue_magma_sail" -> BLUE_SAIL.get();
+            case "purple_magma_sail" -> PURPLE_SAIL.get();
+            case "magenta_magma_sail" -> MAGENTA_SAIL.get();
+            case "pink_magma_sail" -> PINK_SAIL.get();
+            default -> null;
+        };
     }
 
     private static Boolean never(BlockState state, BlockGetter blockGetter, BlockPos pos, EntityType<?> entity) {

@@ -1,0 +1,33 @@
+{
+  "parent": "vs_sails:block/wind_flag/full_base",
+  "textures": {
+    "pole": "vs_sails:block/wind_flag_pole",
+    "flag": "vs_sails:block/wind_flag/brown_wind_flag"
+  },
+  "overrides": [
+    {
+      "predicate": {"vs_sails:banner_pattern_skull": 1.0},
+      "model": "vs_sails:item/wind_flag/pattern_skull_brown_wind_flag"
+    },
+    {
+      "predicate": {"vs_sails:banner_pattern_creeper": 1.0},
+      "model": "vs_sails:item/wind_flag/pattern_creeper_brown_wind_flag"
+    },
+    {
+      "predicate": {"vs_sails:banner_pattern_flower": 1.0},
+      "model": "vs_sails:item/wind_flag/pattern_flower_brown_wind_flag"
+    },
+    {
+      "predicate": {"vs_sails:banner_pattern_mojang": 1.0},
+      "model": "vs_sails:item/wind_flag/pattern_mojang_brown_wind_flag"
+    },
+    {
+      "predicate": {"vs_sails:banner_pattern_globe": 1.0},
+      "model": "vs_sails:item/wind_flag/pattern_globe_brown_wind_flag"
+    },
+    {
+      "predicate": {"vs_sails:banner_pattern_piglin": 1.0},
+      "model": "vs_sails:item/wind_flag/pattern_piglin_brown_wind_flag"
+    }
+  ]
+}

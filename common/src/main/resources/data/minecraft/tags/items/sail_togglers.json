@@ -1,6 +1,7 @@
 {
   "values": [
     "vs_sails:rope",
+    "vs_sails:magma_rope",
     "vs_sails:sail_block",
     "vs_sails:white_sail",
     "vs_sails:light_gray_sail",

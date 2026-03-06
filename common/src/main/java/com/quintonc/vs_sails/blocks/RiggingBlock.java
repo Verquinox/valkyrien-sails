@@ -1,5 +1,6 @@
 package com.quintonc.vs_sails.blocks;
 
+import com.quintonc.vs_sails.registration.SailsBlocks;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
@@ -8,12 +9,16 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -22,6 +27,9 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.particles.ItemParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
 
 import java.util.Objects;
 
@@ -60,12 +68,77 @@ public class RiggingBlock extends CrossCollisionBlock {
 
     @SuppressWarnings("deprecation")
     public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        ItemStack heldItem = player.getItemInHand(hand);
+        if (heldItem.is(Items.POTION) && PotionUtils.getPotion(heldItem) == Potions.WATER) {
+            BlockState regularState = toRegularState(state);
+            if (regularState != null) {
+                if (!world.isClientSide) {
+                    world.setBlock(pos, regularState, 10);
+                    world.playSound(null, pos, SoundEvents.BOTTLE_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
+                    if (world instanceof ServerLevel serverLevel) {
+                        serverLevel.sendParticles(ParticleTypes.SPLASH,
+                                pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D,
+                                12, 0.3D, 0.3D, 0.3D, 0.02D);
+                    }
+                }
+                return InteractionResult.sidedSuccess(world.isClientSide);
+            }
+        }
+
+        if (heldItem.is(Items.MAGMA_CREAM)) {
+            BlockState magmaState = toMagmaCoatedState(state);
+            if (magmaState != null) {
+                if (!world.isClientSide) {
+                    world.setBlock(pos, magmaState, 10);
+                    world.playSound(null, pos, SoundEvents.HONEY_BLOCK_PLACE, SoundSource.BLOCKS, 1.0F, 1.0F);
+                    if (world instanceof ServerLevel serverLevel) {
+                        serverLevel.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, new ItemStack(Items.MAGMA_CREAM)),
+                                pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D,
+                                10, 0.3D, 0.3D, 0.3D, 0.02D);
+                    }
+                    if (!player.getAbilities().instabuild) {
+                        heldItem.shrink(1);
+                    }
+                }
+                return InteractionResult.sidedSuccess(world.isClientSide);
+            }
+        }
+
         if (world.isClientSide) {
-            ItemStack itemStack = player.getItemInHand(hand);
-            return itemStack.is(Items.LEAD) ? InteractionResult.SUCCESS : InteractionResult.PASS;
+            return heldItem.is(Items.LEAD) ? InteractionResult.SUCCESS : InteractionResult.PASS;
         } else {
             return LeadItem.bindPlayerMobs(player, world, pos);
         }
+    }
+
+    public boolean isMagmaCoated() {
+        return false;
+    }
+
+    public BlockState toMagmaCoatedState(BlockState state) {
+        if (isMagmaCoated()) {
+            return null;
+        }
+
+        return SailsBlocks.MAGMA_RIGGING_BLOCK.get().defaultBlockState()
+                .setValue(NORTH, state.getValue(NORTH))
+                .setValue(EAST, state.getValue(EAST))
+                .setValue(SOUTH, state.getValue(SOUTH))
+                .setValue(WEST, state.getValue(WEST))
+                .setValue(WATERLOGGED, state.getValue(WATERLOGGED));
+    }
+
+    public BlockState toRegularState(BlockState state) {
+        if (!isMagmaCoated() || state.getBlock() != SailsBlocks.MAGMA_RIGGING_BLOCK.get()) {
+            return null;
+        }
+
+        return SailsBlocks.RIGGING_BLOCK.get().defaultBlockState()
+                .setValue(NORTH, state.getValue(NORTH))
+                .setValue(EAST, state.getValue(EAST))
+                .setValue(SOUTH, state.getValue(SOUTH))
+                .setValue(WEST, state.getValue(WEST))
+                .setValue(WATERLOGGED, state.getValue(WATERLOGGED));
     }
 
     public BlockState getStateForPlacement(BlockPlaceContext ctx) {
@@ -95,6 +168,18 @@ public class RiggingBlock extends CrossCollisionBlock {
         }
 
         return direction.getAxis().getPlane() == Direction.Plane.HORIZONTAL ? state.setValue(PROPERTY_BY_DIRECTION.get(direction), this.canConnect(neighborState, neighborState.isFaceSturdy(world, neighborPos, direction.getOpposite()), direction.getOpposite())) : super.updateShape(state, direction, neighborState, world, pos, neighborPos);
+    }
+
+    public boolean isFlammable(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
+        return true;
+    }
+
+    public int getFlammability(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
+        return 5;
+    }
+
+    public int getFireSpreadSpeed(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
+        return 20;
     }
 
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {

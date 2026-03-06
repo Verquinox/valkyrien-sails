@@ -2,6 +2,7 @@ package com.quintonc.vs_sails;
 
 import com.quintonc.vs_sails.blocks.entity.HelmBlockEntity;
 import com.quintonc.vs_sails.blocks.entity.RedstoneHelmBlockEntity;
+import com.quintonc.vs_sails.blocks.entity.WindFlagBlockEntity;
 import com.quintonc.vs_sails.items.SailWand;
 import com.quintonc.vs_sails.registration.SailsBlocks;
 import com.quintonc.vs_sails.wind.WindDataReloadListener;
@@ -49,7 +50,25 @@ public class ValkyrienSailsFabric implements ModInitializer {
 
         FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.SAIL_BLOCK.get(), 5, 20);
         FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.ROPE_BLOCK.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.RIGGING_BLOCK.get(), 5, 20);
         FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.BUOY_BLOCK.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.WIND_FLAG.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.BLACK_WIND_FLAG.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.BROWN_WIND_FLAG.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.CYAN_WIND_FLAG.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.GRAY_WIND_FLAG.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.GREEN_WIND_FLAG.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.LIGHT_BLUE_WIND_FLAG.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.BLUE_WIND_FLAG.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.LIGHT_GRAY_WIND_FLAG.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.LIME_WIND_FLAG.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.MAGENTA_WIND_FLAG.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.ORANGE_WIND_FLAG.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.PINK_WIND_FLAG.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.PURPLE_WIND_FLAG.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.RED_WIND_FLAG.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.WHITE_WIND_FLAG.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.YELLOW_WIND_FLAG.get(), 5, 20);
 
         //Yes, I know this is disgusting
         FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.WHITE_SAIL.get(), 5, 20);
@@ -113,6 +132,7 @@ public class ValkyrienSailsFabric implements ModInitializer {
 
     public static BlockEntityType<HelmBlockEntity> HELM_BLOCK_ENTITY;
     public static BlockEntityType<RedstoneHelmBlockEntity> REDSTONE_HELM_BLOCK_ENTITY;
+    public static BlockEntityType<WindFlagBlockEntity> WIND_FLAG_BLOCK_ENTITY;
 
     public static void registerBlockEntities() {
         //block entities go here
@@ -142,5 +162,31 @@ public class ValkyrienSailsFabric implements ModInitializer {
                 FabricBlockEntityTypeBuilder.create(RedstoneHelmBlockEntity::new, SailsBlocks.REDSTONE_HELM_BLOCK.get()).build()
         );
         ValkyrienSails.REDSTONE_HELM_BLOCK_ENTITY = REDSTONE_HELM_BLOCK_ENTITY;
+
+        WIND_FLAG_BLOCK_ENTITY = Registry.register(
+                BuiltInRegistries.BLOCK_ENTITY_TYPE,
+                new ResourceLocation("vs_sails", "wind_flag_block_entity"),
+                FabricBlockEntityTypeBuilder.create(
+                        WindFlagBlockEntity::new,
+                        SailsBlocks.WIND_FLAG.get(),
+                        SailsBlocks.BLACK_WIND_FLAG.get(),
+                        SailsBlocks.BROWN_WIND_FLAG.get(),
+                        SailsBlocks.CYAN_WIND_FLAG.get(),
+                        SailsBlocks.GRAY_WIND_FLAG.get(),
+                        SailsBlocks.GREEN_WIND_FLAG.get(),
+                        SailsBlocks.LIGHT_BLUE_WIND_FLAG.get(),
+                        SailsBlocks.BLUE_WIND_FLAG.get(),
+                        SailsBlocks.LIGHT_GRAY_WIND_FLAG.get(),
+                        SailsBlocks.LIME_WIND_FLAG.get(),
+                        SailsBlocks.MAGENTA_WIND_FLAG.get(),
+                        SailsBlocks.ORANGE_WIND_FLAG.get(),
+                        SailsBlocks.PINK_WIND_FLAG.get(),
+                        SailsBlocks.PURPLE_WIND_FLAG.get(),
+                        SailsBlocks.RED_WIND_FLAG.get(),
+                        SailsBlocks.WHITE_WIND_FLAG.get(),
+                        SailsBlocks.YELLOW_WIND_FLAG.get()
+                ).build()
+        );
+        ValkyrienSails.WIND_FLAG_BLOCK_ENTITY = WIND_FLAG_BLOCK_ENTITY;
     }
 }

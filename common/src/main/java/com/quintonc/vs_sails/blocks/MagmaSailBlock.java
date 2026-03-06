@@ -16,6 +16,11 @@ public class MagmaSailBlock extends SailBlock {
     }
 
     @Override
+    public boolean isMagmaCoated() {
+        return true;
+    }
+
+    @Override
     public boolean isFlammable(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
         return false;
     }

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "functional",
+  "key": {
+    "#": {
+      "tag": "minecraft:wool"
+    },
+    "/": {
+      "item": "minecraft:stick"
+    }
+  },
+  "pattern": [
+    "##/",
+    "##/",
+    "  /"
+  ],
+  "result": {
+    "item": "vs_sails:wind_flag"
+  },
+  "show_notification": true
+}
