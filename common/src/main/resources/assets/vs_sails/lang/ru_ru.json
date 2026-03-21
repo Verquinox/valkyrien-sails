@@ -19,7 +19,7 @@
   "block.vs_sails.dark_oak_helm": "Рулевая колонка из тёмного дуба",
   "block.vs_sails.acacia_helm": "Акациевая рулевая колонка",
 
-  "block.vs_sails.oak_helm_wheel": "Дубовый штрувал",
+  "block.vs_sails.oak_helm_wheel": "Дубовый штурвал",
   "block.vs_sails.spruce_helm_wheel": "Еловый штурвал",
   "block.vs_sails.birch_helm_wheel": "Берёзовый штурвал",
   "block.vs_sails.jungle_helm_wheel": "Штурвал из тропического дерева",
@@ -27,7 +27,7 @@
   "block.vs_sails.acacia_helm_wheel": "Акациевый штурвал",
 
   "block.vs_sails.white_sail": "Белый парус",
-  "block.vs_sails.light_gray_sail": "Светло серый парус",
+  "block.vs_sails.light_gray_sail": "Светло-серый парус",
   "block.vs_sails.gray_sail": "Серый парус",
   "block.vs_sails.black_sail": "Чёрный парус",
   "block.vs_sails.brown_sail": "Коричневый парус",
@@ -44,7 +44,7 @@
   "block.vs_sails.pink_sail": "Розовый парус",
 
   "block.vs_sails.white_buoy": "Белый поплавок",
-  "block.vs_sails.light_gray_buoy": "Светло серый поплавок",
+  "block.vs_sails.light_gray_buoy": "Светло-серый поплавок",
   "block.vs_sails.gray_buoy": "Серый поплавок",
   "block.vs_sails.black_buoy": "Чёрный поплавок",
   "block.vs_sails.brown_buoy": "Коричневый поплавок",
