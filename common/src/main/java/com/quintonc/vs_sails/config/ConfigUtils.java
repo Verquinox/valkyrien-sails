@@ -82,11 +82,14 @@ public class ConfigUtils {
         defaults.add("realistic-rudder = true #[Default: true] Is the rudder turning force dependent on the ship's speed");
         defaults.add("keel-power = 4.0 #[Default: 4.0] How strongly ships resist drifting");
         defaults.add("wheel-interval = 6 #[Default: 6] How many degrees the wheel will turn per tick. MUST BE A FACTOR OF 360!!!");
+        defaults.add("air-density = 124.0 #[Default: 124.0] How dense the helm's rudder thinks air is");
         defaults.add("");
         defaults.add("magic-ballast-righting-force = 0.25 #[Default: 0.25]");
         defaults.add("");
         defaults.add("ballast-float-strength = 0.0 #[Default: 0.0]");
         defaults.add("buoy-float-strength = 0.125 #[Default: 0.125]");
+        defaults.add("");
+        defaults.add("max-assemble-blocks = 100000 #[Default: 100000] The max number of blocks the dedication bottle can assemble");
 
         return defaults;
     }

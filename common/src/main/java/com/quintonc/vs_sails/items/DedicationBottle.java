@@ -42,7 +42,7 @@ public class DedicationBottle extends Item {
                 Objects.requireNonNull(context.getPlayer()).getItemInHand(context.getHand()).shrink(1);
                 ServerLevel serverLevel = (ServerLevel) context.getLevel();
 
-                Set<BlockPos> blocksToAssemble = ConnectivityUtils.tryFillByConnectivity(serverLevel, context.getClickedPos());
+                Set<BlockPos> blocksToAssemble = ConnectivityUtils.tryFillByConnectivity(serverLevel, context.getClickedPos(), context.getPlayer());
                 if (blocksToAssemble != null) {
                     ServerShip ship = ShipAssembler.assembleToShip(serverLevel, blocksToAssemble, 1.0);
 

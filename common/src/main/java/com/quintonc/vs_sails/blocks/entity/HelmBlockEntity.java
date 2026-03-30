@@ -98,7 +98,7 @@ public class HelmBlockEntity extends BaseHelmBlockEntity {
 
                         double fluidDensity = shipForceApplier.waterAmount;
                         if (fluidDensity < 0.001) {
-                            fluidDensity = 124.0;
+                            fluidDensity = Double.parseDouble(ConfigUtils.config.getOrDefault("air-density","124.0"));
                         } else {
                             fluidDensity = 998.0;
                         }
