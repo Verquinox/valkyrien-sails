@@ -3,6 +3,7 @@ package com.quintonc.vs_sails.ship;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.quintonc.vs_sails.util.SailsCommands;
 import com.quintonc.vs_sails.wind.ServerWindManager;
 import com.quintonc.vs_sails.config.ConfigUtils;
 import net.minecraft.core.BlockPos;
@@ -277,24 +278,32 @@ public final class SailsShipControl implements ShipPhysicsListener, ServerTickLi
                     fnaAngleBetween *= 2;
                 }
 
-                //LOGGER.info(" wa: "+Math.toDegrees(windAngle)+" sa: "+Math.toDegrees(shipAngle)+" s-w: "+(shipAngle-windAngle));
-                //LOGGER.info("sab:"+toDegrees(squareAngleBetween)+" fab:"+toDegrees(fnaAngleBetween));
-                DecimalFormat f = new DecimalFormat("000.000");
-                //message = Component.literal("ship: "+f.format(toDegrees(shipAngle))+" wind: "+f.format(toDegrees(windAngle))+" sAngle: "+f.format(toDegrees(squareAngleBetween))+" fAngle: "+f.format(toDegrees(fnaAngleBetween)));
-                //double shipw = physShip1.getTransform().getShipToWorldRotation().w();
-                //double shipx = physShip1.getTransform().getShipToWorldRotation().x();
-                //double shipy = physShip1.getTransform().getShipToWorldRotation().y();
-                //double shipz = physShip1.getTransform().getShipToWorldRotation().z();
-                //message = Component.literal("w: "+f.format(shipw)+" x: "+f.format(shipx)+" y: "+f.format(shipy)+" z: "+f.format(shipz));
-
-                //message = Component.literal("angle: "+toDegrees(getShipYaw(physShip1.getTransform().getShipToWorldRotation())));
-
-                message = Component.literal("WindSpeed: "+f.format(windStrength)+" WindDirection: "+f.format(windDirection));
-
                 double squareWindModifier = numSquareSails/calculateWindAngleModifier(squareAngleBetween, PI-noSailZone);
                 double fnAWindModifier = numFnASails/calculateWindAngleModifier(fnaAngleBetween, PI-noSailZone);
 
-                //LOGGER.info("sqm:"+squareWindModifier+" fwm:"+fnAWindModifier);
+                if (SailsCommands.debug) {
+                    //LOGGER.info(" wa: "+Math.toDegrees(windAngle)+" sa: "+Math.toDegrees(shipAngle)+" s-w: "+(shipAngle-windAngle));
+                    //LOGGER.info("sab:"+toDegrees(squareAngleBetween)+" fab:"+toDegrees(fnaAngleBetween));
+                    DecimalFormat f = new DecimalFormat("000.000");
+
+                    if (SailsCommands.debugType.equals("ship_angles")) {
+                        message = Component.literal("ship: "+f.format(toDegrees(shipAngle))+" wind: "+f.format(toDegrees(windAngle))+" sAngle: "+f.format(toDegrees(squareAngleBetween))+" fAngle: "+f.format(toDegrees(fnaAngleBetween)));
+                        //double shipw = physShip1.getTransform().getShipToWorldRotation().w();
+                        //double shipx = physShip1.getTransform().getShipToWorldRotation().x();
+                        //double shipy = physShip1.getTransform().getShipToWorldRotation().y();
+                        //double shipz = physShip1.getTransform().getShipToWorldRotation().z();
+                        //message = Component.literal("w: "+f.format(shipw)+" x: "+f.format(shipx)+" y: "+f.format(shipy)+" z: "+f.format(shipz));
+
+                        //message = Component.literal("angle: "+toDegrees(getShipYaw(physShip1.getTransform().getShipToWorldRotation())));
+                    }
+
+                    if (SailsCommands.debugType.equals("wind_stats")) {
+                        message = Component.literal("WindSpeed: "+f.format(windStrength)+" WindDirection: "+f.format(windDirection));
+                    }
+
+                    //LOGGER.info("sqm:"+squareWindModifier+" fwm:"+fnAWindModifier);
+                }
+
 
                 sailForce.mul(-(squareWindModifier+fnAWindModifier)*sailSpeed*(windStrength*windStrength));
             } else {

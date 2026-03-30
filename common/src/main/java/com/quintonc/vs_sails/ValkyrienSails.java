@@ -8,9 +8,11 @@ import com.quintonc.vs_sails.registration.SailsBlocks;
 import com.quintonc.vs_sails.registration.SailsItems;
 import com.quintonc.vs_sails.registration.SailsRecipes;
 import com.quintonc.vs_sails.ship.SailsShipControl;
+import com.quintonc.vs_sails.util.SailsCommands;
 import com.quintonc.vs_sails.wind.ServerWindManager;
 import com.quintonc.vs_sails.wind.WindDataReloadListener;
 import com.quintonc.vs_sails.wind.WindManager;
+import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.event.events.common.TickEvent;
 import dev.architectury.platform.Platform;
@@ -91,6 +93,10 @@ public class ValkyrienSails {
         SailsItems.register();
         SailsRecipes.register();
 
+        CommandRegistrationEvent.EVENT.register((dispatcher, registryAccess, environment) -> {
+            SailsCommands.register(dispatcher);
+        });
+
         LifecycleEvent.SERVER_STARTED.register(ValkyrienSails::onServerStarted);
         TickEvent.SERVER_LEVEL_PRE.register(ValkyrienSails::onWorldTick);
 
@@ -127,8 +133,9 @@ public class ValkyrienSails {
                             if (ship != null) {
                                 SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
                                 if (controller != null) {
-                                    serverPlayerEntity.displayClientMessage(ship.getAttachment(SailsShipControl.class).message, true);
-                                    if (controller.numSails > 0) {
+                                    if (SailsCommands.debug) {
+                                        serverPlayerEntity.displayClientMessage(ship.getAttachment(SailsShipControl.class).message, true);
+                                    }                                    if (controller.numSails > 0) {
                                         if (player.getDraggingInformation().getTicksSinceStoodOnShip() < 100) {
                                             Vector3dc shipPos = ship.getTransform().getPositionInWorld(); //fixme make sure this is the world pos of the ship
                                             double windDir = Math.toRadians(ServerWindManager.getWindDirection(world, new Vec3(shipPos.x(), shipPos.y(), shipPos.z()))+180);
