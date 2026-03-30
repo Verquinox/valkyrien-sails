@@ -20,7 +20,7 @@ public class ProjectAtmosphereCompat {
         }
 
         WindVector wind = ForecastOrchestrator.getWind(serverLevel, pos, serverLevel.getGameTime());
-        return wind.baseSpeed();
+        return wind.baseSpeed() / 6;
     }
 
     public static double getWindDirection(Level world, Vec3 pos) {
@@ -30,6 +30,6 @@ public class ProjectAtmosphereCompat {
 
         BlockPos blockPos = BlockPos.containing(pos);
         WindVector wind = ForecastOrchestrator.getWind(serverLevel, blockPos, serverLevel.getGameTime());
-        return Mth.wrapDegrees((float) Math.toDegrees(wind.angleRadians()));
+        return Mth.wrapDegrees((float) Math.toDegrees(wind.angleRadians()) - 270);
     }
 }
