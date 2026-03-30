@@ -279,7 +279,7 @@ public final class SailsShipControl implements ShipPhysicsListener, ServerTickLi
 
                 //LOGGER.info(" wa: "+Math.toDegrees(windAngle)+" sa: "+Math.toDegrees(shipAngle)+" s-w: "+(shipAngle-windAngle));
                 //LOGGER.info("sab:"+toDegrees(squareAngleBetween)+" fab:"+toDegrees(fnaAngleBetween));
-                //DecimalFormat f = new DecimalFormat("000.000");
+                DecimalFormat f = new DecimalFormat("000.000");
                 //message = Component.literal("ship: "+f.format(toDegrees(shipAngle))+" wind: "+f.format(toDegrees(windAngle))+" sAngle: "+f.format(toDegrees(squareAngleBetween))+" fAngle: "+f.format(toDegrees(fnaAngleBetween)));
                 //double shipw = physShip1.getTransform().getShipToWorldRotation().w();
                 //double shipx = physShip1.getTransform().getShipToWorldRotation().x();
@@ -289,7 +289,7 @@ public final class SailsShipControl implements ShipPhysicsListener, ServerTickLi
 
                 //message = Component.literal("angle: "+toDegrees(getShipYaw(physShip1.getTransform().getShipToWorldRotation())));
 
-                //message = Component.literal("WindSpeed: "+windStrength+" WindDirection: "+windDirection);
+                message = Component.literal("WindSpeed: "+f.format(windStrength)+" WindDirection: "+f.format(windDirection));
 
                 double squareWindModifier = numSquareSails/calculateWindAngleModifier(squareAngleBetween, PI-noSailZone);
                 double fnAWindModifier = numFnASails/calculateWindAngleModifier(fnaAngleBetween, PI-noSailZone);

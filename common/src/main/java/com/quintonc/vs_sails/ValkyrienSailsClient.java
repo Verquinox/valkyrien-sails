@@ -36,7 +36,7 @@ public class ValkyrienSailsClient {
 
         PacketHandler.register();
 
-        if (!ValkyrienSails.weather2) {
+        if (!(ValkyrienSails.weather2 || ValkyrienSails.projectAtmosphere)) {
             //ClientTickEvents.END_CLIENT_TICK.register(ModSounds::windSoundHandler);
             ClientTickEvent.CLIENT_POST.register(ModSounds::windSoundHandler);
         }

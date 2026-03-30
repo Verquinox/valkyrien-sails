@@ -6,6 +6,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.quintonc.vs_sails.ValkyrienSails;
+import com.quintonc.vs_sails.compat.ProjectAtmosphereCompat;
 import com.quintonc.vs_sails.compat.Weather2Compat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -232,6 +233,9 @@ public class WindManager {
     }
 
     public static float getWindDirection(Level world, Vec3 pos) {
+        if (ValkyrienSails.projectAtmosphere && world != null) {
+            return (float) ProjectAtmosphereCompat.getWindDirection(world, pos);
+        }
         if (ValkyrienSails.weather2 && world != null) {
             return (float) Weather2Compat.getWindDirection(world, pos);
         }
@@ -251,6 +255,9 @@ public class WindManager {
     }
 
     public static float getWindStrength(Level world, BlockPos pos) {
+        if (ValkyrienSails.projectAtmosphere && world != null) {
+            return (float) ProjectAtmosphereCompat.getWindStrength(world, pos);
+        }
         if (ValkyrienSails.weather2 && world != null) {
             return (float) Weather2Compat.getWindStrength(world, pos);
         }

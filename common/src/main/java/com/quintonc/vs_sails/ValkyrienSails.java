@@ -46,6 +46,7 @@ public class ValkyrienSails {
     private static final int refreshRate = 4;
     private static final int PARTICLES_PER_TICK = 3;
     public static boolean weather2 = Platform.isModLoaded("weather2");
+    public static boolean projectAtmosphere = Platform.isModLoaded("projectatmosphere");
     public static boolean sailsWind = false;
     public static final double EULERS_NUMBER = 2.71828182846;
 
@@ -126,7 +127,7 @@ public class ValkyrienSails {
                             if (ship != null) {
                                 SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
                                 if (controller != null) {
-                                    //serverPlayerEntity.displayClientMessage(ship.getAttachment(SailsShipControl.class).message, true);
+                                    serverPlayerEntity.displayClientMessage(ship.getAttachment(SailsShipControl.class).message, true);
                                     if (controller.numSails > 0) {
                                         if (player.getDraggingInformation().getTicksSinceStoodOnShip() < 100) {
                                             Vector3dc shipPos = ship.getTransform().getPositionInWorld(); //fixme make sure this is the world pos of the ship
