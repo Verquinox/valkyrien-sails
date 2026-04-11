@@ -25,7 +25,6 @@ public class PacketHandler {
 
         CHANNEL.register(WheelAngleMessage.class, WheelAngleMessage::encode, WheelAngleMessage::new, WheelAngleMessage::apply);
         CHANNEL.register(WheelMessage.class, WheelMessage::encode, WheelMessage::new, WheelMessage::apply);
-        CHANNEL.register(WindDataPacket.class, WindDataPacket::encode, WindDataPacket::new, WindDataPacket::apply);
 
         NetworkManager.registerReceiver(NetworkManager.Side.S2C, PacketHandler.WHEEL_ANGLE_PACKET, (buf, context) -> {
             //Player player = context.getPlayer();
@@ -35,14 +34,17 @@ public class PacketHandler {
             //float tps = buf.readFloat();
 
             context.queue(() -> {
-                if (context.getPlayer() == null || context.getPlayer().level() == null) {
+                if (context.getPlayer() == null) {
                     return;
                 }
                 BlockEntity be = context.getPlayer().level().getBlockEntity(pos);
                 if (be instanceof BaseHelmBlockEntity blockEntity) {
                     blockEntity.wheelAngle = wheelAngle;
                     blockEntity.renderWheelAngleVel = (float) Minecraft.getInstance().getFps() / 20;
-                    //serverTPS = tps;
+//                    Entity camera = Minecraft.getInstance().cameraEntity;
+//                    if (!(camera == null || camera == Minecraft.getInstance().player)) {
+//                        Minecraft.getInstance().player.displayClientMessage(Component.literal("Angle: "+wheelAngle), true);
+//                    }
                 }
             });
         });

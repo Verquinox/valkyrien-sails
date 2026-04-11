@@ -66,7 +66,7 @@ side="BOTH"
 [[dependencies.vs_sails]]
 modId="valkyrienskies"
 mandatory=true
-versionRange="[${vs2_version},)"
+versionRange="[2.4.11,)"
 ordering="AFTER"
 side="BOTH"
 
