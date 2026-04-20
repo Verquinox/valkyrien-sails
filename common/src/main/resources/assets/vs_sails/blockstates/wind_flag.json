@@ -2,8 +2,9 @@
   "multipart": [
     {
       "when": {
-        "half": "lower",
-        "flag_group": "false"
+        "flag_group": "false",
+        "is_top": "false",
+        "overlay_only": "false"
       },
       "apply": {
         "model": "vs_sails:block/wind_flag_pole"
@@ -11,16 +12,16 @@
     },
     {
       "when": {
-        "half": "upper",
-        "flag_group": "false"
+        "flag_group": "false",
+        "is_top": "true",
+        "overlay_only": "false"
       },
       "apply": {
-        "model": "vs_sails:block/wind_flag_pole"
+        "model": "vs_sails:block/pole_top"
       }
     },
     {
       "when": {
-        "half": "lower",
         "flag_group": "true",
         "overlay_only": "false"
       },
@@ -30,8 +31,6 @@
     },
     {
       "when": {
-        "half": "lower",
-        "flag_group": "true",
         "overlay_only": "true",
         "pattern": "1"
       },
@@ -41,8 +40,6 @@
     },
     {
       "when": {
-        "half": "lower",
-        "flag_group": "true",
         "overlay_only": "true",
         "pattern": "2"
       },
@@ -52,8 +49,6 @@
     },
     {
       "when": {
-        "half": "lower",
-        "flag_group": "true",
         "overlay_only": "true",
         "pattern": "3"
       },
@@ -63,8 +58,6 @@
     },
     {
       "when": {
-        "half": "lower",
-        "flag_group": "true",
         "overlay_only": "true",
         "pattern": "4"
       },
@@ -74,8 +67,6 @@
     },
     {
       "when": {
-        "half": "lower",
-        "flag_group": "true",
         "overlay_only": "true",
         "pattern": "5"
       },
@@ -85,8 +76,6 @@
     },
     {
       "when": {
-        "half": "lower",
-        "flag_group": "true",
         "overlay_only": "true",
         "pattern": "6"
       },

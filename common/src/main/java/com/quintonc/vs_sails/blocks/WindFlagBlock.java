@@ -1,6 +1,7 @@
 package com.quintonc.vs_sails.blocks;
 
 import com.quintonc.vs_sails.blocks.entity.WindFlagBlockEntity;
+import com.quintonc.vs_sails.util.ModTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -44,15 +45,38 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
+import java.util.*;
 
 public class WindFlagBlock extends BaseEntityBlock {
     //Blockstate properties used in rendering
+
+    /**
+     * Used to render the flag model from the blockstate file in the renderer. Should NOT be set from this class! (should be kept false)
+     */
     public static final BooleanProperty FLAG_GROUP = BooleanProperty.create("flag_group");
+
+    /**
+     * Used to render the overlay models from the blockstate file in the renderer. Should NOT be set from this class! (should be kept false)
+     */
     public static final BooleanProperty OVERLAY_ONLY = BooleanProperty.create("overlay_only");
+
     public static final BooleanProperty EMISSIVE = BooleanProperty.create("emissive");
+
+    /**
+     * Controls whether the flag is hidden, toggled by user clicking
+     */
     public static final BooleanProperty FURLED = BooleanProperty.create("furled");
-    public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
+
+    /**
+     * Controls whether the pole (flag or not) has the top-knobby bit in the model
+     */
+    public static final BooleanProperty IS_TOP = BooleanProperty.create("is_top");
+
+    /**
+     * Controls whether the block should be handled by the flag renderer or not. If not a flag, it'll just be a plain pole.
+     */
+    public static final BooleanProperty IS_FLAG = BooleanProperty.create("is_flag");
+
     //Banner pattern currently displayed
     public static final IntegerProperty PATTERN = IntegerProperty.create("pattern", 0, 6);
     //Color of the banner pattern
@@ -85,60 +109,46 @@ public class WindFlagBlock extends BaseEntityBlock {
     public WindFlagBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.defaultBlockState()
+                .setValue(IS_FLAG, true)
                 .setValue(FLAG_GROUP, false)
                 .setValue(OVERLAY_ONLY, false)
                 .setValue(EMISSIVE, false)
                 .setValue(FURLED, false)
-                .setValue(HALF, DoubleBlockHalf.LOWER)
                 .setValue(PATTERN, PATTERN_NONE)
                 .setValue(OVERLAY_COLOR, DEFAULT_OVERLAY_COLOR));
     }
 
     @Override
     public RenderShape getRenderShape(BlockState state) {
-        if (state.getValue(HALF) == DoubleBlockHalf.UPPER) {
-            return RenderShape.INVISIBLE;
-        }
         return RenderShape.MODEL;
-    }
-
-    @Override
-    public @NotNull SoundType getSoundType(BlockState state) {
-        if (state.getValue(HALF) == DoubleBlockHalf.UPPER) {
-            return SoundType.EMPTY;
-        }
-        return super.getSoundType(state);
     }
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         BlockPos pos = context.getClickedPos();
         Level level = context.getLevel();
-        if (pos.getY() >= level.getMaxBuildHeight() - 1) {
-            return null;
-        }
-        if (!level.getBlockState(pos.above()).canBeReplaced(context)) {
-            return null;
-        }
-        return this.defaultBlockState()
+
+        BlockState standard = this.defaultBlockState()
+                .setValue(IS_TOP, true)
+                .setValue(IS_FLAG, true)
                 .setValue(FLAG_GROUP, false)
                 .setValue(OVERLAY_ONLY, false)
                 .setValue(EMISSIVE, false)
                 .setValue(FURLED, false)
-                .setValue(HALF, DoubleBlockHalf.LOWER)
                 .setValue(PATTERN, PATTERN_NONE)
                 .setValue(OVERLAY_COLOR, DEFAULT_OVERLAY_COLOR);
-    }
 
-    @Override
-    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
-        level.setBlock(
-                pos.above(),
-                state.setValue(HALF, DoubleBlockHalf.UPPER)
-                        .setValue(FLAG_GROUP, false)
-                        .setValue(OVERLAY_ONLY, false),
-                3
-        );
+        if (
+                context.getPlayer().getMainHandItem().getCount() >= 2
+                && level.getBlockState(pos.above()).canBeReplaced()
+                && !(level.getBlockState(pos.below()).getBlock() instanceof WindFlagBlock)
+        ) {
+            level.setBlock(pos.above(), standard, 3);
+            context.getPlayer().getMainHandItem().shrink(1);
+            return standard.setValue(IS_FLAG, false).setValue(IS_TOP, false);
+        }
+
+        return standard;
     }
 
     @Override
@@ -152,26 +162,17 @@ public class WindFlagBlock extends BaseEntityBlock {
     ) {
         ItemStack heldItem = player.getItemInHand(hand);
         int pattern = getPatternFromItem(heldItem);
-        BlockPos lowerPos = state.getValue(HALF) == DoubleBlockHalf.LOWER ? pos : pos.below();
-        BlockState lowerState = level.getBlockState(lowerPos);
-        if (!isWindFlagHalf(lowerState, DoubleBlockHalf.LOWER)) {
-            return InteractionResult.PASS;
-        }
 
         //Furling/Unfurling
         if (hand == InteractionHand.MAIN_HAND && heldItem.isEmpty()) {
-            boolean furled = !lowerState.getValue(FURLED);
+            boolean furled = !state.getValue(FURLED);
             if (!level.isClientSide) {
-                BlockPos upperPos = lowerPos.above();
-                BlockState upperState = level.getBlockState(upperPos);
 
-                level.setBlock(lowerPos, lowerState.setValue(FURLED, furled), 3);
-                if (isWindFlagHalf(upperState, DoubleBlockHalf.UPPER)) {
-                    level.setBlock(upperPos, upperState.setValue(FURLED, furled), 3);
-                }
+                setFurledChain(level, pos, furled);
+
                 level.playSound(
                         null,
-                        lowerPos,
+                        pos,
                         furled ? SoundEvents.BUNDLE_INSERT : SoundEvents.BUNDLE_DROP_CONTENTS,
                         SoundSource.BLOCKS,
                         1.0f,
@@ -181,21 +182,23 @@ public class WindFlagBlock extends BaseEntityBlock {
             return InteractionResult.sidedSuccess(level.isClientSide);
         }
 
+        if (heldItem.is(Items.SHEARS)) {
+            level.setBlock(pos, state.setValue(IS_FLAG, !state.getValue(IS_FLAG)), 3);
+
+            return InteractionResult.sidedSuccess(level.isClientSide);
+        }
+
         //Jeb_ nametag rainbow mode
         if (isRainbowNameTag(heldItem)) {
-            if (lowerState.getValue(OVERLAY_COLOR) == OVERLAY_COLOR_RAINBOW) {
+            if (state.getValue(OVERLAY_COLOR) == OVERLAY_COLOR_RAINBOW) {
                 return InteractionResult.sidedSuccess(level.isClientSide);
             }
 
             if (!level.isClientSide) {
-                BlockPos upperPos = lowerPos.above();
-                BlockState upperState = level.getBlockState(upperPos);
 
-                level.setBlock(lowerPos, lowerState.setValue(OVERLAY_COLOR, OVERLAY_COLOR_RAINBOW), 3);
-                if (isWindFlagHalf(upperState, DoubleBlockHalf.UPPER)) {
-                    level.setBlock(upperPos, upperState.setValue(OVERLAY_COLOR, OVERLAY_COLOR_RAINBOW), 3);
-                }
-                level.playSound(null, lowerPos, SoundEvents.UI_CARTOGRAPHY_TABLE_TAKE_RESULT, SoundSource.BLOCKS, 1.0f, 1.0f);
+                level.setBlock(pos, state.setValue(OVERLAY_COLOR, OVERLAY_COLOR_RAINBOW), 3);
+
+                level.playSound(null, pos, SoundEvents.UI_CARTOGRAPHY_TABLE_TAKE_RESULT, SoundSource.BLOCKS, 1.0f, 1.0f);
 
                 if (!player.getAbilities().instabuild) {
                     heldItem.shrink(1);
@@ -207,22 +210,17 @@ public class WindFlagBlock extends BaseEntityBlock {
 
         //Emissive rendering with glow ink sac
         if (heldItem.is(Items.GLOW_INK_SAC)) {
-            if (lowerState.getValue(PATTERN) == PATTERN_NONE) {
+            if (state.getValue(PATTERN) == PATTERN_NONE) {
                 return InteractionResult.PASS;
             }
-            if (lowerState.getValue(EMISSIVE)) {
+            if (state.getValue(EMISSIVE)) {
                 return InteractionResult.sidedSuccess(level.isClientSide);
             }
 
             if (!level.isClientSide) {
-                BlockPos upperPos = lowerPos.above();
-                BlockState upperState = level.getBlockState(upperPos);
+                level.setBlock(pos, state.setValue(EMISSIVE, true), 3);
 
-                level.setBlock(lowerPos, lowerState.setValue(EMISSIVE, true), 3);
-                if (isWindFlagHalf(upperState, DoubleBlockHalf.UPPER)) {
-                    level.setBlock(upperPos, upperState.setValue(EMISSIVE, true), 3);
-                }
-                level.playSound(null, lowerPos, SoundEvents.UI_CARTOGRAPHY_TABLE_TAKE_RESULT, SoundSource.BLOCKS, 1.0f, 1.0f);
+                level.playSound(null, pos, SoundEvents.UI_CARTOGRAPHY_TABLE_TAKE_RESULT, SoundSource.BLOCKS, 1.0f, 1.0f);
 
                 if (!player.getAbilities().instabuild) {
                     heldItem.shrink(1);
@@ -230,6 +228,10 @@ public class WindFlagBlock extends BaseEntityBlock {
             }
 
             return InteractionResult.sidedSuccess(level.isClientSide);
+        }
+
+        if (!state.getValue(IS_FLAG)) {
+            return InteractionResult.PASS;
         }
 
         //Flag blockswap
@@ -293,14 +295,14 @@ public class WindFlagBlock extends BaseEntityBlock {
             desiredPattern = Mth.clamp(desiredPattern, PATTERN_NONE, PATTERN_PIGLIN);
             desiredOverlayColor = Mth.clamp(desiredOverlayColor, 0, OVERLAY_COLOR_RAINBOW);
 
-            boolean sameBlockType = lowerState.getBlock() == replacementFlagBlock;
+            boolean sameBlockType = state.getBlock() == replacementFlagBlock;
             boolean sameStateValues =
-                    lowerState.getValue(PATTERN) == desiredPattern
-                            && lowerState.getValue(OVERLAY_COLOR) == desiredOverlayColor
-                            && lowerState.getValue(EMISSIVE) == desiredEmissive
-                            && lowerState.getValue(FURLED) == desiredFurled;
-            if (sameBlockType && sameStateValues) {
-                return InteractionResult.sidedSuccess(level.isClientSide);
+                    state.getValue(PATTERN) == desiredPattern
+                            && state.getValue(OVERLAY_COLOR) == desiredOverlayColor
+                            && state.getValue(EMISSIVE) == desiredEmissive
+                            && state.getValue(FURLED) == desiredFurled;
+            if ((sameBlockType && sameStateValues) || player.isShiftKeyDown()) {
+                return InteractionResult.PASS;
             }
 
             if (!level.isClientSide) {
@@ -309,29 +311,18 @@ public class WindFlagBlock extends BaseEntityBlock {
                         .setValue(OVERLAY_ONLY, false)
                         .setValue(EMISSIVE, desiredEmissive)
                         .setValue(FURLED, desiredFurled)
-                        .setValue(HALF, DoubleBlockHalf.LOWER)
-                        .setValue(PATTERN, desiredPattern)
-                        .setValue(OVERLAY_COLOR, desiredOverlayColor);
-                BlockState replacementUpperState = replacementFlagBlock.defaultBlockState()
-                        .setValue(FLAG_GROUP, false)
-                        .setValue(OVERLAY_ONLY, false)
-                        .setValue(EMISSIVE, desiredEmissive)
-                        .setValue(FURLED, desiredFurled)
-                        .setValue(HALF, DoubleBlockHalf.UPPER)
                         .setValue(PATTERN, desiredPattern)
                         .setValue(OVERLAY_COLOR, desiredOverlayColor);
 
-                BlockPos upperPos = lowerPos.above();
-                level.setBlock(lowerPos, replacementLowerState, 3);
-                level.setBlock(upperPos, replacementUpperState, 3);
-                level.playSound(null, lowerPos, SoundEvents.WOOL_BREAK, SoundSource.BLOCKS, 1.0f, 1.0f);
+                level.setBlock(pos, replacementLowerState, 3);
+                level.playSound(null, pos, SoundEvents.WOOL_BREAK, SoundSource.BLOCKS, 1.0f, 1.0f);
 
                 if (!player.getAbilities().instabuild) {
                     heldItem.shrink(1);
 
-                    Item oldFlagItem = lowerState.getBlock().asItem();
+                    Item oldFlagItem = state.getBlock().asItem();
                     ItemStack returnedStack = new ItemStack(oldFlagItem);
-                    writeStateTagToItem(returnedStack, lowerState);
+                    writeStateTagToItem(returnedStack, state);
 
                     if (heldItem.isEmpty()) {
                         player.setItemInHand(hand, returnedStack);
@@ -346,19 +337,15 @@ public class WindFlagBlock extends BaseEntityBlock {
 
         //Setting banner patterns
         if (pattern != PATTERN_NONE) {
-            if (lowerState.getValue(PATTERN) == pattern) {
+            if (state.getValue(PATTERN) == pattern) {
                 return InteractionResult.sidedSuccess(level.isClientSide);
             }
 
             if (!level.isClientSide) {
-                BlockPos upperPos = lowerPos.above();
-                BlockState upperState = level.getBlockState(upperPos);
 
-                level.setBlock(lowerPos, lowerState.setValue(PATTERN, pattern), 3);
-                if (isWindFlagHalf(upperState, DoubleBlockHalf.UPPER)) {
-                    level.setBlock(upperPos, upperState.setValue(PATTERN, pattern), 3);
-                }
-                level.playSound(null, lowerPos, SoundEvents.UI_CARTOGRAPHY_TABLE_TAKE_RESULT, SoundSource.BLOCKS, 1.0f, 1.0f);
+                level.setBlock(pos, state.setValue(PATTERN, pattern), 3);
+
+                level.playSound(null, pos, SoundEvents.UI_CARTOGRAPHY_TABLE_TAKE_RESULT, SoundSource.BLOCKS, 1.0f, 1.0f);
             }
 
             return InteractionResult.sidedSuccess(level.isClientSide);
@@ -369,24 +356,20 @@ public class WindFlagBlock extends BaseEntityBlock {
         if (dyeColor == null) {
             return InteractionResult.PASS;
         }
-        if (lowerState.getValue(PATTERN) == PATTERN_NONE) {
+        if (state.getValue(PATTERN) == PATTERN_NONE) {
             return InteractionResult.PASS;
         }
 
         int overlayColor = dyeColor.getId();
-        if (lowerState.getValue(OVERLAY_COLOR) == overlayColor) {
+        if (state.getValue(OVERLAY_COLOR) == overlayColor) {
             return InteractionResult.sidedSuccess(level.isClientSide);
         }
 
         if (!level.isClientSide) {
-            BlockPos upperPos = lowerPos.above();
-            BlockState upperState = level.getBlockState(upperPos);
 
-            level.setBlock(lowerPos, lowerState.setValue(OVERLAY_COLOR, overlayColor), 3);
-            if (isWindFlagHalf(upperState, DoubleBlockHalf.UPPER)) {
-                level.setBlock(upperPos, upperState.setValue(OVERLAY_COLOR, overlayColor), 3);
-            }
-            level.playSound(null, lowerPos, SoundEvents.UI_CARTOGRAPHY_TABLE_TAKE_RESULT, SoundSource.BLOCKS, 1.0f, 1.0f);
+            level.setBlock(pos, state.setValue(OVERLAY_COLOR, overlayColor), 3);
+
+            level.playSound(null, pos, SoundEvents.UI_CARTOGRAPHY_TABLE_TAKE_RESULT, SoundSource.BLOCKS, 1.0f, 1.0f);
 
             if (!player.getAbilities().instabuild) {
                 heldItem.shrink(1);
@@ -396,14 +379,61 @@ public class WindFlagBlock extends BaseEntityBlock {
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
+    // Slighlty vibe coded, I will admit.
+    public static void setFurledChain(Level level, BlockPos startPos, boolean furled) {
+        BlockState startState = level.getBlockState(startPos);
+
+        if (!(startState.getBlock() instanceof WindFlagBlock)) {
+            return;
+        }
+
+        Set<BlockPos> visited = new HashSet<>();
+        Queue<BlockPos> queue = new ArrayDeque<>();
+
+        queue.add(startPos);
+        visited.add(startPos);
+
+        while (!queue.isEmpty()) {
+            BlockPos pos = queue.poll();
+            BlockState state = level.getBlockState(pos);
+
+            if (!(state.getBlock() instanceof WindFlagBlock)) {
+                continue;
+            }
+
+            // Only update if needed (prevents redundant updates + loops)
+            if (state.getValue(WindFlagBlock.FURLED) != furled) {
+                level.setBlock(
+                        pos,
+                        state.setValue(WindFlagBlock.FURLED, furled),
+                        Block.UPDATE_CLIENTS // avoid excessive neighbor spam
+                );
+            }
+
+            // Check vertical neighbors only
+            BlockPos up = pos.above();
+            BlockPos down = pos.below();
+
+            if (!visited.contains(up) && level.getBlockState(up).getBlock() instanceof WindFlagBlock) {
+                queue.add(up);
+                visited.add(up);
+            }
+
+            if (!visited.contains(down) && level.getBlockState(down).getBlock() instanceof WindFlagBlock) {
+                queue.add(down);
+                visited.add(down);
+            }
+        }
+    }
+
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return state.getValue(HALF) == DoubleBlockHalf.LOWER ? LOWER_SHAPE : UPPER_SHAPE;
+        return state.getValue(IS_TOP) ? UPPER_SHAPE : LOWER_SHAPE;
     }
 
     @Override
     public VoxelShape getBlockSupportShape(BlockState state, BlockGetter level, BlockPos pos) {
-        return state.getValue(HALF) == DoubleBlockHalf.UPPER ? UPPER_TOPPER_SHAPE : LOWER_SHAPE;
+        return state.getValue(IS_TOP) ? UPPER_SHAPE : LOWER_SHAPE;
     }
 
     @Override
@@ -415,35 +445,26 @@ public class WindFlagBlock extends BaseEntityBlock {
             BlockPos currentPos,
             BlockPos neighborPos
     ) {
-        DoubleBlockHalf half = state.getValue(HALF);
-        if (direction.getAxis() == Direction.Axis.Y) {
-            if (half == DoubleBlockHalf.LOWER && direction == Direction.UP) {
-                if (!isWindFlagHalf(neighborState, DoubleBlockHalf.UPPER)) {
-                    return Blocks.AIR.defaultBlockState();
-                }
-            } else if (half == DoubleBlockHalf.UPPER && direction == Direction.DOWN) {
-                if (!isWindFlagHalf(neighborState, DoubleBlockHalf.LOWER)) {
-                    return Blocks.AIR.defaultBlockState();
-                }
-            }
+        if (level.getBlockState(currentPos.below()).isAir()) {
+            return Blocks.AIR.defaultBlockState();
         }
-        return super.updateShape(state, direction, neighborState, level, currentPos, neighborPos);
+
+        BlockState above = level.getBlockState(currentPos.above());
+        if (above.getBlock() instanceof WindFlagBlock) {
+            return state.setValue(IS_TOP, false);
+        } else {
+            return state.setValue(IS_TOP, true);
+        }
     }
 
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        if (state.getValue(HALF) == DoubleBlockHalf.UPPER) {
-            return null;
-        }
         return new WindFlagBlockEntity(pos, state);
     }
 
     @Override
     public @NotNull List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
-        if (state.getValue(HALF) == DoubleBlockHalf.UPPER) {
-            return List.of();
-        }
         List<ItemStack> drops = super.getDrops(state, params);
         for (ItemStack drop : drops) {
             if (drop.getItem() instanceof BlockItem blockItem && blockItem.getBlock() == this) {
@@ -501,8 +522,8 @@ public class WindFlagBlock extends BaseEntityBlock {
 
     private static boolean isWindFlagHalf(BlockState state, DoubleBlockHalf expectedHalf) {
         return state.getBlock() instanceof WindFlagBlock
-                && state.hasProperty(HALF)
-                && state.getValue(HALF) == expectedHalf;
+                && state.hasProperty(IS_TOP)
+                && state.getValue(IS_TOP) == (expectedHalf == DoubleBlockHalf.UPPER);
     }
 
     public static int getOverlayTintColor(BlockState state, @Nullable BlockGetter level, @Nullable BlockPos pos, int tintIndex) {
@@ -613,6 +634,6 @@ public class WindFlagBlock extends BaseEntityBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FLAG_GROUP, OVERLAY_ONLY, EMISSIVE, FURLED, HALF, PATTERN, OVERLAY_COLOR);
+        builder.add(FLAG_GROUP, OVERLAY_ONLY, EMISSIVE, FURLED, IS_TOP, IS_FLAG, PATTERN, OVERLAY_COLOR);
     }
 }

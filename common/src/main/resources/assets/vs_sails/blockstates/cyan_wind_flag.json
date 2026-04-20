@@ -2,8 +2,9 @@
   "multipart": [
     {
       "when": {
-        "half": "lower",
-        "flag_group": "false"
+        "flag_group": "false",
+        "is_top": "false",
+        "overlay_only": "false"
       },
       "apply": {
         "model": "vs_sails:block/wind_flag_pole"
@@ -11,87 +12,21 @@
     },
     {
       "when": {
-        "half": "upper",
-        "flag_group": "false"
+        "flag_group": "false",
+        "is_top": "true",
+        "overlay_only": "false"
       },
       "apply": {
-        "model": "vs_sails:block/wind_flag_pole"
+        "model": "vs_sails:block/pole_top"
       }
     },
     {
       "when": {
-        "half": "lower",
         "flag_group": "true",
         "overlay_only": "false"
       },
       "apply": {
         "model": "vs_sails:block/wind_flag/rotate_cyan_wind_flag"
-      }
-    },
-    {
-      "when": {
-        "half": "lower",
-        "flag_group": "true",
-        "overlay_only": "true",
-        "pattern": "1"
-      },
-      "apply": {
-        "model": "vs_sails:block/wind_flag/rotate_overlay_skull"
-      }
-    },
-    {
-      "when": {
-        "half": "lower",
-        "flag_group": "true",
-        "overlay_only": "true",
-        "pattern": "2"
-      },
-      "apply": {
-        "model": "vs_sails:block/wind_flag/rotate_overlay_creeper"
-      }
-    },
-    {
-      "when": {
-        "half": "lower",
-        "flag_group": "true",
-        "overlay_only": "true",
-        "pattern": "3"
-      },
-      "apply": {
-        "model": "vs_sails:block/wind_flag/rotate_overlay_flower"
-      }
-    },
-    {
-      "when": {
-        "half": "lower",
-        "flag_group": "true",
-        "overlay_only": "true",
-        "pattern": "4"
-      },
-      "apply": {
-        "model": "vs_sails:block/wind_flag/rotate_overlay_mojang"
-      }
-    },
-    {
-      "when": {
-        "half": "lower",
-        "flag_group": "true",
-        "overlay_only": "true",
-        "pattern": "5"
-      },
-      "apply": {
-        "model": "vs_sails:block/wind_flag/rotate_overlay_globe"
-      }
-    },
-    {
-      "when": {
-        "half": "lower",
-        "flag_group": "true",
-        "overlay_only": "true",
-        "pattern": "6"
-      },
-      "apply": {
-        "model": "vs_sails:block/wind_flag/rotate_overlay_piglin"
       }
     }
   ]
