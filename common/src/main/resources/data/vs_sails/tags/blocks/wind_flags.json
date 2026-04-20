@@ -1,0 +1,21 @@
+{
+  "values": [
+    "vs_sails:black_wind_flag",
+    "vs_sails:blue_wind_flag",
+    "vs_sails:brown_wind_flag",
+    "vs_sails:cyan_wind_flag",
+    "vs_sails:gray_wind_flag",
+    "vs_sails:green_wind_flag",
+    "vs_sails:light_blue_wind_flag",
+    "vs_sails:light_gray_wind_flag",
+    "vs_sails:lime_wind_flag",
+    "vs_sails:magenta_wind_flag",
+    "vs_sails:orange_wind_flag",
+    "vs_sails:pink_wind_flag",
+    "vs_sails:purple_wind_flag",
+    "vs_sails:red_wind_flag",
+    "vs_sails:white_wind_flag",
+    "vs_sails:yellow_wind_flag",
+    "vs_sails:wind_flag"
+  ]
+}
