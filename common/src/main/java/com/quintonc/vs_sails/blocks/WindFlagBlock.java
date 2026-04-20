@@ -128,11 +128,9 @@ public class WindFlagBlock extends BaseEntityBlock {
         BlockPos pos = context.getClickedPos();
         Level level = context.getLevel();
 
-        boolean basic_pole = context.getPlayer().isShiftKeyDown();
-
         BlockState standard = this.defaultBlockState()
                 .setValue(IS_TOP, true)
-                .setValue(IS_FLAG, !basic_pole)
+                .setValue(IS_FLAG, true)
                 .setValue(FLAG_GROUP, false)
                 .setValue(OVERLAY_ONLY, false)
                 .setValue(EMISSIVE, false)
@@ -143,7 +141,6 @@ public class WindFlagBlock extends BaseEntityBlock {
         if (
                 context.getPlayer().getMainHandItem().getCount() >= 2
                 && level.getBlockState(pos.above()).canBeReplaced()
-                && !basic_pole
                 && !(level.getBlockState(pos.below()).getBlock() instanceof WindFlagBlock)
         ) {
             level.setBlock(pos.above(), standard, 3);
@@ -182,6 +179,12 @@ public class WindFlagBlock extends BaseEntityBlock {
                         1.0f
                 );
             }
+            return InteractionResult.sidedSuccess(level.isClientSide);
+        }
+
+        if (heldItem.is(Items.SHEARS)) {
+            level.setBlock(pos, state.setValue(IS_FLAG, !state.getValue(IS_FLAG)), 3);
+
             return InteractionResult.sidedSuccess(level.isClientSide);
         }
 
@@ -298,7 +301,7 @@ public class WindFlagBlock extends BaseEntityBlock {
                             && state.getValue(OVERLAY_COLOR) == desiredOverlayColor
                             && state.getValue(EMISSIVE) == desiredEmissive
                             && state.getValue(FURLED) == desiredFurled;
-            if (sameBlockType && sameStateValues) {
+            if ((sameBlockType && sameStateValues) || player.isShiftKeyDown()) {
                 return InteractionResult.PASS;
             }
 
