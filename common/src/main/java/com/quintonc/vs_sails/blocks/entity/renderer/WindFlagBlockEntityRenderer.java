@@ -4,20 +4,30 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.quintonc.vs_sails.blocks.WindFlagBlock;
 import com.quintonc.vs_sails.blocks.entity.WindFlagBlockEntity;
+import com.quintonc.vs_sails.registration.SailsBlocks;
 import com.quintonc.vs_sails.wind.WindManager;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3d;
 import org.valkyrienskies.core.api.ships.ClientShip;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
+
+import static com.quintonc.vs_sails.blocks.WindFlagBlock.IS_TOP;
 
 public class WindFlagBlockEntityRenderer implements BlockEntityRenderer<WindFlagBlockEntity> {
     private static final float FLAG_PIVOT_X = 0.5f; //8.0f / 16.0f;
@@ -50,7 +60,8 @@ public class WindFlagBlockEntityRenderer implements BlockEntityRenderer<WindFlag
         }
 
         BlockState sourceState = entity.getBlockState();
-        if (sourceState.getValue(WindFlagBlock.FURLED)) {
+
+        if (sourceState.getValue(WindFlagBlock.FURLED) || !sourceState.getValue(WindFlagBlock.IS_FLAG)) {
             return;
         }
 
@@ -87,18 +98,24 @@ public class WindFlagBlockEntityRenderer implements BlockEntityRenderer<WindFlag
         poseStack.rotateAround(Axis.YP.rotationDegrees(-yawDegrees), FLAG_PIVOT_X, FLAG_PIVOT_Y, FLAG_PIVOT_Z);
         blockRenderDispatcher.renderSingleBlock(baseState, poseStack, bufferSource, packedLight, packedOverlay);
         if (hasOverlay) {
-            BlockState overlayState = sourceState
+            // TODO: Allow the blockstate files to override this without having to write out the overlays for every single one
+            BlockState overlayState = SailsBlocks.WIND_FLAG.get().defaultBlockState()
+                    .setValue(WindFlagBlock.PATTERN, sourceState.getValue(WindFlagBlock.PATTERN))
+                    .setValue(WindFlagBlock.OVERLAY_COLOR, sourceState.getValue(WindFlagBlock.OVERLAY_COLOR))
                     .setValue(WindFlagBlock.FLAG_GROUP, true)
                     .setValue(WindFlagBlock.OVERLAY_ONLY, true);
+
             int overlayLight = sourceState.getValue(WindFlagBlock.EMISSIVE) ? LightTexture.FULL_BRIGHT : packedLight;
             blockRenderDispatcher.renderSingleBlock(overlayState, poseStack, bufferSource, overlayLight, packedOverlay);
         }
         poseStack.popPose();
     }
 
-    //Technically, this is not good for performance.
-    //The value of having distant flag visibility (i.e. identifying approaching ships)
-    //supercedes the minimal perf benefit of a custom LOD solution.
+    /**
+     * Technically, this is not good for performance.
+     * But the value of having distant flag visibility (i.e. identifying approaching ships)
+     * supersedes the minimal perf benefit of a custom LOD solution.
+     */
     @Override
     public int getViewDistance() {
         return 320;
