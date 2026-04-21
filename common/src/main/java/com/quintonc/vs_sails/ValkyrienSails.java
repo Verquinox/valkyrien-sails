@@ -114,15 +114,6 @@ public class ValkyrienSails {
         if (tickCount == refreshRate) {
             tickCount = 0;
 
-            VSGameUtilsKt.getShipObjectWorld(world).getLoadedShips().forEach(ship -> {
-                if (ship != null) {
-                    SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
-                    if (controller != null) {
-                        controller.world = world;
-                    }
-                }
-            });
-
             if (sailsWind) {
                 //Spawn wind particles for all players being dragged by ships with a SailsShipControl attachment
                 world.players().forEach(serverPlayerEntity -> {
