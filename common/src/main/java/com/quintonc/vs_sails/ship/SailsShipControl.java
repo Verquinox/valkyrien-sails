@@ -9,6 +9,7 @@ import com.quintonc.vs_sails.config.ConfigUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.core.Direction;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -19,6 +20,7 @@ import org.valkyrienskies.core.api.ships.*;
 import org.valkyrienskies.core.api.world.PhysLevel;
 import org.valkyrienskies.core.impl.game.ships.PhysShipImpl;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
+import org.valkyrienskies.mod.common.ValkyrienSkiesMod;
 
 import static java.lang.Math.*;
 
@@ -149,7 +151,8 @@ public final class SailsShipControl implements ShipPhysicsListener, ServerTickLi
     }
 
     public static SailsShipControl getOrCreate(LoadedServerShip ship) {
-        return getOrCreate(ship, null);
+        MinecraftServer server = ValkyrienSkiesMod.getCurrentServer();
+        return getOrCreate(ship, server != null ? VSGameUtilsKt.getLevelFromDimensionId(server, ship.getChunkClaimDimension()) : null);
     }
 
     @Override
