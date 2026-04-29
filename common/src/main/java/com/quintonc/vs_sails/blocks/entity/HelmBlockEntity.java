@@ -96,12 +96,13 @@ public class HelmBlockEntity extends BaseHelmBlockEntity {
 
                         SailsShipControl shipForceApplier = ship.getAttachment(SailsShipControl.class);
 
-                        double fluidDensity = shipForceApplier.waterAmount;
-                        if (fluidDensity < 0.001) {
-                            fluidDensity = Double.parseDouble(ConfigUtils.config.getOrDefault("air-density","124.0"));
-                        } else {
-                            fluidDensity = 998.0;
-                        }
+//                        double fluidDensity = shipForceApplier.waterAmount;
+//                        if (fluidDensity <= 0.0) {
+//                            fluidDensity = Double.parseDouble(ConfigUtils.config.getOrDefault("air-density","124.0"));
+//                        } else {
+//                            fluidDensity = 998.0;
+//                        }
+                        double fluidDensity = 998.0;
 
                         if (Boolean.parseBoolean(ConfigUtils.config.getOrDefault("realistic-rudder","true"))) {
                             rudderForce = (2 * Math.PI * rudderAngle) * fluidDensity / 6 * sqrt(mass) * Math.pow(vel, 2) * rudderSize;
