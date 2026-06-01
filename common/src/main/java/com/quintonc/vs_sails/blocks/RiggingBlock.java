@@ -1,5 +1,6 @@
 package com.quintonc.vs_sails.blocks;
 
+import com.quintonc.vs_sails.ValkyrienSails;
 import com.quintonc.vs_sails.registration.SailsBlocks;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.block.*;
@@ -62,7 +63,7 @@ public class RiggingBlock extends CrossCollisionBlock {
     }
 
     private boolean canConnectToRigging(BlockState state) {
-        TagKey<Block> tag = TagKey.create(Registries.BLOCK, new ResourceLocation("rigging"));
+        TagKey<Block> tag = TagKey.create(Registries.BLOCK, new ResourceLocation(ValkyrienSails.MOD_ID, "rigging"));
         return state.is(tag)  == this.defaultBlockState().is(tag);
     }
 

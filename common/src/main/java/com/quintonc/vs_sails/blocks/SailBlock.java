@@ -1,5 +1,6 @@
 package com.quintonc.vs_sails.blocks;
 
+import com.quintonc.vs_sails.ValkyrienSails;
 import com.quintonc.vs_sails.registration.SailsBlocks;
 import com.quintonc.vs_sails.ship.SailsShipControl;
 import kotlin.Pair;
@@ -133,7 +134,7 @@ public class SailBlock extends Block implements ICopyableBlock {
             }
         }
 
-        TagKey<Item> tag = TagKey.create(Registries.ITEM, new ResourceLocation("sail_togglers"));
+        TagKey<Item> tag = TagKey.create(Registries.ITEM, new ResourceLocation(ValkyrienSails.MOD_ID, "sail_togglers"));
         if (!heldItem.is(tag)) {
             if (!world.isClientSide) {
                 toggleFirstSail(state, world, pos);

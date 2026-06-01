@@ -1,5 +1,6 @@
 package com.quintonc.vs_sails.blocks.entity;
 
+import com.quintonc.vs_sails.ValkyrienSails;
 import com.quintonc.vs_sails.networking.PacketHandler;
 import com.quintonc.vs_sails.registration.SailsBlocks;
 import com.quintonc.vs_sails.registration.SailsItems;
@@ -246,7 +247,7 @@ public abstract class BaseHelmBlockEntity extends BlockEntity implements Clearab
 
     @Override
     public void setItem(int slot, ItemStack stack) {
-        TagKey<Item> tag = TagKey.create(Registries.ITEM, new ResourceLocation("helm_wheels"));
+        TagKey<Item> tag = TagKey.create(Registries.ITEM, new ResourceLocation(ValkyrienSails.MOD_ID, "helm_wheels"));
         if (stack.is(tag) && this.level != null) {
             this.items.set(slot, stack);
             //this.setHasRecordBlockState((Entity)null, true);
@@ -266,7 +267,7 @@ public abstract class BaseHelmBlockEntity extends BlockEntity implements Clearab
     }
 
     public boolean canPlaceItem(int index, ItemStack stack) {
-        TagKey<Item> tag = TagKey.create(Registries.ITEM, new ResourceLocation("helm_wheels"));
+        TagKey<Item> tag = TagKey.create(Registries.ITEM, new ResourceLocation(ValkyrienSails.MOD_ID, "helm_wheels"));
         return stack.is(tag) && this.getItem(index).isEmpty();
     }
 
