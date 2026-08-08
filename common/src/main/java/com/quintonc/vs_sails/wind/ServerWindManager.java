@@ -127,7 +127,7 @@ public class ServerWindManager extends WindManager {
         setWindForDimension(world.dimension().location(), state.strength, state.direction, state.windType, windEnabled);
         sendWindPackets(world, state.windType, state.strength, state.direction, windEnabled);
 
-        if (Boolean.parseBoolean(ConfigUtils.config.getOrDefault("enable-aerodynamic-wind", "true"))) {
+        if (Boolean.parseBoolean(ConfigUtils.config.getOrDefault("enable-aerodynamic-wind", "false"))) {
             for (LoadedServerShip ship : VSGameUtilsKt.getShipObjectWorld(world).getLoadedShips()) {
                 if (ship.getDragController() != null) {
                     Vec3 shipPos = new Vec3(

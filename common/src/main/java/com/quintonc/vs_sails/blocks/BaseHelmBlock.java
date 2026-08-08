@@ -5,8 +5,10 @@ import com.quintonc.vs_sails.networking.PacketHandler;
 import com.quintonc.vs_sails.ship.SailsShipControl;
 import dev.architectury.networking.NetworkManager;
 import io.netty.buffer.Unpooled;
+import kotlin.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -34,15 +36,22 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.valkyrienskies.core.api.ships.LoadedServerShip;
 import org.valkyrienskies.core.api.ships.ServerShip;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
+import org.valkyrienskies.mod.common.ValkyrienSkiesMod;
+import org.valkyrienskies.mod.common.assembly.ICopyableBlock;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
-public abstract class BaseHelmBlock extends BaseEntityBlock {
+public abstract class BaseHelmBlock extends BaseEntityBlock implements ICopyableBlock {
     public static final DirectionProperty FACING;
     public static final Logger LOGGER = LoggerFactory.getLogger("base_helm_block");
     private static final VoxelShape NORTH_SHAPE = Shapes.or(Block.box(5,0,2,11,16,11), Block.box(0, 5, 11, 16, 21, 14)) ;
@@ -203,6 +212,34 @@ public abstract class BaseHelmBlock extends BaseEntityBlock {
         if (state.hasBlockEntity() && !state.is(newState.getBlock())) {
             world.removeBlockEntity(pos);
         }
+    }
+
+    @Override
+    public @Nullable CompoundTag onCopy(@NotNull ServerLevel serverLevel, @NotNull BlockPos blockPos, @NotNull BlockState blockState, @Nullable BlockEntity blockEntity, @NotNull List<? extends ServerShip> list, @NotNull Map<Long, ? extends Vector3d> map) {
+        return null;
+    }
+
+    @Override
+    public @Nullable CompoundTag onPaste(@NotNull ServerLevel serverLevel, @NotNull BlockPos blockPos, @NotNull BlockState blockState, @NotNull Map<Long, Long> map, @NotNull Map<Long, ? extends Pair<? extends Vector3d, ? extends Vector3d>> map1, @Nullable CompoundTag compoundTag) {
+        ServerShip serverShip = VSGameUtilsKt.getShipManagingPos(serverLevel, blockPos);
+        if (serverShip == null) {
+            return null;
+        }
+
+        ValkyrienSkiesMod.getApi().getShipLoadEvent().on((shipLoadEvent, handler) -> {
+            LoadedServerShip ship = shipLoadEvent.getShip();
+            SailsShipControl controller = SailsShipControl.getOrCreate(ship, serverLevel);
+            if (this instanceof HelmBlock) {
+                controller.numHelms++;
+            }
+
+            //if the ship's direction is opposite the helm (helm faces backwards), set it to its opposite
+            if (Objects.equals(controller.shipDirection, blockState.getValue(FACING))) {
+                controller.shipDirection = controller.shipDirection.getOpposite();
+            }
+            handler.unregister();
+        });
+        return null;
     }
 
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {

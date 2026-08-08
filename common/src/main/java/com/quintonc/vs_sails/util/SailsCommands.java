@@ -38,6 +38,14 @@ public class SailsCommands {
                             return 1;
                         })
                     )
+                    .then(literal("fluid_stats")
+                            .executes(context -> {
+                                debug = true;
+                                debugType = "fluid_stats";
+                                context.getSource().sendSuccess(() -> Component.literal("Valkyrien Sails debug set to: fluid_stats"), false);
+                                return 1;
+                            })
+                    )
                     .then(literal("none")
                         .executes(context -> {
                             debug = false;

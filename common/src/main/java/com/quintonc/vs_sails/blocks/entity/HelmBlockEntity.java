@@ -4,6 +4,7 @@ import com.quintonc.vs_sails.ValkyrienSails;
 import com.quintonc.vs_sails.config.ConfigUtils;
 import com.quintonc.vs_sails.registration.SailsBlocks;
 import com.quintonc.vs_sails.ship.SailsShipControl;
+import com.quintonc.vs_sails.util.SailsCommands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
@@ -96,13 +97,16 @@ public class HelmBlockEntity extends BaseHelmBlockEntity {
 
                         SailsShipControl shipForceApplier = ship.getAttachment(SailsShipControl.class);
 
-//                        double fluidDensity = shipForceApplier.waterAmount;
-//                        if (fluidDensity <= 0.0) {
-//                            fluidDensity = Double.parseDouble(ConfigUtils.config.getOrDefault("air-density","124.0"));
-//                        } else {
-//                            fluidDensity = 998.0;
-//                        }
-                        double fluidDensity = 998.0;
+                        double fluidDensity = shipForceApplier.waterAmount;
+                        if (fluidDensity <= 0.0) {
+                            fluidDensity = Double.parseDouble(ConfigUtils.config.getOrDefault("air-density","124.0"));
+                        } else {
+                            fluidDensity = 998.0;
+                        }
+                        if (SailsCommands.debugType.equals("fluid_stats")) {
+                            shipForceApplier.message = Component.literal("fluidOverlap: "+fluidDensity);
+                        }
+                        //double fluidDensity = 998.0;
 
                         if (Boolean.parseBoolean(ConfigUtils.config.getOrDefault("realistic-rudder","true"))) {
                             rudderForce = (2 * Math.PI * rudderAngle) * fluidDensity / 6 * sqrt(mass) * Math.pow(vel, 2) * rudderSize;
