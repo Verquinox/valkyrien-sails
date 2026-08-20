@@ -1,39 +1,41 @@
 package com.quintonc.vs_sails;
 
-import com.quintonc.vs_sails.blocks.*;
 import com.quintonc.vs_sails.blocks.entity.HelmBlockEntity;
+import com.quintonc.vs_sails.blocks.entity.RedstoneHelmBlockEntity;
+import com.quintonc.vs_sails.blocks.entity.WindFlagBlockEntity;
 import com.quintonc.vs_sails.config.ConfigUtils;
-import com.quintonc.vs_sails.networking.WindModNetworking;
 import com.quintonc.vs_sails.registration.SailsBlocks;
 import com.quintonc.vs_sails.registration.SailsItems;
+import com.quintonc.vs_sails.registration.SailsRecipes;
 import com.quintonc.vs_sails.ship.SailsShipControl;
+import com.quintonc.vs_sails.util.SailsCommands;
+import com.quintonc.vs_sails.wind.ServerWindManager;
+import com.quintonc.vs_sails.wind.WindDataReloadListener;
+import com.quintonc.vs_sails.wind.WindManager;
+import dev.architectury.event.events.common.CommandRegistrationEvent;
+import dev.architectury.event.events.common.LifecycleEvent;
+import dev.architectury.event.events.common.TickEvent;
+import dev.architectury.platform.Platform;
 import dev.architectury.registry.CreativeTabRegistry;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.phys.Vec3;
-import org.apache.logging.log4j.core.jmx.Server;
+import org.joml.Vector3dc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.valkyrienskies.core.api.ships.ServerShip;
+import org.valkyrienskies.core.api.ships.LoadedServerShip;
+import org.valkyrienskies.mod.api.ValkyrienSkies;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 import org.valkyrienskies.mod.common.util.IEntityDraggingInformationProvider;
 
@@ -44,6 +46,10 @@ public class ValkyrienSails {
     public static final Logger LOGGER = LoggerFactory.getLogger("vs_sails_common");
     private static int tickCount = 0;
     private static final int refreshRate = 4;
+    private static final int PARTICLES_PER_TICK = 3;
+    public static boolean weather2 = Platform.isModLoaded("weather2");
+    public static boolean projectAtmosphere = Platform.isModLoaded("projectatmosphere");
+    public static boolean sailsWind = false;
     public static final double EULERS_NUMBER = 2.71828182846;
 
     public static final ResourceLocation WIND_PARTICLE_PACKET = ResourceLocation.tryBuild(MOD_ID, "wind_particle_packet");
@@ -55,8 +61,11 @@ public class ValkyrienSails {
 
     //Block Entities
     public static BlockEntityType<HelmBlockEntity> HELM_BLOCK_ENTITY;
+    public static BlockEntityType<RedstoneHelmBlockEntity> REDSTONE_HELM_BLOCK_ENTITY;
+    public static BlockEntityType<WindFlagBlockEntity> WIND_FLAG_BLOCK_ENTITY;
 
-    public static RegistrySupplier<CreativeModeTab> SAILS_TAB;
+    public static RegistrySupplier<CreativeModeTab> SAILS_MAIN;
+    public static RegistrySupplier<CreativeModeTab> SAILS_COLORS;
 
     //Particles
     public static SimpleParticleType WIND_PARTICLE;
@@ -65,55 +74,73 @@ public class ValkyrienSails {
         LOGGER.info("Common Init");
         ConfigUtils.checkConfigs();
 
-        SAILS_TAB = TABS.register("sails_tab", () -> CreativeTabRegistry.create(Component.translatable("category.sails_tab"), () -> new ItemStack(SailsBlocks.HELM_BLOCK.get().asItem())));
+        ValkyrienSkies.api().registerAttachment(ValkyrienSkies.api()
+                .newAttachmentRegistrationBuilder(SailsShipControl.class)
+                .useLegacySerializer()
+                .build()
+        );
+
+        ValkyrienSkies.api().getShipLoadEvent().on(ship -> {
+            SailsShipControl.getOrCreate(ship.getShip());
+        });
+
+        SAILS_MAIN = TABS.register("sails_main", () -> CreativeTabRegistry.create(Component.translatable("category.sails_main"), () -> new ItemStack(SailsBlocks.HELM_BLOCK.get().asItem())));
+        SAILS_COLORS = TABS.register("sails_colors", () -> CreativeTabRegistry.create(Component.translatable("category.sails_colors"), () -> new ItemStack(SailsBlocks.CYAN_BUOY.get().asItem())));
+
         TABS.register();
 
         SailsBlocks.register();
         SailsItems.register();
+        SailsRecipes.register();
 
-        ServerLifecycleEvents.SERVER_STARTED.register(ValkyrienSails::onServerStarted);
-        ServerTickEvents.START_WORLD_TICK.register(ValkyrienSails::onWorldTick);
+        CommandRegistrationEvent.EVENT.register((dispatcher, registryAccess, environment) -> {
+            SailsCommands.register(dispatcher);
+        });
+
+        LifecycleEvent.SERVER_STARTED.register(ValkyrienSails::onServerStarted);
+        TickEvent.SERVER_LEVEL_PRE.register(ValkyrienSails::onWorldTick);
+
 
         LOGGER.info("Sailing time.");
     }
 
-    public static void InitializeVSWind(ServerLevel world) {
+    public static void InitializeVSWind() {
         LOGGER.info("The wind is blowing.");
-        ServerTickEvents.START_WORLD_TICK.register(ValkyrienSails::onWorldTick);
+        sailsWind = Boolean.parseBoolean(ConfigUtils.config.getOrDefault("wind-shows-no-sails","true")); //fixme unfinished
     }
 
     @SuppressWarnings("UnstableApiUsage")
     public static void onWorldTick(ServerLevel world) {
-        if(tickCount == refreshRate) {
+        if (tickCount == refreshRate) {
             tickCount = 0;
 
-            //Spawn wind particles for all players being dragged by ships with a SailsShipControl attachment
-            world.getServer().getPlayerList().getPlayers().forEach(serverPlayerEntity -> {
-                if (serverPlayerEntity instanceof IEntityDraggingInformationProvider player) {
-                    if (player.getDraggingInformation().getLastShipStoodOn() != null) {
-                        long shipId = player.getDraggingInformation().getLastShipStoodOn();
-                        ServerShip ship = (ServerShip) VSGameUtilsKt.getAllShips(world).getById(shipId);
-                        if (ship != null) {
-                            SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
-                            if (controller != null) {
-                                //serverPlayerEntity.sendMessage(ship.getAttachment(SailsShipControl.class).message, true);
-                                if (player.getDraggingInformation().getTicksSinceStoodOnShip() < 100) {
-                                    double windDir = Math.toRadians(ServerWindManager.getWindDirection()+180);
-                                    world.sendParticles(serverPlayerEntity, ValkyrienSails.WIND_PARTICLE, false, serverPlayerEntity.getX()+15*Math.sin(windDir), serverPlayerEntity.getY()+25, serverPlayerEntity.getZ()+15*Math.sin(windDir), 10, 20, 10, 20, 0);
-                                    //fixme use single particle spawning, or transfer to client?
-//                                    world.addParticle();
-//                                    FriendlyByteBuf wp = PacketByteBufs.create();
-//                                    wp.writeBoolean(true);
-//                                    ServerPlayNetworking.send(serverPlayerEntity, WIND_PARTICLE_PACKET, wp);
+            if (sailsWind) {
+                //Spawn wind particles for all players being dragged by ships with a SailsShipControl attachment
+                world.players().forEach(serverPlayerEntity -> {
+                    if (serverPlayerEntity instanceof IEntityDraggingInformationProvider player) {
+                        if (player.getDraggingInformation().getLastShipStoodOn() != null) {
+                            long shipId = player.getDraggingInformation().getLastShipStoodOn();
+                            LoadedServerShip ship = VSGameUtilsKt.getShipObjectWorld(world).getLoadedShips().getById(shipId);
+                            if (ship != null) {
+                                SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
+                                if (controller != null) {
+                                    if (SailsCommands.debug) {
+                                        serverPlayerEntity.displayClientMessage(ship.getAttachment(SailsShipControl.class).message, true);
+                                    }                                    if (controller.numSails > 0) {
+                                        if (player.getDraggingInformation().getTicksSinceStoodOnShip() < 100) {
+                                            Vector3dc shipPos = ship.getTransform().getPositionInWorld(); //fixme make sure this is the world pos of the ship
+                                            double windDir = Math.toRadians(ServerWindManager.getWindDirection(world, new Vec3(shipPos.x(), shipPos.y(), shipPos.z()))+180);
+                                            double windStr = ServerWindManager.getWindStrength(world, serverPlayerEntity.blockPosition());
+
+                                            world.sendParticles(serverPlayerEntity, ValkyrienSails.WIND_PARTICLE, true, serverPlayerEntity.getX()+75*Math.cos(windDir)*windStr, serverPlayerEntity.getY()+25, serverPlayerEntity.getZ()+75*Math.sin(windDir)*windStr, 10, 20, 10, 20, 0);
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            });
-
-
-
+                });
+            }
         } else {
             tickCount++;
         }
@@ -124,10 +151,10 @@ public class ValkyrienSails {
     }
 
     public static void onServerStarted(MinecraftServer server) {
+        WindDataReloadListener.loadFromServer(server);
         if (Boolean.parseBoolean(ConfigUtils.config.getOrDefault("enable-wind","true"))) {
-            ServerWindManager.InitializeWind(server.overworld());
-            ValkyrienSails.InitializeVSWind(server.overworld());
-            WindModNetworking.networkingInit();
+            ServerWindManager.InitializeWind();
+            ValkyrienSails.InitializeVSWind();
         }
     }
 }

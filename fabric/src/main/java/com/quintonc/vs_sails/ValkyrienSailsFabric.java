@@ -1,8 +1,11 @@
 package com.quintonc.vs_sails;
 
 import com.quintonc.vs_sails.blocks.entity.HelmBlockEntity;
+import com.quintonc.vs_sails.blocks.entity.RedstoneHelmBlockEntity;
+import com.quintonc.vs_sails.blocks.entity.WindFlagBlockEntity;
 import com.quintonc.vs_sails.items.SailWand;
 import com.quintonc.vs_sails.registration.SailsBlocks;
+import com.quintonc.vs_sails.wind.WindDataReloadListener;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -10,6 +13,8 @@ import net.fabricmc.fabric.api.gamerule.v1.GameRuleFactory;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
+import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.item.*;
 import net.minecraft.core.particles.SimpleParticleType;
@@ -34,6 +39,72 @@ public class ValkyrienSailsFabric implements ModInitializer {
     public void onInitialize() {
 
         ValkyrienSails.init();
+
+        ServerLifecycleEvents.END_DATA_PACK_RELOAD.register(((server, resourceManager, success) -> {
+            if (success) {
+                WindDataReloadListener.loadFromServer(server);
+            } else {
+                ValkyrienSails.LOGGER.warn("Datapack reload failed!");
+            }
+        }));
+
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.SAIL_BLOCK.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.ROPE_BLOCK.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.RIGGING_BLOCK.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.BUOY_BLOCK.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.WIND_FLAG.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.BLACK_WIND_FLAG.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.BROWN_WIND_FLAG.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.CYAN_WIND_FLAG.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.GRAY_WIND_FLAG.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.GREEN_WIND_FLAG.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.LIGHT_BLUE_WIND_FLAG.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.BLUE_WIND_FLAG.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.LIGHT_GRAY_WIND_FLAG.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.LIME_WIND_FLAG.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.MAGENTA_WIND_FLAG.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.ORANGE_WIND_FLAG.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.PINK_WIND_FLAG.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.PURPLE_WIND_FLAG.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.RED_WIND_FLAG.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.WHITE_WIND_FLAG.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.YELLOW_WIND_FLAG.get(), 5, 20);
+
+        //Yes, I know this is disgusting
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.WHITE_SAIL.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.LIGHT_GRAY_SAIL.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.GRAY_SAIL.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.BLACK_SAIL.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.BROWN_SAIL.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.RED_SAIL.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.ORANGE_SAIL.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.YELLOW_SAIL.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.LIME_SAIL.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.GREEN_SAIL.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.CYAN_SAIL.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.LIGHT_BLUE_SAIL.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.BLUE_SAIL.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.PURPLE_SAIL.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.MAGENTA_SAIL.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.PINK_SAIL.get(), 5, 20);
+
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.WHITE_BUOY.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.LIGHT_GRAY_BUOY.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.GRAY_BUOY.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.BLACK_BUOY.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.BROWN_BUOY.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.RED_BUOY.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.ORANGE_BUOY.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.YELLOW_BUOY.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.LIME_BUOY.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.GREEN_BUOY.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.CYAN_BUOY.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.LIGHT_BLUE_BUOY.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.BLUE_BUOY.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.PURPLE_BUOY.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.MAGENTA_BUOY.get(), 5, 20);
+        FlammableBlockRegistry.getDefaultInstance().add(SailsBlocks.PINK_BUOY.get(), 5, 20);
+
 
         //registerItems();
         registerBlockEntities();
@@ -60,14 +131,62 @@ public class ValkyrienSailsFabric implements ModInitializer {
     }
 
     public static BlockEntityType<HelmBlockEntity> HELM_BLOCK_ENTITY;
+    public static BlockEntityType<RedstoneHelmBlockEntity> REDSTONE_HELM_BLOCK_ENTITY;
+    public static BlockEntityType<WindFlagBlockEntity> WIND_FLAG_BLOCK_ENTITY;
 
     public static void registerBlockEntities() {
         //block entities go here
         HELM_BLOCK_ENTITY = Registry.register(
                 BuiltInRegistries.BLOCK_ENTITY_TYPE,
                 new ResourceLocation("vs_sails", "helm_block_entity"),
-                FabricBlockEntityTypeBuilder.create(HelmBlockEntity::new, SailsBlocks.HELM_BLOCK.get()).build()
+                FabricBlockEntityTypeBuilder.create(
+                        HelmBlockEntity::new,
+                        SailsBlocks.HELM_BLOCK.get(),
+                        SailsBlocks.OAK_HELM.get(),
+                        SailsBlocks.SPRUCE_HELM.get(),
+                        SailsBlocks.BIRCH_HELM.get(),
+                        SailsBlocks.JUNGLE_HELM.get(),
+                        SailsBlocks.DARK_OAK_HELM.get(),
+                        SailsBlocks.ACACIA_HELM.get(),
+                        SailsBlocks.MANGROVE_HELM.get(),
+                        SailsBlocks.CHERRY_HELM.get(),
+                        SailsBlocks.CRIMSON_HELM.get(),
+                        SailsBlocks.WARPED_HELM.get(),
+                        SailsBlocks.BAMBOO_HELM.get()).build()
         );
         ValkyrienSails.HELM_BLOCK_ENTITY = HELM_BLOCK_ENTITY;
+
+        REDSTONE_HELM_BLOCK_ENTITY = Registry.register(
+                BuiltInRegistries.BLOCK_ENTITY_TYPE,
+                new ResourceLocation("vs_sails", "redstone_helm_block_entity"),
+                FabricBlockEntityTypeBuilder.create(RedstoneHelmBlockEntity::new, SailsBlocks.REDSTONE_HELM_BLOCK.get()).build()
+        );
+        ValkyrienSails.REDSTONE_HELM_BLOCK_ENTITY = REDSTONE_HELM_BLOCK_ENTITY;
+
+        WIND_FLAG_BLOCK_ENTITY = Registry.register(
+                BuiltInRegistries.BLOCK_ENTITY_TYPE,
+                new ResourceLocation("vs_sails", "wind_flag_block_entity"),
+                FabricBlockEntityTypeBuilder.create(
+                        WindFlagBlockEntity::new,
+                        SailsBlocks.WIND_FLAG.get(),
+                        SailsBlocks.BLACK_WIND_FLAG.get(),
+                        SailsBlocks.BROWN_WIND_FLAG.get(),
+                        SailsBlocks.CYAN_WIND_FLAG.get(),
+                        SailsBlocks.GRAY_WIND_FLAG.get(),
+                        SailsBlocks.GREEN_WIND_FLAG.get(),
+                        SailsBlocks.LIGHT_BLUE_WIND_FLAG.get(),
+                        SailsBlocks.BLUE_WIND_FLAG.get(),
+                        SailsBlocks.LIGHT_GRAY_WIND_FLAG.get(),
+                        SailsBlocks.LIME_WIND_FLAG.get(),
+                        SailsBlocks.MAGENTA_WIND_FLAG.get(),
+                        SailsBlocks.ORANGE_WIND_FLAG.get(),
+                        SailsBlocks.PINK_WIND_FLAG.get(),
+                        SailsBlocks.PURPLE_WIND_FLAG.get(),
+                        SailsBlocks.RED_WIND_FLAG.get(),
+                        SailsBlocks.WHITE_WIND_FLAG.get(),
+                        SailsBlocks.YELLOW_WIND_FLAG.get()
+                ).build()
+        );
+        ValkyrienSails.WIND_FLAG_BLOCK_ENTITY = WIND_FLAG_BLOCK_ENTITY;
     }
 }

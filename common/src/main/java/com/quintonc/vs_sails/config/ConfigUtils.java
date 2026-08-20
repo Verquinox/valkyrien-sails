@@ -1,6 +1,6 @@
 package com.quintonc.vs_sails.config;
 
-import net.fabricmc.loader.api.FabricLoader;
+import dev.architectury.platform.Platform;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -16,7 +16,8 @@ public class ConfigUtils {
 
     public static Map<String,String> loadConfigs()
     {
-        File file = new File(FabricLoader.getInstance().getConfigDir().toString() + "/vs_sails/config.cfg");
+
+        File file = new File(Platform.getConfigFolder().toString() + "/vs_sails/config.cfg");
         try {
             List<String> lines = FileUtils.readLines(file,"utf-8");
             lines.forEach(line->
@@ -35,10 +36,9 @@ public class ConfigUtils {
         return config;
     }
 
-    @SuppressWarnings("deprecation")
     public static void generateConfigs(List<String> input)
     {
-        File file = new File(FabricLoader.getInstance().getConfigDirectory().getPath() + "/vs_sails/config.cfg");
+        File file = new File(Platform.getConfigFolder().toString() + "/vs_sails/config.cfg");
 
         try {
             FileUtils.writeLines(file,input);
@@ -47,10 +47,9 @@ public class ConfigUtils {
         }
     }
 
-    @SuppressWarnings("deprecation")
     public static Map<String,String> checkConfigs()
     {
-        if(new File(FabricLoader.getInstance().getConfigDirectory().getPath() + "/vs_sails/config.cfg").exists())
+        if(new File(Platform.getConfigFolder().toString() + "/vs_sails/config.cfg").exists())
         {
             if (360 % Integer.parseInt(ConfigUtils.config.getOrDefault("wheel-interval","6")) != 0) {
                 throw new RuntimeException("WHEEL INTERVAL MUST BE A FACTOR OF 360. It is: "+
@@ -70,6 +69,8 @@ public class ConfigUtils {
         defaults.add("#Valkyrien Sails Configuration\n");
         defaults.add("#World Options");
         defaults.add("enable-wind = true #[Default: true]");
+        defaults.add("enable-aerodynamic-wind = false #[Default: false] Enables wind to impart forces on ships without sails");
+        //defaults.add("wind-shows-no-sails = true #[Default: true] Whether wind particles show when there are no set sails");
         defaults.add("no-sail-zone = 90 #[Default: 90] Angular size in degrees of zone where sails lose most of their effectiveness");
         //defaults.add("min-wind-speed = 0.2");
         defaults.add("blow-vanilla-particles = false #[Default: false] Should the wind blow vanilla particles");
@@ -81,11 +82,14 @@ public class ConfigUtils {
         defaults.add("realistic-rudder = true #[Default: true] Is the rudder turning force dependent on the ship's speed");
         defaults.add("keel-power = 4.0 #[Default: 4.0] How strongly ships resist drifting");
         defaults.add("wheel-interval = 6 #[Default: 6] How many degrees the wheel will turn per tick. MUST BE A FACTOR OF 360!!!");
+        defaults.add("air-density = 124.0 #[Default: 124.0] How dense the helm's rudder thinks air is");
         defaults.add("");
         defaults.add("magic-ballast-righting-force = 0.25 #[Default: 0.25]");
         defaults.add("");
-        defaults.add("ballast-float-strength = 0.0625 #[Default: 0.0625]");
+        defaults.add("ballast-float-strength = 0.0 #[Default: 0.0]");
         defaults.add("buoy-float-strength = 0.125 #[Default: 0.125]");
+        defaults.add("");
+        defaults.add("max-assemble-blocks = 100000 #[Default: 100000] The max number of blocks the dedication bottle can assemble");
 
         return defaults;
     }

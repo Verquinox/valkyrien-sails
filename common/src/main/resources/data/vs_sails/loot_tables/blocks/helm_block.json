@@ -7,7 +7,22 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "vs_sails:helm_block"
+          "name": "vs_sails:spruce_helm"
+        }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ]
+    },
+    {
+      "rolls": 1.0,
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "vs_sails:spruce_helm_wheel"
         }
       ],
       "conditions": [

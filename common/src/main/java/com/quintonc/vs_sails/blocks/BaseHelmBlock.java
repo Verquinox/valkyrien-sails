@@ -1,0 +1,252 @@
+package com.quintonc.vs_sails.blocks;
+
+import com.quintonc.vs_sails.blocks.entity.BaseHelmBlockEntity;
+import com.quintonc.vs_sails.networking.PacketHandler;
+import com.quintonc.vs_sails.ship.SailsShipControl;
+import dev.architectury.networking.NetworkManager;
+import io.netty.buffer.Unpooled;
+import kotlin.Pair;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.Containers;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.JukeboxBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.valkyrienskies.core.api.ships.LoadedServerShip;
+import org.valkyrienskies.core.api.ships.ServerShip;
+import org.valkyrienskies.mod.common.VSGameUtilsKt;
+import org.valkyrienskies.mod.common.ValkyrienSkiesMod;
+import org.valkyrienskies.mod.common.assembly.ICopyableBlock;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+public abstract class BaseHelmBlock extends BaseEntityBlock implements ICopyableBlock {
+    public static final DirectionProperty FACING;
+    public static final Logger LOGGER = LoggerFactory.getLogger("base_helm_block");
+    private static final VoxelShape NORTH_SHAPE = Shapes.or(Block.box(5,0,2,11,16,11), Block.box(0, 5, 11, 16, 21, 14)) ;
+    private static final VoxelShape SOUTH_SHAPE = Shapes.or(Block.box(5,0,5,11,16,14), Block.box(0, 5, 2, 16, 21, 5));
+    private static final VoxelShape EAST_SHAPE = Shapes.or(Block.box(5,0,5,14,16,11), Block.box(2, 5, 0, 5, 21, 16));
+    private static final VoxelShape WEST_SHAPE = Shapes.or(Block.box(2,0,5,11,16,11), Block.box(11, 5, 0, 14, 21, 16));
+    private static final VoxelShape NORTH_BASE = Block.box(5,0,2,11,16,11);
+    private static final VoxelShape SOUTH_BASE = Block.box(5,0,5,11,16,14);
+    private static final VoxelShape EAST_BASE = Block.box(5,0,5,14,16,11);
+    private static final VoxelShape WEST_BASE = Block.box(2,0,5,11,16,11);
+
+    public BaseHelmBlock(Properties settings) {
+        super(settings);
+    }
+
+//    @Override
+//    public VoxelShape getVisualShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+//        return SHAPE;
+//    }
+
+    @Override
+    public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+        if (world.getBlockEntity(pos) instanceof BaseHelmBlockEntity helmBlockEntity && helmBlockEntity.getFirstItem().isEmpty()) {
+            switch ((state.getValue(FACING))) {
+                case NORTH:
+                    return NORTH_BASE;
+                case SOUTH:
+                    return SOUTH_BASE;
+                case EAST:
+                    return EAST_BASE;
+                case WEST:
+                    return WEST_BASE;
+            }
+        } else {
+            switch ((state.getValue(FACING))) {
+                case NORTH:
+                    return NORTH_SHAPE;
+                case SOUTH:
+                    return SOUTH_SHAPE;
+                case EAST:
+                    return EAST_SHAPE;
+                case WEST:
+                    return WEST_SHAPE;
+            }
+        }
+        return NORTH_BASE;
+    }
+
+    @Override
+    public RenderShape getRenderShape(BlockState state) {
+        return RenderShape.MODEL;
+    }
+
+    @SuppressWarnings("deprecation")
+    public BlockState rotate(BlockState state, Rotation rotation) {
+        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+    }
+
+    @SuppressWarnings("deprecation")
+    public BlockState mirror(BlockState state, Mirror mirror) {
+        return state.rotate(mirror.getRotation(state.getValue(FACING)));
+    }
+
+    public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+        return this.defaultBlockState()
+                .setValue(FACING, ctx.getHorizontalDirection());
+    }
+
+    @SuppressWarnings("deprecation")
+    public void onPlace(BlockState state, Level world, BlockPos pos, BlockState oldState, boolean notify) {
+        if (world.isClientSide) {
+            return;
+        }
+        if (VSGameUtilsKt.isBlockInShipyard(world, pos)) {
+            ServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerLevel) world, pos);
+            if (ship != null) {
+                SailsShipControl controller = SailsShipControl.getOrCreate((LoadedServerShip) ship, world);
+
+                if (this instanceof HelmBlock) {
+                    controller.numHelms++;
+                }
+
+                //if the ship's direction is opposite the helm (helm faces backwards), set it to its opposite
+                if (Objects.equals(controller.shipDirection, state.getValue(FACING))) {
+                    controller.shipDirection = controller.shipDirection.getOpposite();
+                }
+            } else { //ship is being loaded from template
+                ship = VSGameUtilsKt.getShipManagingPos((ServerLevel) world, pos);
+                if (ship instanceof LoadedServerShip) {
+                    SailsShipControl controller = SailsShipControl.getOrCreate((LoadedServerShip) ship, world);
+                    if (this instanceof HelmBlock) {
+                        controller.numHelms++;
+                    }
+                    //if the ship's direction is opposite the helm (helm faces backwards), set it to its opposite
+                    if (Objects.equals(controller.shipDirection, state.getValue(FACING))) {
+                        controller.shipDirection = controller.shipDirection.getOpposite();
+                    }
+                }
+            }
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+
+        if (world.isClientSide) {
+            return InteractionResult.SUCCESS;
+        } else {
+            BlockEntity be = world.getBlockEntity(pos);
+            if (be instanceof BaseHelmBlockEntity blockEntity) {
+                ItemStack heldItem = player.getItemInHand(InteractionHand.MAIN_HAND);
+                if (!blockEntity.getFirstItem().isEmpty()) {
+                    if (VSGameUtilsKt.isBlockInShipyard(world, pos)) {
+                        blockEntity.sit(player);
+
+                    } else {
+                        //todo make this properly work with non 360 factors (the two methods)
+                        if (player.isShiftKeyDown()) {
+                            blockEntity.rotateWheelLeft(state, (ServerLevel)world, pos);
+                        } else {
+                            blockEntity.rotateWheelRight(state, (ServerLevel)world, pos);
+                        }
+                        player.displayClientMessage(Component.literal("Angle: "+ blockEntity.wheelAngle), true);
+                    }
+                } else if (blockEntity.canPlaceItem(0, heldItem)) {
+                    blockEntity.setItem(0, heldItem.copyWithCount(1));
+                    world.playSound(null, pos.below(), SoundEvents.WOOD_PLACE,
+                            SoundSource.BLOCKS, 1.5f, world.getRandom().nextFloat() * 0.1F + 0.9F);
+                    heldItem.shrink(1);
+                }
+
+                return InteractionResult.sidedSuccess(false);
+            }
+        }
+        return InteractionResult.sidedSuccess(false);
+    }
+
+    @SuppressWarnings({"deprecation","UnstableApiUsage"})
+    public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean moved) {
+        if (!world.isClientSide) {
+            if (VSGameUtilsKt.isBlockInShipyard(world, pos)) {
+                LoadedServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerLevel) world, pos);
+                if (ship != null && this instanceof HelmBlock) {
+                    SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
+                    assert controller != null;
+                    controller.numHelms--;
+                }
+            }
+        }
+
+        if (!state.is(newState.getBlock())) {
+            BlockEntity var7 = world.getBlockEntity(pos);
+            if (var7 instanceof BaseHelmBlockEntity helmBlockEntity) {
+                helmBlockEntity.dropWheel();
+            }
+        }
+
+        if (state.hasBlockEntity() && !state.is(newState.getBlock())) {
+            world.removeBlockEntity(pos);
+        }
+    }
+
+    @Override
+    public @Nullable CompoundTag onCopy(@NotNull ServerLevel serverLevel, @NotNull BlockPos blockPos, @NotNull BlockState blockState, @Nullable BlockEntity blockEntity, @NotNull List<? extends ServerShip> list, @NotNull Map<Long, ? extends Vector3d> map) {
+        return null;
+    }
+
+    @Override
+    public @Nullable CompoundTag onPaste(@NotNull ServerLevel serverLevel, @NotNull BlockPos blockPos, @NotNull BlockState blockState, @NotNull Map<Long, Long> map, @NotNull Map<Long, ? extends Pair<? extends Vector3d, ? extends Vector3d>> map1, @Nullable CompoundTag compoundTag) {
+        ServerShip serverShip = VSGameUtilsKt.getShipManagingPos(serverLevel, blockPos);
+        if (serverShip == null) {
+            return null;
+        }
+
+        ValkyrienSkiesMod.getApi().getShipLoadEvent().on((shipLoadEvent, handler) -> {
+            LoadedServerShip ship = shipLoadEvent.getShip();
+            SailsShipControl controller = SailsShipControl.getOrCreate(ship, serverLevel);
+            if (this instanceof HelmBlock) {
+                controller.numHelms++;
+            }
+
+            //if the ship's direction is opposite the helm (helm faces backwards), set it to its opposite
+            if (Objects.equals(controller.shipDirection, blockState.getValue(FACING))) {
+                controller.shipDirection = controller.shipDirection.getOpposite();
+            }
+            handler.unregister();
+        });
+        return null;
+    }
+
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(FACING);
+    }
+
+    static {
+        FACING = BlockStateProperties.HORIZONTAL_FACING;
+    }
+}

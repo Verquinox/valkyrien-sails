@@ -10,12 +10,13 @@
     }
   },
   "pattern": [
-    "XXX",
     "X#X",
-    "XXX"
+    "###",
+    "X#X"
   ],
   "result": {
-    "item": "vs_sails:ballast_block"
+    "item": "vs_sails:ballast_block",
+    "count": 4
   },
   "show_notification": true
 }

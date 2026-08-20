@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "vs_sails:block/helms/spruce_helm",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "vs_sails:block/helms/spruce_helm"
+    },
+    "facing=south": {
+      "model": "vs_sails:block/helms/spruce_helm",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "vs_sails:block/helms/spruce_helm",
+      "y": 270
+    }
+  }
+}

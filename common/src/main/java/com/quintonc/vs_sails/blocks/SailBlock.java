@@ -1,77 +1,69 @@
 package com.quintonc.vs_sails.blocks;
 
-import com.quintonc.vs_sails.ValkyrienSails;
 import com.quintonc.vs_sails.registration.SailsBlocks;
 import com.quintonc.vs_sails.ship.SailsShipControl;
-import net.minecraft.world.level.block.*;
+import kotlin.Pair;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.particles.ItemParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.valkyrienskies.core.api.ships.LoadedServerShip;
 import org.valkyrienskies.core.api.ships.ServerShip;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
+import org.valkyrienskies.mod.common.ValkyrienSkiesMod;
+import org.valkyrienskies.mod.common.assembly.ICopyableBlock;
 
-public class SailBlock extends Block {
+import java.util.List;
+import java.util.Map;
+
+public class SailBlock extends Block implements ICopyableBlock {
+
     public static final BooleanProperty SET = BooleanProperty.create("set");
     public static final BooleanProperty INVISIBLE = BooleanProperty.create("invisible");
-    public static final BooleanProperty NORTH = BooleanProperty.create("north");
-    public static final BooleanProperty EAST = BooleanProperty.create("east");
-    public static final BooleanProperty SOUTH = BooleanProperty.create("south");
-    public static final BooleanProperty WEST = BooleanProperty.create("west");
-    public static final BooleanProperty UP = BooleanProperty.create("up");
-    public static final BooleanProperty DOWN = BooleanProperty.create("down");
-//    protected static final Map<Direction, BooleanProperty> FACING_PROPERTIES;
-    //public static final DirectionProperty FACING;
+
     public static final Logger LOGGER = LoggerFactory.getLogger("sail_block");
     public static final VoxelShape SET_SHAPE = Block.box(0,0,0,16,16,16);
 
-    public char sailType = 'x';
-
     public SailBlock(Properties settings) {
         super(settings);
-        this.registerDefaultState(this.defaultBlockState().setValue(SET, true));
+        this.registerDefaultState(this.defaultBlockState().setValue(SET, true).setValue(INVISIBLE, false));
     }
 
-//    @SuppressWarnings("deprecation")
-//    public BlockState rotate(BlockState state, BlockRotation rotation) {
-//        return state.with(FACING, rotation.rotate(state.get(FACING)));
-//    }
-
-//    @SuppressWarnings("deprecation")
-//    public BlockState mirror(BlockState state, BlockMirror mirror) {
-//        return state.rotate(mirror.getRotation(state.get(FACING)));
-//    }
-
+    @Override
     public BlockState getStateForPlacement(BlockPlaceContext ctx) {
-        return this.defaultBlockState()
-                //.with(FACING, ctx.getHorizontalPlayerFacing().getOpposite())
-                .setValue(SET, true)
-                .setValue(INVISIBLE, false)
-                .setValue(NORTH, ctx.getLevel().getBlockState(ctx.getClickedPos().north()).is(this))
-                .setValue(EAST, ctx.getLevel().getBlockState(ctx.getClickedPos().east()).is(this))
-                .setValue(SOUTH, ctx.getLevel().getBlockState(ctx.getClickedPos().south()).is(this))
-                .setValue(WEST, ctx.getLevel().getBlockState(ctx.getClickedPos().west()).is(this))
-                .setValue(UP, ctx.getLevel().getBlockState(ctx.getClickedPos().above()).is(this))
-                .setValue(DOWN, ctx.getLevel().getBlockState(ctx.getClickedPos().below()).is(this))
-                ;
-
+        return this.defaultBlockState().setValue(SET, true);
     }
 
     @SuppressWarnings("deprecation")
@@ -82,65 +74,69 @@ public class SailBlock extends Block {
 
         //LOGGER.info("Sail block is added");
         if (state.getValue(SET)) {
-            //state = state.with(INVISIBLE, false);
-            //LOGGER.info("invis false");
+
             world.setBlock(pos, state, 10);
 
             //if sail is in shipyard and the set state is changing, add it to the ship
             if (VSGameUtilsKt.isBlockInShipyard(world, pos) && (!oldState.is(this) || state.getValue(SET) != oldState.getValue(SET))) {
                 ServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerLevel) world, pos);
                 if (ship != null) {
-                    SailsShipControl controller = SailsShipControl.getOrCreate(ship);
+                    SailsShipControl controller = SailsShipControl.getOrCreate((LoadedServerShip) ship, world);
                     addSailToShip(world, pos, controller);
 
                 } else { //ship is being loaded from template
                     ship = VSGameUtilsKt.getShipManagingPos((ServerLevel) world, pos);
-                    if (ship != null) {
-                        SailsShipControl controller = SailsShipControl.getOrCreate(ship);
+                    if (ship instanceof LoadedServerShip) {
+                        SailsShipControl controller = SailsShipControl.getOrCreate((LoadedServerShip) ship, world);
                         addSailToShip(world, pos, controller);
                     }
                 }
-            }
-
-        } else {
-            //LOGGER.info("sail is not set!");
-            BlockState savedState = state;
-
-            StateUpdater updater = new StateUpdater(state);
-            updater.updateStateForDir(world.getBlockState(pos.above()), UP);
-            updater.updateStateForDir(world.getBlockState(pos.below()), DOWN);
-            updater.updateStateForDir(world.getBlockState(pos.north()), NORTH);
-            updater.updateStateForDir(world.getBlockState(pos.south()), SOUTH);
-            updater.updateStateForDir(world.getBlockState(pos.east()), EAST);
-            updater.updateStateForDir(world.getBlockState(pos.west()), WEST);
-
-            state = updater.state;
-
-            if (updater.invisCounter > 3) {
-                LOGGER.info("invis set to true!");
-                state = state.setValue(INVISIBLE, true);
-            } else {
-                state = state.setValue(INVISIBLE, false);
-            }
-            if (savedState != state) {
-                world.setBlock(pos, state, 10);
             }
         }
     }
 
     @SuppressWarnings("deprecation")
     public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        if (!player.getItemInHand(InteractionHand.MAIN_HAND).is(this.asItem())) {
-            if (!world.isClientSide) {
-                //if the sail is set, stow the sail, else set it
-                if (state.getValue(SET)) {
-                    state = state.setValue(SET, false);
-                } else {
-                    state = state.setValue(SET, true);
+        ItemStack heldItem = player.getItemInHand(hand);
+        if (heldItem.is(Items.POTION) && PotionUtils.getPotion(heldItem) == Potions.WATER) {
+            BlockState regularState = toRegularState(state);
+            if (regularState != null) {
+                if (!world.isClientSide) {
+                    world.setBlock(pos, regularState, 10);
+                    world.playSound(null, pos, SoundEvents.BOTTLE_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
+                    if (world instanceof ServerLevel serverLevel) {
+                        serverLevel.sendParticles(ParticleTypes.SPLASH,
+                                pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D,
+                                12, 0.3D, 0.3D, 0.3D, 0.02D);
+                    }
                 }
-                world.setBlock(pos, state, 10);
-                world.blockUpdated(pos, this);
-                updateDiagonals(world, pos, this);
+                return InteractionResult.sidedSuccess(world.isClientSide);
+            }
+        }
+
+        if (heldItem.is(Items.MAGMA_CREAM)) {
+            BlockState magmaState = toMagmaCoatedState(state);
+            if (magmaState != null) {
+                if (!world.isClientSide) {
+                    world.setBlock(pos, magmaState, 10);
+                    world.playSound(null, pos, SoundEvents.HONEY_BLOCK_PLACE, SoundSource.BLOCKS, 1.0F, 1.0F);
+                    if (world instanceof ServerLevel serverLevel) {
+                        serverLevel.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, new ItemStack(Items.MAGMA_CREAM)),
+                                pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D,
+                                10, 0.3D, 0.3D, 0.3D, 0.02D);
+                    }
+                    if (!player.getAbilities().instabuild) {
+                        heldItem.shrink(1);
+                    }
+                }
+                return InteractionResult.sidedSuccess(world.isClientSide);
+            }
+        }
+
+        TagKey<Item> tag = TagKey.create(Registries.ITEM, new ResourceLocation("sail_togglers"));
+        if (!heldItem.is(tag)) {
+            if (!world.isClientSide) {
+                toggleFirstSail(state, world, pos);
             } else {
                 boolean bl = state.getValue(SET);
                 world.playSound(player, pos, bl ? SoundEvents.LEASH_KNOT_PLACE : SoundEvents.WOOL_PLACE, SoundSource.BLOCKS, 0.75F, world.getRandom().nextFloat() * 0.1F + 0.9F);
@@ -152,26 +148,188 @@ public class SailBlock extends Block {
         return InteractionResult.PASS;
     }
 
+    public BlockState toMagmaCoatedState(BlockState state) {
+        if (isMagmaCoated()) {
+            return null;
+        }
+
+        Block magmaBlock = SailsBlocks.getMagmaSailBlock(state.getBlock());
+        if (!(magmaBlock instanceof SailBlock magmaSailBlock)) {
+            return null;
+        }
+
+        return magmaSailBlock.defaultBlockState()
+                .setValue(SET, state.getValue(SET))
+                .setValue(INVISIBLE, state.getValue(INVISIBLE));
+    }
+
+    public BlockState toRegularState(BlockState state) {
+        if (!isMagmaCoated()) {
+            return null;
+        }
+
+        Block regularBlock = SailsBlocks.getRegularSailBlock(state.getBlock());
+        if (!(regularBlock instanceof SailBlock regularSailBlock)) {
+            return null;
+        }
+
+        return regularSailBlock.defaultBlockState()
+                .setValue(SET, state.getValue(SET))
+                .setValue(INVISIBLE, state.getValue(INVISIBLE));
+    }
+
+    public boolean isMagmaCoated() {
+        return false;
+    }
+
+    public void toggleFirstSail(BlockState state, Level world, BlockPos pos) { //todo make this called by rope as well
+        //if the sail is set, stow the sail, else set it
+        if (state.getValue(SET)) {
+            toggleOff(state, world, pos);
+        } else {
+            state = state.setValue(SET, true);
+            state = state.setValue(INVISIBLE, false);
+            world.setBlock(pos, state, 10);
+            updateAdjacents(world, pos, this);
+        }
+        //BlockState state2 = SailsBlocks.HELM_WHEEL.get().defaultBlockState();
+
+
+    }
+
+    public void toggleOff(BlockState state, Level world, BlockPos pos) {
+
+        if ( // a sail should become a "furled" sail if:
+                // it has a non-sail block directly or diagonally adjacent to it
+                //try horizontalFaceNeighbors.stream().anyMatch(offset -> isNotSailOrAir(world, pos.offset(offset)))
+                isNotSailOrAir(world, pos.offset(1, 1, 0))
+                        || isNotSailOrAir(world, pos.offset(-1, 1, 0))
+                        || isNotSailOrAir(world, pos.offset(0, 1, 1))
+                        || isNotSailOrAir(world, pos.offset(0, 1, -1))
+                        || isNotSailOrAir(world, pos.offset(1, -1, 0))
+                        || isNotSailOrAir(world, pos.offset(-1, -1, 0))
+                        || isNotSailOrAir(world, pos.offset(0, -1, 1))
+                        || isNotSailOrAir(world, pos.offset(0, -1, -1))
+                        || isNotSailOrAir(world, pos.above())
+                        || isNotSailOrAir(world, pos.below())
+                // it has air directly above it and fewer than 2 sail blocks diagonally above it
+                        //|| (world.getBlockState(pos.above()).isAir() && fewerThanXSailsHorizontally(world, pos.above(), 2))
+                // it has a sail above it, fewer than 3 sail blocks diagonally above it, and at least 2 sail blocks below it
+                        //|| (world.getBlockState(pos.above()).getBlock() instanceof SailBlock && fewerThanXSailsHorizontally(world, pos.above(), 3) && atLeastXSailsHorizontally(world, pos.below(), 2))
+        ) {
+            //fixme THE PROBLEM AREA
+            //if (atLeastXSailsHorizontally(world, pos.above(), 1) && !world.getBlockState(pos.above()).isAir()/*has a solid block above*/ && hasMismatchedOppositeAir(world, pos)) { //also check if sail has above and below perpendicular to the spar
+               // state = state.setValue(INVISIBLE, true);
+            //} else {
+            //if (atLeastXSailsHorizontally(world, pos.above(), 1) && atLeastXSailsHorizontally(world, pos.below(), 1)) {
+                //if (noBlockHereOrAboveOrBelow(world, pos.north()) != noBlockHereOrAboveOrBelow(world, pos.south()) || noBlockHereOrAboveOrBelow(world, pos.east()) != noBlockHereOrAboveOrBelow(world, pos.west())) {
+                //    state = state.setValue(INVISIBLE, true);
+                //} else {
+                //    state = state.setValue(INVISIBLE, false);
+                //}
+            //} else {
+                state = state.setValue(INVISIBLE, false);
+            //}
+
+            //}
+        } else {
+            state = state.setValue(INVISIBLE, true);
+        }
+
+        state = state.setValue(SET, false);
+        world.setBlock(pos, state, 10);
+        updateAdjacents(world, pos, this);
+    }
+
+    private boolean isNotSailOrAir(Level world, BlockPos pos) {
+        BlockState state = world.getBlockState(pos);
+        return !(state.getBlock() instanceof SailBlock || state.isAir() || !state.isCollisionShapeFullBlock(world, pos));
+    }
+
+    private boolean fewerThanXSailsHorizontally(Level world, BlockPos pos, int x) {
+        return countHorizontallyAdjacentSails(world, pos) < x;
+    }
+
+    private boolean atLeastXSailsHorizontally(Level world, BlockPos pos, int x) {
+        return countHorizontallyAdjacentSails(world, pos) >= x;
+    }
+
+    //private List<Vec3i> horizontalFaceNeighbors = List.of(Direction.NORTH.getNormal(), Direction.SOUTH.getNormal(), Direction.EAST.getNormal(), Direction.WEST.getNormal());
+    //private List<Vec3i> horizontalEdgeNeighbors = List.of(new Vec3i(1, 0, 1), new Vec3i());
+
+    private int countHorizontallyAdjacentSails(Level world, BlockPos pos) {
+        int n = 0;
+        if (world.getBlockState(pos).getBlock() instanceof SailBlock) {n++;}
+//        for (var offset : horizontalFaceNeighbors) {
+//            if (world.getBlockState(pos.offset(offset)).getBlock() instanceof SailBlock) {
+//                n++;
+//            }
+//        }
+        if (world.getBlockState(pos.north()).getBlock() instanceof SailBlock) {n++;}
+        if (world.getBlockState(pos.south()).getBlock() instanceof SailBlock) {n++;}
+        if (world.getBlockState(pos.east()).getBlock() instanceof SailBlock) {n++;}
+        if (world.getBlockState(pos.west()).getBlock() instanceof SailBlock) {n++;}
+        if (world.getBlockState(pos.east().north()).getBlock() instanceof SailBlock) {n++;}
+        if (world.getBlockState(pos.east().south()).getBlock() instanceof SailBlock) {n++;}
+        if (world.getBlockState(pos.west().north()).getBlock() instanceof SailBlock) {n++;}
+        if (world.getBlockState(pos.west().south()).getBlock() instanceof SailBlock) {n++;}
+        return n;
+    }
+
+    private boolean noBlockHereOrAboveOrBelow(Level world, BlockPos pos) {
+        return isNotSailOrAir(world, pos) && isNotSailOrAir(world, pos.above()) && isNotSailOrAir(world, pos.below());
+    }
+
+    private int countHorizontallyAdjacentSolids(Level world, BlockPos pos) {
+        int n = 0;
+        if (!world.getBlockState(pos).isAir()) {n++;}
+        if (!world.getBlockState(pos.north()).isAir()) {n++;}
+        if (!world.getBlockState(pos.south()).isAir()) {n++;}
+        if (!world.getBlockState(pos.east()).isAir()) {n++;}
+        if (!world.getBlockState(pos.west()).isAir()) {n++;}
+        if (!world.getBlockState(pos.east().north()).isAir()) {n++;}
+        if (!world.getBlockState(pos.east().south()).isAir()) {n++;}
+        if (!world.getBlockState(pos.west().north()).isAir()) {n++;}
+        if (!world.getBlockState(pos.west().south()).isAir()) {n++;}
+        return n;
+    }
+
+    //kill me
+    private boolean hasMismatchedOppositeAir(Level world, BlockPos pos) {
+        return ((world.getBlockState(pos.north()).isAir() != world.getBlockState(pos.south()).isAir()) && (world.getBlockState(pos.north()).getBlock() instanceof SailBlock || world.getBlockState(pos.south()).getBlock() instanceof SailBlock)) ||
+                ((world.getBlockState(pos.east()).isAir() != world.getBlockState(pos.west()).isAir()) && (world.getBlockState(pos.east()).getBlock() instanceof SailBlock || world.getBlockState(pos.west()).getBlock() instanceof SailBlock)) ||
+                ((world.getBlockState(pos.north().east()).isAir() != world.getBlockState(pos.south().west()).isAir()) && (world.getBlockState(pos.north().east()).getBlock() instanceof SailBlock || world.getBlockState(pos.south().west()).getBlock() instanceof SailBlock)) ||
+                ((world.getBlockState(pos.north().west()).isAir() != world.getBlockState(pos.south().east()).isAir()) && (world.getBlockState(pos.north().west()).getBlock() instanceof SailBlock || world.getBlockState(pos.south().east()).getBlock() instanceof SailBlock));
+    }
+
     @SuppressWarnings("deprecation")
     public void neighborChanged(BlockState state, Level world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {
         //LOGGER.info("neighborUpdate called!");
         //LOGGER.info(" " + sourceBlock.getClass());
 
         //if source block is a sail and is not air, check if can toggle state
-        if (sourceBlock instanceof SailBlock && !world.getBlockState(sourcePos).isAir()) {
+        if ((sourceBlock instanceof SailBlock || sourceBlock instanceof SailToggleBlock) && !world.getBlockState(sourcePos).isAir()) {
             //LOGGER.info(":)");
 
             //if this block's set state does not match the source block's, change it to match
-            if (world.getBlockState(sourcePos).getValue(SET) != state.getValue(SET)) {
-                state = state.setValue(SET, world.getBlockState(sourcePos).getValue(SET));
-                world.setBlock(pos, state, 10);
-                world.blockUpdated(pos, this);
-                updateDiagonals(world, pos, this);
+            BlockState sourceState = world.getBlockState(sourcePos);
+            if (sourceState.hasProperty(SET) && sourceState.getValue(SET) != state.getValue(SET)) {
+                if (sourceState.getValue(SET)) {
+                    //toggle on
+                    state = state.setValue(SET, true);
+                    state = state.setValue(INVISIBLE, false);
+                    world.setBlock(pos, state, 10);
+                    updateAdjacents(world, pos, this);
+                } else {
+                    toggleOff(state, world, pos);
+                }
             }
         }
     }
 
-    public void updateDiagonals(Level world, BlockPos sourcePos, Block sourceBlock) {
+    public void updateAdjacents(Level world, BlockPos sourcePos, Block sourceBlock) {
+        world.blockUpdated(sourcePos, sourceBlock);
+
         world.neighborChanged(sourcePos.offset(1, 1, 0), sourceBlock, sourcePos);
             //pos.x+1 pos.y+1 pos.z+1
             //pos.x+1 pos.y+1 pos.z-1
@@ -201,7 +359,7 @@ public class SailBlock extends Block {
         if (!world.getBlockState(pos.north()).isAir() || !world.getBlockState(pos.south()).isAir()) {
             if (world.getBlockState(pos.east()).isAir() && world.getBlockState(pos.west()).isAir()) {
                 if (controller.shipDirection == Direction.EAST || controller.shipDirection == Direction.WEST) {
-                    return 's'; //todo use static final strings to make this more readable
+                    return 's'; //fixme use static final strings to make this more readable
                 } else {
                     return 'f';
                 }
@@ -223,30 +381,30 @@ public class SailBlock extends Block {
 
     private void addSailToShip(Level world, BlockPos pos, SailsShipControl controller) {
         //sails only add to one of the sail types when they have free opposite faces
-        sailType = calculateSailType(world, pos, controller);
+        char sailType = calculateSailType(world, pos, controller);
         if (sailType == 's') {
             controller.numSquareSails++;
-            LOGGER.info("(a) NUMSQ: " + controller.numSquareSails);
+            //LOGGER.info("(a) NUMSQ: " + controller.numSquareSails);
         } else if (sailType == 'f') {
             controller.numFnASails++;
-            LOGGER.info("(a) NUMFA: " + controller.numFnASails);
+            //LOGGER.info("(a) NUMFA: " + controller.numFnASails);
         }
         controller.numSails++;
-        LOGGER.info("(a) NUMSAILS: " + controller.numSails);
+        //LOGGER.info("(a) NUMSAILS: " + controller.numSails);
     }
 
     private void removeSailFromShip(Level world, BlockPos pos, SailsShipControl controller) {
-        sailType = calculateSailType(world, pos, controller);
+        char sailType = calculateSailType(world, pos, controller);
         if (sailType == 's') {
             controller.numSquareSails--;
-            LOGGER.info("(r) NUMSQ: " + controller.numSquareSails);
+            //LOGGER.info("(r) NUMSQ: " + controller.numSquareSails);
         }
         if (sailType == 'f') {
             controller.numFnASails--;
-            LOGGER.info("(r) NUMFA: " + controller.numFnASails);
+            //LOGGER.info("(r) NUMFA: " + controller.numFnASails);
         }
         controller.numSails--;
-        LOGGER.info("(r) NUMSAILS: " + controller.numSails);
+        //LOGGER.info("(r) NUMSAILS: " + controller.numSails);
     }
 
     @SuppressWarnings({"deprecation","UnstableApiUsage"})
@@ -256,7 +414,7 @@ public class SailBlock extends Block {
                 LoadedServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerLevel) world, pos);
                 if (ship != null) {
                     SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
-                    if (!newState.isAir() && !newState.getValue(SET) && state.getValue(SET) != newState.getValue(SET) && controller != null) {
+                    if (!newState.isAir() && newState.hasProperty(SET) && !newState.getValue(SET) && state.getValue(SET) != newState.getValue(SET) && controller != null) {
                         removeSailFromShip(world, pos, controller);
                     }
                     if (newState.isAir() && state.getValue(SET) && controller != null) {
@@ -267,21 +425,46 @@ public class SailBlock extends Block {
         }
     }
 
-    @SuppressWarnings("deprecation")
-    public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
-        if (state.getValue(SET)) {
-            return SET_SHAPE;
-        }
-        return Shapes.empty();
+    public Item getSailItem() {
+        return this.asItem();
+    }
+
+    public boolean isFlammable(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
+        return true;
+    }
+
+    public int getFlammability(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
+        return 5;
+    }
+
+    public int getFireSpreadSpeed(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
+        return 20;
     }
 
     @SuppressWarnings("deprecation")
-    public VoxelShape getVisualShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
-        if (state.getValue(SET)) {
-            return SET_SHAPE;
+    public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+        if (state.getValue(INVISIBLE)) {
+            return Shapes.empty();
         }
-        return Shapes.empty();
+        return SET_SHAPE;
     }
+
+//    @SuppressWarnings("deprecation")
+//    public VoxelShape getVisualShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+//        if (state.getValue(INVISIBLE)) {
+//            return Shapes.empty();
+//        }
+//        return SET_SHAPE;
+//    }
+
+//    @Override
+//    public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+//        if (state.getValue(INVISIBLE)) {
+//            return Block.box(0,0,0,16,16,16);
+//        } else {
+//            return SET_SHAPE;
+//        }
+//    }
 
     public boolean propagatesSkylightDown(BlockState state, BlockGetter world, BlockPos pos) {
         return !state.getValue(SET);
@@ -303,40 +486,27 @@ public class SailBlock extends Block {
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(SET);
         builder.add(INVISIBLE);
-        builder.add(NORTH);
-        builder.add(EAST);
-        builder.add(SOUTH);
-        builder.add(WEST);
-        builder.add(UP);
-        builder.add(DOWN);
-        //FACING_PROPERTIES = (Map)ConnectingBlock.FACING_PROPERTIES.entrySet().stream().filter((entry) -> ((Direction)entry.getKey()).getAxis().isHorizontal()).collect(Util.toMap());
     }
 
-    private static class StateUpdater {
-        BlockState state;
-        int invisCounter = 0;
-
-        public StateUpdater(BlockState state) {
-            this.state = state;
-        }
-
-        public void updateStateForDir(BlockState neighborState, BooleanProperty direction) {
-            //LOGGER.info("state update called");
-            if (!neighborState.isAir()) {
-                if (neighborState.is(SailsBlocks.SAIL_BLOCK.get())) {
-                    invisCounter++;
-                    LOGGER.info("invis="+invisCounter);
-                    if (neighborState.getValue(INVISIBLE)) {
-                        state = state.setValue(direction, false);
-                    } else {
-                        state = state.setValue(direction, true);
-                    }
-                } else {
-                    state = state.setValue(direction, true);
-                }
-            } else {
-                state = state.setValue(direction, false);
-            }
-        }
+    @Override
+    public @Nullable CompoundTag onCopy(@NotNull ServerLevel serverLevel, @NotNull BlockPos blockPos, @NotNull BlockState blockState, @Nullable BlockEntity blockEntity, @NotNull List<? extends ServerShip> list, @NotNull Map<Long, ? extends Vector3d> map) {
+        return null;
     }
+
+    @Override
+    public @Nullable CompoundTag onPaste(@NotNull ServerLevel serverLevel, @NotNull BlockPos blockPos, @NotNull BlockState blockState, @NotNull Map<Long, Long> map, @NotNull Map<Long, ? extends Pair<? extends Vector3d, ? extends Vector3d>> map1, @Nullable CompoundTag compoundTag) {
+        ServerShip serverShip = VSGameUtilsKt.getShipManagingPos(serverLevel, blockPos);
+        if (serverShip == null) {
+            return null;
+        }
+
+        ValkyrienSkiesMod.getApi().getShipLoadEvent().on((shipLoadEvent, handler) -> {
+            LoadedServerShip ship = shipLoadEvent.getShip();
+            SailsShipControl controller = SailsShipControl.getOrCreate(ship, serverLevel);
+            addSailToShip(serverLevel, blockPos, controller);
+            handler.unregister();
+        });
+        return null;
+    }
+
 }

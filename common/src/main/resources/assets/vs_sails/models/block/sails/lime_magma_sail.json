@@ -1,0 +1,6 @@
+{
+  "parent": "vs_sails:block/sail",
+  "textures": {
+    "all": "vs_sails:block/sails/lime_magma_sail"
+  }
+}

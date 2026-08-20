@@ -7,8 +7,8 @@
     }
   },
   "pattern": [
+    "  X",
     " XX",
-    "XXX",
     "XX "
   ],
   "result": {

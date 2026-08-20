@@ -2,7 +2,7 @@
 	"credit": "Made with Blockbench",
 	"textures": {
 		"0": "vs_sails:block/rigging_block",
-		"particle": "vs_sails:block/sail_block"
+		"particle": "vs_sails:block/rigging_block"
 	},
 	"elements": [
 		{

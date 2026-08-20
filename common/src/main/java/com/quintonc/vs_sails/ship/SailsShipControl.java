@@ -3,19 +3,31 @@ package com.quintonc.vs_sails.ship;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.quintonc.vs_sails.ServerWindManager;
+import com.quintonc.vs_sails.util.SailsCommands;
+import com.quintonc.vs_sails.wind.ServerWindManager;
 import com.quintonc.vs_sails.config.ConfigUtils;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.core.Direction;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.valkyrienskies.core.api.ships.*;
+import org.valkyrienskies.core.api.world.PhysLevel;
 import org.valkyrienskies.core.impl.game.ships.PhysShipImpl;
+import org.valkyrienskies.mod.common.VSGameUtilsKt;
+import org.valkyrienskies.mod.common.ValkyrienSkiesMod;
 
 import static java.lang.Math.*;
 
+import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -27,7 +39,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 )
 @SuppressWarnings({"deprecation","UnstableApiUsage"})
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
+public final class SailsShipControl implements ShipPhysicsListener, ServerTickListener {
 
     @JsonIgnore
     public static final Logger LOGGER = LoggerFactory.getLogger("ship_control");
@@ -74,24 +86,35 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
     public int numBuoys = 0;
     public int numHelms = 0;
 
+    public volatile double waterAmount = 0.0;
+
     public int boundx = 1;
     public int boundz = 1;
+
+    @JsonIgnore
+    public Level world = null;
 
     @JsonIgnore
     public Component message;
 
     public Direction shipDirection = Direction.NORTH;
-    @JsonIgnore
-    public ServerShip ship = null;
 
-    public static SailsShipControl getOrCreate(ServerShip ship) {
+    @JsonIgnore
+    public LoadedServerShip ship = null;
+
+
+    @JsonIgnore
+    public static SailsShipControl getOrCreate(LoadedServerShip ship, Level world) {
         if (ship != null) {
             if (ship.getAttachment(SailsShipControl.class) == null) {
-                ship.saveAttachment(SailsShipControl.class, new SailsShipControl());
+                ship.setAttachment(SailsShipControl.class, new SailsShipControl());
             }
             SailsShipControl controller = ship.getAttachment(SailsShipControl.class);
             //controller.ship = ship;
             assert controller != null;
+            if (world != null) {
+                controller.world = world;
+            }
             if (ship.getShipAABB() != null) {
                 controller.boundx = ship.getShipAABB().maxX() - ship.getShipAABB().minX();
                 controller.boundz = ship.getShipAABB().maxZ() - ship.getShipAABB().minZ();
@@ -127,8 +150,13 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
         }
     }
 
+    public static SailsShipControl getOrCreate(LoadedServerShip ship) {
+        MinecraftServer server = ValkyrienSkiesMod.getCurrentServer();
+        return getOrCreate(ship, server != null ? VSGameUtilsKt.getLevelFromDimensionId(server, ship.getChunkClaimDimension()) : null);
+    }
+
     @Override
-    public void applyForces(@NotNull PhysShip physShip) {
+    public void physTick(@NotNull PhysShip physShip, @NotNull PhysLevel physLevel) {
         //LOGGER.info("forces applied");
         PhysShipImpl physShip1 = (PhysShipImpl) physShip;
 
@@ -164,10 +192,10 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
 //        }
 
         //KEEL BEHAVIOR
-            Vector3dc linearVelocity = physShip1.getPoseVel().getVel();
+            Vector3dc linearVelocity = physShip1.getVelocity();
 
             Vector3d acceleration = linearVelocity.negate(new Vector3d());
-            Vector3d force = acceleration.mul(physShip1.getInertia().getShipMass());
+            Vector3d force = acceleration.mul(physShip1.getMass());
 
             force = physShip1.getTransform().getWorldToShip().transformDirection(force);
 
@@ -178,13 +206,7 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
                 keelForce = new Vector3d(0,0,force.z()*4);
             }
 
-            physShip.applyRotDependentForce(keelForce);
-
-        //Ballast behavior
-//        if (numBallast > 0) {
-//            //physShip1.setBuoyantFactor(1.0 + numBallast * 0.0625); //0.375
-//
-//        }
+            if (numHelms > 0) physShip.applyRotDependentForce(keelForce);
 
         if (numMagicBallast > 0) {
             Vector3d shipUp = new Vector3d(0.0, 1.0, 0.0);
@@ -202,11 +224,11 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
                 );
             }
 
-            Vector3dc omega = physShip1.getPoseVel().getOmega();
+            Vector3dc omega = physShip1.getAngularVelocity();
             idealAngularAcceleration.sub(omega.x(), omega.y(), omega.z());
 
             Vector3d stabilizationTorque = physShip1.getTransform().getShipToWorldRotation().transform(
-                    physShip1.getInertia().getMomentOfInertiaTensor().transform(
+                    physShip1.getMomentOfInertia().transform(
                             physShip1.getTransform().getShipToWorldRotation().transformInverse(idealAngularAcceleration)
                     )
             );
@@ -216,21 +238,9 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
 
         }
 
-//        if (numBuoys > 0) {
-//
-//        }
-
         if (numBallast > 0 || numBuoys > 0) {
             physShip1.setBuoyantFactor(1.0 + numBuoys * buoyStrength + numBallast * ballastStrength);
         }
-
-
-//        if (ship != null) { //fixme old code
-//            Vector3d rightingpos = new Vector3d(ship.getInertiaData().getCenterOfMassInShip());
-//            //rightingpos.y += ship.getShipAABB().maxY()-ship.getShipAABB().minY(); //oldcode
-//            rightingpos.y += numBallast*4; //newcode
-//            physShip1.applyInvariantForceToPos(new Vector3d(0, physShip1.getInertia().getShipMass(), 0), rightingpos);
-//        }
 
         //sail force implementation
         if (numSails > 0) {
@@ -239,8 +249,11 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
             );
 
             if (Boolean.parseBoolean(ConfigUtils.config.getOrDefault("enable-wind","true"))) {
-                double windDirection = ServerWindManager.getWindDirection(); //in degrees
-                double windStrength = ServerWindManager.getWindStrength(); // -1.0 -- 1.0
+                Vector3dc shipPos = physShip1.getTransform().getPositionInWorld();
+                Vec3 shipPos2 = new Vec3(shipPos.x(), shipPos.y(), shipPos.z());
+                BlockPos shipPos3 = new BlockPos((int)shipPos.x(), (int)shipPos.y(), (int)shipPos.z());
+                double windDirection = ServerWindManager.getWindDirection(world, shipPos2); //in degrees
+                double windStrength = ServerWindManager.getWindStrength(world, shipPos3); // -1.0 -- 1.0
                 double shipAngle = getShipYaw(physShip1.getTransform().getShipToWorldRotation()); //in radians
                 double windAngle;
                 double squareAngleBetween;
@@ -268,22 +281,32 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
                     fnaAngleBetween *= 2;
                 }
 
-                //LOGGER.info(" wa: "+Math.toDegrees(windAngle)+" sa: "+Math.toDegrees(shipAngle)+" s-w: "+(shipAngle-windAngle));
-                //LOGGER.info("sab:"+toDegrees(squareAngleBetween)+" fab:"+toDegrees(fnaAngleBetween));
-                //DecimalFormat f = new DecimalFormat("000.000");
-                //message = Component.literal("ship: "+f.format(toDegrees(shipAngle))+" wind: "+f.format(toDegrees(windAngle))+" sAngle: "+f.format(toDegrees(squareAngleBetween))+" fAngle: "+f.format(toDegrees(fnaAngleBetween)));
-                //double shipw = physShip1.getTransform().getShipToWorldRotation().w();
-                //double shipx = physShip1.getTransform().getShipToWorldRotation().x();
-                //double shipy = physShip1.getTransform().getShipToWorldRotation().y();
-                //double shipz = physShip1.getTransform().getShipToWorldRotation().z();
-                //message = Component.literal("w: "+f.format(shipw)+" x: "+f.format(shipx)+" y: "+f.format(shipy)+" z: "+f.format(shipz));
-
-                //message = Component.literal("angle: "+toDegrees(getShipYaw(physShip1.getTransform().getShipToWorldRotation())));
-
                 double squareWindModifier = numSquareSails/calculateWindAngleModifier(squareAngleBetween, PI-noSailZone);
                 double fnAWindModifier = numFnASails/calculateWindAngleModifier(fnaAngleBetween, PI-noSailZone);
 
-                //LOGGER.info("sqm:"+squareWindModifier+" fwm:"+fnAWindModifier);
+                if (SailsCommands.debug) {
+                    //LOGGER.info(" wa: "+Math.toDegrees(windAngle)+" sa: "+Math.toDegrees(shipAngle)+" s-w: "+(shipAngle-windAngle));
+                    //LOGGER.info("sab:"+toDegrees(squareAngleBetween)+" fab:"+toDegrees(fnaAngleBetween));
+                    DecimalFormat f = new DecimalFormat("000.000");
+
+                    if (SailsCommands.debugType.equals("ship_angles")) {
+                        message = Component.literal("ship: "+f.format(toDegrees(shipAngle))+" wind: "+f.format(toDegrees(windAngle))+" sAngle: "+f.format(toDegrees(squareAngleBetween))+" fAngle: "+f.format(toDegrees(fnaAngleBetween)));
+                        //double shipw = physShip1.getTransform().getShipToWorldRotation().w();
+                        //double shipx = physShip1.getTransform().getShipToWorldRotation().x();
+                        //double shipy = physShip1.getTransform().getShipToWorldRotation().y();
+                        //double shipz = physShip1.getTransform().getShipToWorldRotation().z();
+                        //message = Component.literal("w: "+f.format(shipw)+" x: "+f.format(shipx)+" y: "+f.format(shipy)+" z: "+f.format(shipz));
+
+                        //message = Component.literal("angle: "+toDegrees(getShipYaw(physShip1.getTransform().getShipToWorldRotation())));
+                    }
+
+                    if (SailsCommands.debugType.equals("wind_stats")) {
+                        message = Component.literal("WindSpeed: "+f.format(windStrength)+" WindDirection: "+f.format(windDirection));
+                    }
+
+                    //LOGGER.info("sqm:"+squareWindModifier+" fwm:"+fnAWindModifier);
+                }
+
 
                 sailForce.mul(-(squareWindModifier+fnAWindModifier)*sailSpeed*(windStrength*windStrength));
             } else {
@@ -334,6 +357,8 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
 //            physShip1.setStatic(toBeStatic);
 //            toBeStaticUpdated = false;
 //        }
+        waterAmount = physShip1.getLiquidOverlap();
+
     }
 
     public void applyInvariantForce (Vector3dc force) {
@@ -359,6 +384,10 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
         data.pos = pos;
         rotPosForces.add(data);
         //LOGGER.info("applyrotforceTOPOS called");
+    }
+
+    public void updateRudderAngle(double angle) {
+
     }
 
     private double calculateWindAngleModifier(double windAngle, double noSail) {
@@ -432,7 +461,7 @@ public class SailsShipControl implements ShipForcesInducer, ServerTickListener {
 
     private void deleteIfEmpty() { //fixme add call for this
         if (numBallast <= 0 && numSails <= 0 && numMagicBallast <= 0 && numBuoys <= 0 && numHelms == 0) {
-            ship.saveAttachment(SailsShipControl.class, null);
+            ship.removeAttachment(SailsShipControl.class);
         }
     }
 

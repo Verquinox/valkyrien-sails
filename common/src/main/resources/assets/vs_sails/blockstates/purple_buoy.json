@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "vs_sails:block/buoys/purple_buoy"
+    }
+  }
+}

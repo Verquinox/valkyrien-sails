@@ -1,7 +1,0 @@
-{
-  "replace": false,
-  "values": [
-    "vs_sails:helm_block",
-    "vs_sails:rigging_block"
-  ]
-}

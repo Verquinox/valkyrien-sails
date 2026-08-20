@@ -2,9 +2,6 @@
   "type": "minecraft:crafting_shaped",
   "category": "functional",
   "key": {
-    "W": {
-      "item": "vs_sails:helm_wheel"
-    },
     "S": {
       "item": "minecraft:spruce_slab"
     },
@@ -13,11 +10,11 @@
     }
   },
   "pattern": [
-    " W ",
+    " S ",
     "SRS"
   ],
   "result": {
-    "item": "vs_sails:helm_block"
+    "item": "vs_sails:spruce_helm"
   },
   "show_notification": true
 }

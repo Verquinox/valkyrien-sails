@@ -1,22 +1,38 @@
 [
   {
-    "block": "vs_sails:helm_block",
+    "tag": "vs_sails:helm_wheels",
+    "mass": 240
+  },
+  {
+    "tag": "vs_sails:helms",
     "mass": 480
   },
   {
-    "block": "vs_sails:sail_block",
+    "tag": "vs_sails:sails",
     "mass": 0.01
   },
   {
+    "tag": "vs_sails:magma_sails",
+    "mass": 0.05
+  },
+  {
     "block": "vs_sails:rigging_block",
-    "mass": 10
+    "mass": 10.0
   },
   {
     "block": "vs_sails:ballast_block",
-    "mass": 20000
+    "mass": 20000.0
   },
   {
-    "block": "vs_sails:buoy_block",
+    "tag": "vs_sails:buoys",
+    "mass": 0.1
+  },
+  {
+    "block": "vs_sails:rope_block",
+    "mass": 0.1
+  },
+  {
+    "tag": "vs_sails:wind_flags",
     "mass": 0.1
   }
 ]

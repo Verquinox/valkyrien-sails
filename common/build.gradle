@@ -31,10 +31,11 @@ dependencies {
     // We depend on fabric loader here to use the fabric @Environment annotations and get the mixin dependencies
     // Do NOT use other classes from fabric loader
     modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
-    modCompileOnly "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
+    //modCompileOnly "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
 
-    //compileOnly files("libs/vlib-1.20.1-0.0.9-alpha-dev-shadow.jar")
-    modImplementation("maven.modrinth:vlib:1.20.1-0.0.9-alpha+fabric")
+    compileOnly "maven.modrinth:weather-storms-tornadoes:1.20.1-2.8.3"
+    compileOnly "maven.modrinth:project-atmosphere:Forge-0.8.0.0"
+    //modImplementation("maven.modrinth:vlib:1.20.1-0.0.9-alpha+fabric")
 
     // Architectury API
     modApi "dev.architectury:architectury:${rootProject.architectury_version}"
@@ -44,48 +45,19 @@ dependencies {
 
     // VS Core
     compileOnly("org.valkyrienskies.core:api:${rootProject.vs_core_version}")
-    compileOnly("org.valkyrienskies.core:api-game:${rootProject.vs_core_version}")
+    compileOnly("org.valkyrienskies.core:internal:${rootProject.vs_core_version}")
     compileOnly("org.valkyrienskies.core:util:${rootProject.vs_core_version}")
     compileOnly("org.valkyrienskies.core:impl:${rootProject.vs_core_version}")
 
 
     api "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.10"
     api "org.jetbrains.kotlin:kotlin-reflect:1.9.10"
+
+    // Test dependencies
+    testImplementation "org.junit.jupiter:junit-jupiter-api:5.10.1"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.10.1"
 }
 
-//publishing {
-//    publications {
-//        mavenCommon(MavenPublication) {
-//            groupId = "org.valkyrienskies.eureka"
-//            version = project.version
-//            artifactId = rootProject.archives_base_name + "-" + project.name
-//            from components.java
-//        }
-//    }
-//
-//    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-//    repositories {
-//        if (project.vs_maven_username && project.vs_maven_password) {
-//            println "Publishing to VS Maven"
-//            maven {
-//                url = project.vs_maven_url
-//                credentials {
-//                    username = project.vs_maven_username
-//                    password = project.vs_maven_password
-//                }
-//            }
-//        }
-//        // Add repositories to publish to here.
-//        if (System.getenv("GITHUB_ACTOR") != null) {
-//            println "Publishing to Github Packages"
-//            maven {
-//                name = "GitHubPackages"
-//                url = uri("https://maven.pkg.github.com/ValkyrienSkies/Eureka")
-//                credentials {
-//                    username = System.getenv("GITHUB_ACTOR")
-//                    password = System.getenv("GITHUB_TOKEN")
-//                }
-//            }
-//        }
-//    }
-//}
+test {
+    useJUnitPlatform()
+}

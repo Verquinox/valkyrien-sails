@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "functional",
+  "key": {
+    "S": {
+      "item": "minecraft:crimson_slab"
+    },
+    "R": {
+      "item": "vs_sails:rope"
+    }
+  },
+  "pattern": [
+    " S ",
+    "SRS"
+  ],
+  "result": {
+    "item": "vs_sails:crimson_helm"
+  },
+  "show_notification": true
+}

@@ -1,8 +1,8 @@
 package com.quintonc.vs_sails.items;
 
-import com.quintonc.vs_sails.ValkyrienSails;
-import g_mungus.vlib.api.VLibGameUtils;
+import com.quintonc.vs_sails.util.ConnectivityUtils;
 import com.quintonc.vs_sails.registration.SailsItems;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -17,14 +17,15 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 import org.valkyrienskies.core.api.ships.ServerShip;
-import org.valkyrienskies.core.api.ships.Ship;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
-
+import org.valkyrienskies.mod.common.assembly.ShipAssembler;
 import java.util.Objects;
-import java.util.concurrent.CompletionStage;
+import java.util.Set;
 
 public class DedicationBottle extends Item {
+
 
     public int mode;
 
@@ -34,23 +35,26 @@ public class DedicationBottle extends Item {
     }
 
     @Override
-    public InteractionResult useOn(UseOnContext context) {
+    public @NotNull InteractionResult useOn(UseOnContext context) {
 
         if (!context.getLevel().isClientSide()) {
             if (!VSGameUtilsKt.isBlockInShipyard(context.getLevel(), context.getClickedPos())) {
                 Objects.requireNonNull(context.getPlayer()).getItemInHand(context.getHand()).shrink(1);
-                CompletionStage<Ship> assembly = VLibGameUtils.INSTANCE.assembleByConnectivity((ServerLevel)context.getLevel(), context.getClickedPos());
-                assembly.whenComplete((ship, throwable) -> {
-                    if (ship != null) {
-                        if (context.getItemInHand().hasCustomHoverName()) {
+                ServerLevel serverLevel = (ServerLevel) context.getLevel();
 
-                            ((ServerShip)ship).setSlug(context.getItemInHand().getHoverName().getString()
-                                    .replace(' ', '-')
-                                    .replaceAll("[^a-zA-Z0-9-]", "")
-                            );
-                        }
+                Set<BlockPos> blocksToAssemble = ConnectivityUtils.tryFillByConnectivity(serverLevel, context.getClickedPos(), context.getPlayer());
+                if (blocksToAssemble != null) {
+                    ServerShip ship = ShipAssembler.assembleToShip(serverLevel, blocksToAssemble, 1.0);
+
+                    if (context.getItemInHand().hasCustomHoverName()) {
+
+                        ship.setSlug(context.getItemInHand().getHoverName().getString()
+                                .replace(' ', '-')
+                                .replaceAll("[^a-zA-Z0-9-]", "")
+                        );
                     }
-                });
+                }
+
                 RandomSource random = RandomSource.create();
                 ((ServerLevel) context.getLevel()).sendParticles(
                         new ItemParticleOption(ParticleTypes.ITEM, SailsItems.DEDICATION_BOTTLE.get().getDefaultInstance()),
@@ -72,6 +76,7 @@ public class DedicationBottle extends Item {
                         1.0F,
                         1.0F + (random.nextFloat() - random.nextFloat()) * 0.4F
                 );
+                context.getPlayer().getCooldowns().addCooldown(context.getItemInHand().getItem(), 2000);
                 return InteractionResult.CONSUME;
             }
         }

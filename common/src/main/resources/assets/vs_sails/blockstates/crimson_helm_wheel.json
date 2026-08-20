@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "vs_sails:block/wheels/crimson_helm_wheel",
+      "y": 270
+    },
+    "facing=north": {
+      "model": "vs_sails:block/wheels/crimson_helm_wheel",
+      "y": 180
+    },
+    "facing=south": {
+      "model": "vs_sails:block/wheels/crimson_helm_wheel"
+    },
+    "facing=west": {
+      "model": "vs_sails:block/wheels/crimson_helm_wheel",
+      "y": 90
+    },
+    "facing=up": {
+      "model": "vs_sails:block/wheels/crimson_helm_wheel",
+      "x": 90
+    },
+    "facing=down": {
+      "model": "vs_sails:block/wheels/crimson_helm_wheel",
+      "x": 270
+    }
+  }
+}

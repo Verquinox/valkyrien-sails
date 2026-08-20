@@ -1,0 +1,7 @@
+{
+  "parent": "vs_sails:block/wind_flag/rotate_base",
+  "textures": {
+    "pole": "vs_sails:block/wind_flag_pole",
+    "flag": "vs_sails:block/wind_flag/cyan_wind_flag"
+  }
+}

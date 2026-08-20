@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+
+    {"item": "minecraft:white_wool"},
+    {"item": "vs_sails:rope"},
+    {"item": "minecraft:white_wool"}
+
+  ],
+  "result": {
+    "item": "vs_sails:white_sail",
+    "count": 4
+  }
+}

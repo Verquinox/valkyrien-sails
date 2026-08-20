@@ -1,0 +1,6 @@
+{
+  "parent": "vs_sails:block/helm_base",
+  "textures": {
+    "2": "vs_sails:block/spruce_helm"
+  }
+}

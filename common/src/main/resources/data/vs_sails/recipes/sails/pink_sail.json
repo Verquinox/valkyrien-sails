@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+
+    {"item": "minecraft:pink_wool"},
+    {"item": "vs_sails:rope"},
+    {"item": "minecraft:pink_wool"}
+
+  ],
+  "result": {
+    "item": "vs_sails:pink_sail",
+    "count": 4
+  }
+}

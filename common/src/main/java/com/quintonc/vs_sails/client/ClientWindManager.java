@@ -1,49 +1,35 @@
 package com.quintonc.vs_sails.client;
 
-import com.quintonc.vs_sails.WindManager;
-import com.quintonc.vs_sails.networking.WindModNetworking;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-//import team.lodestar.lodestone.handlers.ScreenshakeHandler;
-//import team.lodestar.lodestone.systems.screenshake.PositionedScreenshakeInstance;
-//import team.lodestar.lodestone.systems.screenshake.ScreenshakeInstance;
+import com.quintonc.vs_sails.wind.WindManager;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.resources.ResourceLocation;
 
 public class ClientWindManager extends WindManager {
 
+    private static ResourceLocation lastDimensionId;
+    private static ClientLevel lastLevel;
 
     public static void InitializeWind() {
+        lastDimensionId = null;
+        lastLevel = null;
+        clearWindData();
+    }
 
-        windStrength = 0;
-        windDirection = 0;
-        windGustiness = 0.125f;
-        windShear = 10;
+    public static void handleClientTick(Minecraft client) {
+        ClientLevel level = client.level;
+        if (level == null) {
+            clearWindData();
+            lastLevel = null;
+            lastDimensionId = null;
+            return;
+        }
 
-        assert WindModNetworking.WINDSTRENGTHS2CPACKET != null;
-        ClientPlayNetworking.registerGlobalReceiver(WindModNetworking.WINDSTRENGTHS2CPACKET, (client, handler, buf, responseSender) -> {
-
-            if (buf.readableBytes() >= 4) { // Ensure there are enough bytes to read a float
-                float strength = buf.readFloat();
-
-                client.execute(() -> {
-                    windStrength = strength;
-                });
-            } else {
-                System.out.println("Client: Buffer does not have enough bytes to read a float");
-            }
-        });
-
-        assert WindModNetworking.WINDDIRECTIONS2CPACKET != null;
-        ClientPlayNetworking.registerGlobalReceiver(WindModNetworking.WINDDIRECTIONS2CPACKET, (client, handler, buf, responseSender) -> {
-
-            if (buf.readableBytes() >= 4) { // Ensure there are enough bytes to read a float
-                float direction = buf.readFloat();
-
-                client.execute(() -> {
-                    windDirection = direction;
-//                    client.inGameHud.getChatHud().addMessage(Text.of("Direction: " + direction));
-                });
-            } else {
-                System.out.println("Client: Buffer does not have enough bytes to read a float");
-            }
-        });
+        ResourceLocation currentDim = level.dimension().location();
+        if (level != lastLevel || !currentDim.equals(lastDimensionId)) {
+            clearWindData();
+            lastLevel = level;
+            lastDimensionId = currentDim;
+        }
     }
 }
