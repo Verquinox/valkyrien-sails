@@ -34,7 +34,7 @@ public class ValkyrienSailsClient {
 //            registry.register(new Identifier(MOD_ID, PARTICLE));
 //        }));
 
-        PacketHandler.register();
+        PacketHandler.registerClient();
 
         if (!(ValkyrienSails.weather2 || ValkyrienSails.projectAtmosphere)) {
             //ClientTickEvents.END_CLIENT_TICK.register(ModSounds::windSoundHandler);
