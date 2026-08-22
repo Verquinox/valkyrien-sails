@@ -209,6 +209,19 @@ public abstract class BaseHelmBlockEntity extends BlockEntity implements Clearab
         return wheelAngle;
     }
 
+    public void setWheelAngle(int requestedAngle) {
+        wheelAngle = Math.max(0, Math.min(maxAngle, requestedAngle));
+        setChanged();
+
+        if (level instanceof ServerLevel serverLevel) {
+            FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+            buf.writeInt(wheelAngle);
+            buf.writeBlockPos(worldPosition);
+            NetworkManager.sendToPlayers(serverLevel.getServer().getPlayerList().getPlayers(),
+                    PacketHandler.WHEEL_ANGLE_PACKET, buf);
+        }
+    }
+
     @Override
     public void setChanged() {
         assert level != null;

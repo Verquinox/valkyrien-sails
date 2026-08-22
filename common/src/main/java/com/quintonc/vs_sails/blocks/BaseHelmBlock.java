@@ -1,6 +1,7 @@
 package com.quintonc.vs_sails.blocks;
 
 import com.quintonc.vs_sails.blocks.entity.BaseHelmBlockEntity;
+import com.quintonc.vs_sails.config.ConfigUtils;
 import com.quintonc.vs_sails.networking.PacketHandler;
 import com.quintonc.vs_sails.ship.SailsShipControl;
 import dev.architectury.networking.NetworkManager;
@@ -13,6 +14,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
@@ -164,17 +166,20 @@ public abstract class BaseHelmBlock extends BaseEntityBlock implements ICopyable
             if (be instanceof BaseHelmBlockEntity blockEntity) {
                 ItemStack heldItem = player.getItemInHand(InteractionHand.MAIN_HAND);
                 if (!blockEntity.getFirstItem().isEmpty()) {
-                    if (VSGameUtilsKt.isBlockInShipyard(world, pos)) {
+                    if (Boolean.parseBoolean(ConfigUtils.config.getOrDefault("drag-helm-control", "true"))) {
+                        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+                        buf.writeBlockPos(pos);
+                        buf.writeInt(blockEntity.wheelAngle);
+                        NetworkManager.sendToPlayer((ServerPlayer) player, PacketHandler.OPEN_HELM_SCREEN_PACKET, buf);
+                    } else if (VSGameUtilsKt.isBlockInShipyard(world, pos)) {
                         blockEntity.sit(player);
-
                     } else {
-                        //todo make this properly work with non 360 factors (the two methods)
                         if (player.isShiftKeyDown()) {
-                            blockEntity.rotateWheelLeft(state, (ServerLevel)world, pos);
+                            blockEntity.rotateWheelLeft(state, (ServerLevel) world, pos);
                         } else {
-                            blockEntity.rotateWheelRight(state, (ServerLevel)world, pos);
+                            blockEntity.rotateWheelRight(state, (ServerLevel) world, pos);
                         }
-                        player.displayClientMessage(Component.literal("Angle: "+ blockEntity.wheelAngle), true);
+                        player.displayClientMessage(Component.literal("Angle: " + blockEntity.wheelAngle), true);
                     }
                 } else if (blockEntity.canPlaceItem(0, heldItem)) {
                     blockEntity.setItem(0, heldItem.copyWithCount(1));

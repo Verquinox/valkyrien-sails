@@ -79,6 +79,7 @@ public class ConfigUtils {
         defaults.add("forgiving-sails = false #[Default: false] Enable this if you want the wind direction to matter less to the sails");
         defaults.add("\n#Helm Options");
         defaults.add("rudder-power = 1.0 #[Default: 1.0]");
+        defaults.add("drag-helm-control = true #[Default: true] Hold and drag the mouse to steer. Set false to sit at ship helms and click stationary helms");
         defaults.add("realistic-rudder = true #[Default: true] Is the rudder turning force dependent on the ship's speed");
         defaults.add("keel-power = 4.0 #[Default: 4.0] How strongly ships resist drifting");
         defaults.add("wheel-interval = 6 #[Default: 6] How many degrees the wheel will turn per tick. MUST BE A FACTOR OF 360!!!");

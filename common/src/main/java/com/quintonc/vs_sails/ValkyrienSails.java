@@ -7,6 +7,7 @@ import com.quintonc.vs_sails.config.ConfigUtils;
 import com.quintonc.vs_sails.registration.SailsBlocks;
 import com.quintonc.vs_sails.registration.SailsItems;
 import com.quintonc.vs_sails.registration.SailsRecipes;
+import com.quintonc.vs_sails.networking.PacketHandler;
 import com.quintonc.vs_sails.ship.SailsShipControl;
 import com.quintonc.vs_sails.util.SailsCommands;
 import com.quintonc.vs_sails.wind.ServerWindManager;
@@ -73,6 +74,7 @@ public class ValkyrienSails {
     public static void init() {
         LOGGER.info("Common Init");
         ConfigUtils.checkConfigs();
+        PacketHandler.registerServer();
 
         ValkyrienSkies.api().registerAttachment(ValkyrienSkies.api()
                 .newAttachmentRegistrationBuilder(SailsShipControl.class)
