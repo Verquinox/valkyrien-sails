@@ -1,5 +1,6 @@
 package com.quintonc.vs_sails.blocks;
 
+import com.quintonc.vs_sails.ValkyrienSails;
 import com.quintonc.vs_sails.registration.SailsBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -95,7 +96,7 @@ public abstract class SailToggleBlock extends Block {
             }
         }
 
-        TagKey<Item> tag = TagKey.create(Registries.ITEM, new ResourceLocation("sail_togglers"));
+        TagKey<Item> tag = TagKey.create(Registries.ITEM, new ResourceLocation(ValkyrienSails.MOD_ID, "sail_togglers"));
         if (!heldItem.is(tag)) {
             if (!world.isClientSide) {
                 //if the sail is set, stow the sail, else set it

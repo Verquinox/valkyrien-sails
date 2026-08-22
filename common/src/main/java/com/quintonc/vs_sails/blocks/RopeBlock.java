@@ -1,5 +1,6 @@
 package com.quintonc.vs_sails.blocks;
 
+import com.quintonc.vs_sails.ValkyrienSails;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -115,7 +116,7 @@ public class RopeBlock extends SailToggleBlock {
     }
 
     private boolean canConnectToRope(BlockState state) {
-        TagKey<Item> tag = TagKey.create(Registries.ITEM, new ResourceLocation("sail_togglers"));
+        TagKey<Item> tag = TagKey.create(Registries.ITEM, new ResourceLocation(ValkyrienSails.MOD_ID, "sail_togglers"));
         return state.getBlock().asItem().getDefaultInstance().is(tag) == this.asItem().getDefaultInstance().is(tag);
     }
 
